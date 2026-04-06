@@ -8,11 +8,11 @@ import { createClient } from '@/lib/supabase/client';
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const supabase = createClient();
 
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError('');
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
