@@ -8,12 +8,19 @@ import {
 } from './types';
 import { INITIAL_STATE } from './mockData';
 import { v4 as uuidv4 } from 'uuid';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Lazy Supabase client — avoids "supabaseUrl is required" during SSR prerender
+let _supabase: SupabaseClient | null = null;
+function getSupabase() {
+  if (!_supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) return null;
+    _supabase = createClient(url, key);
+  }
+  return _supabase;
+}
 
 type Action =
   | { type: 'SET_ACTIVE_PROJECT'; payload: string }
@@ -349,9 +356,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // Load from Supabase on mount
   useEffect(() => {
     async function loadFromSupabase() {
+      const sb = getSupabase();
+      if (!sb) return;
       isLoadingRef.current = true;
       try {
-        const { data, error } = await supabase
+        const { data, error } = await sb
           .from('workspace_state')
           .select('data, updated_at')
           .eq('id', 'main')
@@ -371,7 +380,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         } else {
           // First time — save initial state to Supabase
           const shared = getSharedData(INITIAL_STATE);
-          await supabase
+          await sb
             .from('workspace_state')
             .upsert({ id: 'main', data: shared, updated_at: new Date().toISOString() });
         }
@@ -384,8 +393,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
     loadFromSupabase();
 
+    const sb = getSupabase();
+    if (!sb) return;
+
     // Realtime subscription — when another user makes changes
-    const channel = supabase
+    const channel = sb
       .channel('workspace_changes')
       .on('postgres_changes', {
         event: 'UPDATE',
@@ -406,7 +418,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      sb.removeChannel(channel);
     };
   }, []);
 
@@ -418,10 +430,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
     pendingSyncRef.current = setTimeout(async () => {
       try {
+        const sb = getSupabase();
+        if (!sb) return;
         const shared = getSharedData(state);
         const now = new Date().toISOString();
         lastSyncRef.current = now;
-        await supabase
+        await sb
           .from('workspace_state')
           .upsert({ id: 'main', data: shared, updated_at: now });
       } catch (e) {
