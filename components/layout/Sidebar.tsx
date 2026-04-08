@@ -17,6 +17,7 @@ export function Sidebar() {
     { section: 'dashboard', icon: 'dashboard', label: 'תפעול' },
     { section: 'automations', icon: 'bolt', label: 'אוטומציות' },
     { section: 'projects', icon: 'event', label: 'ניהול פרויקטים' },
+    { section: 'users', icon: 'group', label: 'משתמשים' },
   ];
 
   return (

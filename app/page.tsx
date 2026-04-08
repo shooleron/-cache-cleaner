@@ -11,6 +11,7 @@ import { CalendarView } from '@/components/views/CalendarView';
 import { ContactsView } from '@/components/crm/ContactsView';
 import { DealsView } from '@/components/crm/DealsView';
 import { AutomationsPanel } from '@/components/automations/AutomationsPanel';
+import { UsersView } from '@/components/views/UsersView';
 import { AIAgentPanel } from '@/components/ai/AIAgentPanel';
 import { NotificationsPanel } from '@/components/panels/NotificationsPanel';
 import { TaskModal } from '@/components/modals/TaskModal';
@@ -26,6 +27,7 @@ function AppContent() {
       return state.activeCRMView === 'deals' ? <DealsView /> : <ContactsView />;
     }
     if (state.activeSection === 'automations') return <AutomationsPanel />;
+    if (state.activeSection === 'users') return <UsersView />;
     switch (state.activeView) {
       case 'kanban': return <KanbanView />;
       case 'roadmap': return <RoadmapView />;
