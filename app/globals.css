@@ -1884,28 +1884,149 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   overflow: hidden;
   box-shadow: var(--shadow-sm);
 }
-.table-column-headers {
-  display: grid;
-  grid-template-columns: 1fr 140px 140px 110px 100px 40px;
-  padding: 0;
+
+/* ── Dynamic column header bar ── */
+.table-col-header-row {
+  display: flex;
+  flex-direction: row-reverse;
   background: var(--surface-container-low);
   border-bottom: 2px solid var(--card-border);
-  margin-bottom: 0;
-  border-radius: 0;
-  border: none;
+  overflow: hidden;
 }
-.col-header {
+
+.table-col-header {
+  position: relative;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+  height: 38px;
+  border-left: 1px solid var(--card-border);
+  flex-shrink: 0;
+  overflow: hidden;
+  user-select: none;
+}
+.table-col-header:first-child { border-left: none; }
+.table-col-header.col-drag-over { background: var(--primary-fixed); }
+
+.col-header-label {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  text-align: right;
+}
+
+.col-drag-handle {
+  color: var(--outline);
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.15s;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.table-col-header:hover .col-drag-handle { opacity: 1; }
+.col-drag-handle:active { cursor: grabbing; }
+
+.col-remove-btn {
+  background: none;
+  border: none;
+  color: var(--outline);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 0 2px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.table-col-header:hover .col-remove-btn { opacity: 1; }
+.col-remove-btn:hover { color: var(--error); }
+
+/* Resize handle — thin strip on the left edge (RTL) */
+.col-resize-handle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  cursor: col-resize;
+  z-index: 10;
+}
+.col-resize-handle:hover,
+.col-resize-handle:active {
+  background: var(--primary);
+  opacity: 0.5;
+}
+
+/* Add-column button */
+.add-col-header { justify-content: center; cursor: pointer; }
+.add-col-btn {
+  background: none;
+  border: none;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  transition: background 0.15s, color 0.15s;
+}
+.add-col-btn:hover { background: var(--primary-fixed); color: var(--primary); }
+
+/* Column picker dropdown */
+.col-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  min-width: 180px;
+  overflow: hidden;
+}
+.col-picker-title {
+  padding: 10px 14px 6px;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--on-surface-variant);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   text-align: right;
-  padding: 10px 14px;
-  border-left: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--card-border);
 }
-.col-header:last-child { border-left: none; }
-.col-header.task-col { border-left: none; }
+.col-picker-option {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--on-surface);
+  cursor: pointer;
+  text-align: right;
+  transition: background 0.15s;
+  border-bottom: 1px solid rgba(201,196,214,0.08);
+}
+.col-picker-option:last-child { border-bottom: none; }
+.col-picker-option:hover { background: var(--primary-fixed); color: var(--primary); }
+.col-picker-empty { padding: 12px 14px; font-size: 12px; color: var(--on-surface-variant); text-align: right; }
+
+/* Group color swatch */
+.group-color-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* Keep old .table-column-headers for any legacy use */
+.table-column-headers { display: none; }
+.col-header { display: none; }
 .group-collapse-btn {
   background: none;
   border: none;
