@@ -3,7 +3,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useStore } from '@/lib/store';
 import { Task, TaskStatus, TaskPriority } from '@/lib/types';
-import { Plus, Trash2, ChevronDown, ChevronRight, GripVertical } from 'lucide-react';
 
 // ── Column definitions ──────────────────────────────────────────
 type ColId = 'title' | 'assignee' | 'status' | 'priority' | 'dueDate' | 'startDate' | 'tags' | 'timeTracked';
@@ -170,7 +169,7 @@ function TaskRow({ task, cols }: { task: Task; cols: ColDef[] }) {
       <td className="table-cell actions-cell" style={{ width: 40, minWidth: 40 }}>
         <button className="row-action-btn" title="מחק"
           onClick={() => dispatch({ type: 'DELETE_TASK', payload: task.id })}>
-          <Trash2 size={13} />
+          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>delete</span>
         </button>
       </td>
     </tr>
@@ -200,7 +199,7 @@ function GroupSection({ groupId, projectId, cols }: { groupId: string; projectId
     <div className="table-group">
       <div className="table-group-header">
         <button className="group-collapse-btn" onClick={() => setCollapsed(c => !c)}>
-          {collapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{collapsed ? 'chevron_left' : 'expand_more'}</span>
         </button>
         <span className="group-color-swatch" style={{ background: group.color }} />
         <span className="group-name" style={{ color: group.color }}>{group.name}</span>
@@ -229,7 +228,7 @@ function GroupSection({ groupId, projectId, cols }: { groupId: string; projectId
             </tbody>
           </table>
           <button className="add-task-btn" onClick={() => setAddingTask(true)}>
-            <Plus size={13} /> הוסף פריט
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span> הוסף פריט
           </button>
         </>
       )}
@@ -343,7 +342,7 @@ export function TableView() {
           >
             {!col.fixed && (
               <span className="col-drag-handle" title="גרור להזזה">
-                <GripVertical size={12} />
+                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>drag_indicator</span>
               </span>
             )}
             <span className="col-header-label">{col.label}</span>
@@ -360,14 +359,14 @@ export function TableView() {
         {/* Add column button */}
         <div className="table-col-header add-col-header" style={{ width: 44, minWidth: 44, flex: 'none', position: 'relative' }}>
           <button className="add-col-btn" onClick={() => setShowColPicker(o => !o)} title="הוסף עמודה">
-            <Plus size={14} />
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
           </button>
           {showColPicker && (
             <div className="col-picker-dropdown">
               <div className="col-picker-title">הוסף עמודה</div>
               {availableCols.map(c => (
                 <div key={c.id} className="col-picker-option" onClick={() => addCol(c.id, c.label)}>
-                  <Plus size={12} />
+                  <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span>
                   {c.label}
                 </div>
               ))}
@@ -394,7 +393,7 @@ export function TableView() {
         </div>
       ) : (
         <button className="add-group-btn" onClick={() => setAddingGroup(true)}>
-          <Plus size={14} /> הוסף קבוצה
+          <span className="material-symbols-outlined" style={{ fontSize: 15 }}>add</span> הוסף קבוצה
         </button>
       )}
     </div>

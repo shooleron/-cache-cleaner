@@ -2,17 +2,16 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from '@/lib/store';
-import { X, Send, Bot, Sparkles, Loader2, Zap, ChevronDown } from 'lucide-react';
 import { AIMessage, AIAction } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
 const QUICK_PROMPTS = [
-  'What are the overdue tasks?',
-  'Show me the pipeline summary',
-  'Which tasks are stuck?',
-  'Create a weekly status report',
-  'What should I focus on today?',
-  'Analyze my deals pipeline',
+  'מה המשימות שחלפו את המועד שלהן?',
+  'תן לי סיכום של הפייפליין',
+  'אילו משימות תקועות?',
+  'צור דוח סטטוס שבועי',
+  'על מה כדאי לי להתמקד היום?',
+  'נתח את עסקאות המכירה',
 ];
 
 function formatMarkdown(text: string): string {
@@ -30,7 +29,7 @@ function formatMarkdown(text: string): string {
 function ActionButton({ action, onExecute }: { action: AIAction; onExecute: (action: AIAction) => void }) {
   return (
     <button className="ai-action-btn" onClick={() => onExecute(action)}>
-      <Zap size={12} />
+      <span className="material-symbols-outlined" style={{ fontSize: 13 }}>bolt</span>
       {action.label}
     </button>
   );
@@ -86,28 +85,22 @@ export function AIAgentPanel() {
       });
 
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'שגיאה בקבלת תגובה');
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to get response');
-      }
-
-      const assistantMsg: AIMessage = {
+      dispatch({ type: 'ADD_AI_MESSAGE', payload: {
         id: uuidv4(),
         role: 'assistant',
         content: data.text,
         createdAt: new Date().toISOString(),
         actions: data.actions || undefined,
-      };
-
-      dispatch({ type: 'ADD_AI_MESSAGE', payload: assistantMsg });
+      }});
     } catch (err) {
-      const errorMsg: AIMessage = {
+      dispatch({ type: 'ADD_AI_MESSAGE', payload: {
         id: uuidv4(),
         role: 'assistant',
-        content: err instanceof Error ? `⚠️ ${err.message}` : '⚠️ Something went wrong. Please check your API key.',
+        content: err instanceof Error ? `⚠️ ${err.message}` : '⚠️ שגיאה. בדוק את הגדרות ה-API.',
         createdAt: new Date().toISOString(),
-      };
-      dispatch({ type: 'ADD_AI_MESSAGE', payload: errorMsg });
+      }});
     } finally {
       setIsLoading(false);
     }
@@ -115,27 +108,17 @@ export function AIAgentPanel() {
 
   function executeAction(action: AIAction) {
     if (action.type === 'create_task') {
-      const p = action.payload as { title?: string; projectId?: string; priority?: string; status?: string };
+      const p = action.payload as { title?: string; projectId?: string };
       const projectId = p.projectId || state.activeProjectId || state.projects[0]?.id;
       const group = state.groups.find(g => g.projectId === projectId);
       if (projectId && group) {
-        dispatch({ type: 'CREATE_TASK', payload: { projectId, groupId: group.id, title: p.title || 'New Task' } });
-        dispatch({ type: 'ADD_AI_MESSAGE', payload: {
-          id: uuidv4(),
-          role: 'assistant',
-          content: `✅ Task "${p.title}" has been created!`,
-          createdAt: new Date().toISOString(),
-        }});
+        dispatch({ type: 'CREATE_TASK', payload: { projectId, groupId: group.id, title: p.title || 'משימה חדשה' } });
+        dispatch({ type: 'ADD_AI_MESSAGE', payload: { id: uuidv4(), role: 'assistant', content: `✅ משימה "${p.title}" נוצרה!`, createdAt: new Date().toISOString() }});
       }
     } else if (action.type === 'create_contact') {
       const p = action.payload as { name?: string; email?: string; company?: string };
       dispatch({ type: 'CREATE_CONTACT', payload: { name: p.name || '', email: p.email || '', company: p.company || '', phone: '', position: '', status: 'prospect', tags: [], notes: '', ownerId: state.currentUser.id } });
-      dispatch({ type: 'ADD_AI_MESSAGE', payload: {
-        id: uuidv4(),
-        role: 'assistant',
-        content: `✅ Contact "${p.name}" has been created!`,
-        createdAt: new Date().toISOString(),
-      }});
+      dispatch({ type: 'ADD_AI_MESSAGE', payload: { id: uuidv4(), role: 'assistant', content: `✅ איש קשר "${p.name}" נוצר!`, createdAt: new Date().toISOString() }});
     }
   }
 
@@ -154,23 +137,23 @@ export function AIAgentPanel() {
       <div className="ai-panel-header">
         <div className="ai-panel-title">
           <div className="ai-panel-icon">
-            <Sparkles size={16} />
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>auto_awesome</span>
           </div>
           <div>
-            <div className="ai-panel-name">AI Assistant</div>
-            <div className="ai-panel-model">Powered by Claude</div>
+            <div className="ai-panel-name">AI אסיסטנט</div>
+            <div className="ai-panel-model">מופעל על ידי Claude</div>
           </div>
         </div>
         <div className="ai-panel-header-actions">
           <button
             className="ai-clear-btn"
             onClick={() => { dispatch({ type: 'CLEAR_AI_MESSAGES' }); setShowQuickPrompts(true); }}
-            title="Clear conversation"
+            title="נקה שיחה"
           >
-            Clear
+            נקה
           </button>
-          <button className="modal-close" onClick={() => dispatch({ type: 'TOGGLE_AI_PANEL' })}>
-            <X size={18} />
+          <button className="modal-close-btn" onClick={() => dispatch({ type: 'TOGGLE_AI_PANEL' })}>
+            <span className="material-symbols-outlined">close</span>
           </button>
         </div>
       </div>
@@ -180,10 +163,10 @@ export function AIAgentPanel() {
         {state.aiMessages.length === 0 && (
           <div className="ai-welcome">
             <div className="ai-welcome-icon">
-              <Bot size={32} />
+              <span className="material-symbols-outlined" style={{ fontSize: 32 }}>smart_toy</span>
             </div>
-            <h3>Hi, I&apos;m your AI assistant!</h3>
-            <p>I can help you manage tasks, analyze your pipeline, create contacts, generate reports, and more.</p>
+            <h3>שלום, אני האסיסטנט שלך!</h3>
+            <p>אני יכול לעזור לך לנהל משימות, לנתח את הפייפליין, ליצור אנשי קשר, ועוד.</p>
           </div>
         )}
 
@@ -191,7 +174,7 @@ export function AIAgentPanel() {
           <div key={msg.id} className={`ai-message ai-message-${msg.role}`}>
             {msg.role === 'assistant' && (
               <div className="ai-bubble-icon">
-                <Sparkles size={12} />
+                <span className="material-symbols-outlined" style={{ fontSize: 12 }}>auto_awesome</span>
               </div>
             )}
             <div className="ai-bubble">
@@ -207,7 +190,7 @@ export function AIAgentPanel() {
                 </div>
               )}
               <div className="ai-bubble-time">
-                {new Date(msg.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                {new Date(msg.createdAt).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
           </div>
@@ -216,11 +199,11 @@ export function AIAgentPanel() {
         {isLoading && (
           <div className="ai-message ai-message-assistant">
             <div className="ai-bubble-icon">
-              <Sparkles size={12} />
+              <span className="material-symbols-outlined" style={{ fontSize: 12 }}>auto_awesome</span>
             </div>
             <div className="ai-bubble ai-bubble-loading">
-              <Loader2 size={16} className="ai-spinner" />
-              <span>Thinking...</span>
+              <span className="material-symbols-outlined ai-spinner" style={{ fontSize: 18 }}>progress_activity</span>
+              <span>חושב...</span>
             </div>
           </div>
         )}
@@ -231,7 +214,7 @@ export function AIAgentPanel() {
       {/* Quick prompts */}
       {showQuickPrompts && state.aiMessages.length === 0 && (
         <div className="ai-quick-prompts">
-          <div className="ai-quick-prompts-label">Try asking:</div>
+          <div className="ai-quick-prompts-label">נסה לשאול:</div>
           <div className="ai-quick-prompts-grid">
             {QUICK_PROMPTS.map(prompt => (
               <button key={prompt} className="ai-quick-prompt-btn" onClick={() => sendMessage(prompt)}>
@@ -247,7 +230,7 @@ export function AIAgentPanel() {
         <textarea
           ref={inputRef}
           className="ai-input"
-          placeholder="Ask anything about your workspace..."
+          placeholder="שאל כל שאלה על סביבת העבודה שלך..."
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -259,10 +242,12 @@ export function AIAgentPanel() {
           onClick={() => sendMessage()}
           disabled={!input.trim() || isLoading}
         >
-          {isLoading ? <Loader2 size={16} className="ai-spinner" /> : <Send size={16} />}
+          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+            {isLoading ? 'progress_activity' : 'send'}
+          </span>
         </button>
       </div>
-      <div className="ai-footer-note">Claude has access to your workspace data</div>
+      <div className="ai-footer-note">Claude ניגש לנתוני סביבת העבודה שלך</div>
     </div>
   );
 }

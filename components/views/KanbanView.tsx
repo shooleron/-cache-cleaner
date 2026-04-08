@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { Task, TaskStatus } from '@/lib/types';
-import { Plus, Trash2 } from 'lucide-react';
 import {
   DndContext, DragEndEvent, DragOverlay, DragStartEvent,
   closestCenter, PointerSensor, useSensor, useSensors
@@ -12,11 +11,11 @@ import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 
 const COLUMNS: { id: TaskStatus; label: string; color: string }[] = [
-  { id: 'backlog', label: 'Backlog', color: '#9c27b0' },
-  { id: 'todo', label: 'To Do', color: '#c4c4c4' },
-  { id: 'in_progress', label: 'Working on it', color: '#fdab3d' },
-  { id: 'stuck', label: 'Stuck', color: '#e2445c' },
-  { id: 'done', label: 'Done', color: '#00c875' },
+  { id: 'backlog',     label: 'בקלוג',   color: '#9c27b0' },
+  { id: 'todo',        label: 'לביצוע',  color: '#c4c4c4' },
+  { id: 'in_progress', label: 'בתהליך',  color: '#fdab3d' },
+  { id: 'stuck',       label: 'תקוע',    color: '#e2445c' },
+  { id: 'done',        label: 'הושלם',   color: '#00c875' },
 ];
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -34,7 +33,7 @@ function KanbanCard({ task, isDragging }: { task: Task; isDragging?: boolean }) 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.4 : 1,
   };
 
   return (
@@ -47,11 +46,7 @@ function KanbanCard({ task, isDragging }: { task: Task; isDragging?: boolean }) 
       onClick={() => dispatch({ type: 'OPEN_TASK_MODAL', payload: task.id })}
     >
       <div className="kanban-card-header">
-        <span
-          className="priority-dot"
-          style={{ background: PRIORITY_COLORS[task.priority] }}
-          title={task.priority}
-        />
+        <span className="priority-dot" style={{ background: PRIORITY_COLORS[task.priority] }} />
         <button
           className="card-delete-btn"
           onClick={e => {
@@ -59,12 +54,15 @@ function KanbanCard({ task, isDragging }: { task: Task; isDragging?: boolean }) 
             dispatch({ type: 'DELETE_TASK', payload: task.id });
           }}
         >
-          <Trash2 size={11} />
+          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>delete</span>
         </button>
       </div>
       <p className="kanban-card-title">{task.title}</p>
       {task.dueDate && (
-        <p className="kanban-card-date">📅 {new Date(task.dueDate).toLocaleDateString('he-IL')}</p>
+        <p className="kanban-card-date">
+          <span className="material-symbols-outlined" style={{ fontSize: 12 }}>calendar_today</span>
+          {new Date(task.dueDate).toLocaleDateString('he-IL')}
+        </p>
       )}
       <div className="kanban-card-footer">
         <div className="card-avatars">
@@ -75,7 +73,10 @@ function KanbanCard({ task, isDragging }: { task: Task; isDragging?: boolean }) 
           ))}
         </div>
         {task.comments.length > 0 && (
-          <span className="comment-count">💬 {task.comments.length}</span>
+          <span className="comment-count">
+            <span className="material-symbols-outlined" style={{ fontSize: 12 }}>chat_bubble</span>
+            {task.comments.length}
+          </span>
         )}
       </div>
     </div>
@@ -91,12 +92,11 @@ function KanbanColumn({ status, tasks }: { status: typeof COLUMNS[0]; tasks: Tas
 
   const handleAddTask = () => {
     if (newTaskTitle.trim() && state.activeProjectId && firstGroupId) {
-      const taskId = dispatch({ type: 'CREATE_TASK', payload: {
+      dispatch({ type: 'CREATE_TASK', payload: {
         projectId: state.activeProjectId,
         groupId: firstGroupId,
         title: newTaskTitle.trim(),
-      } });
-      // update status after creation — we'll update via a different approach
+      }});
       setNewTaskTitle('');
       setAddingTask(false);
     }
@@ -124,7 +124,7 @@ function KanbanColumn({ status, tasks }: { status: typeof COLUMNS[0]; tasks: Tas
         <div className="kanban-add-form">
           <input
             className="kanban-new-input"
-            placeholder="Task name..."
+            placeholder="שם המשימה..."
             value={newTaskTitle}
             onChange={e => setNewTaskTitle(e.target.value)}
             onKeyDown={e => {
@@ -137,8 +137,8 @@ function KanbanColumn({ status, tasks }: { status: typeof COLUMNS[0]; tasks: Tas
         </div>
       ) : (
         <button className="kanban-add-btn" onClick={() => setAddingTask(true)}>
-          <Plus size={13} />
-          Add Card
+          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span>
+          הוסף כרטיס
         </button>
       )}
     </div>
@@ -162,16 +162,10 @@ export function KanbanView() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveTaskId(null);
-
     if (!over) return;
-
-    // Find which column the card was dropped into
     const overTask = state.tasks.find(t => t.id === over.id);
     if (overTask && overTask.id !== active.id) {
-      dispatch({
-        type: 'MOVE_TASK',
-        payload: { taskId: active.id as string, newStatus: overTask.status },
-      });
+      dispatch({ type: 'MOVE_TASK', payload: { taskId: active.id as string, newStatus: overTask.status } });
     }
   };
 
@@ -187,9 +181,7 @@ export function KanbanView() {
       <div className="kanban-board">
         {COLUMNS.map(col => {
           const colTasks = projectTasks.filter(t => t.status === col.id);
-          return (
-            <KanbanColumn key={col.id} status={col} tasks={colTasks} />
-          );
+          return <KanbanColumn key={col.id} status={col} tasks={colTasks} />;
         })}
       </div>
       <DragOverlay>

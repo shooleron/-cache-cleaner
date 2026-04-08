@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
-import { X } from 'lucide-react';
 
 const PROJECT_COLORS = [
   '#0073ea', '#e2445c', '#fdab3d', '#00c875', '#9c27b0',
@@ -36,16 +35,16 @@ export function NewProjectModal() {
     <div className="modal-overlay" onClick={() => dispatch({ type: 'CLOSE_NEW_PROJECT_MODAL' })}>
       <div className="small-modal" onClick={e => e.stopPropagation()}>
         <div className="small-modal-header">
-          <h2>New Project</h2>
           <button className="modal-close-btn" onClick={() => dispatch({ type: 'CLOSE_NEW_PROJECT_MODAL' })}>
-            <X size={18} />
+            <span className="material-symbols-outlined">close</span>
           </button>
+          <h2>פרויקט חדש</h2>
         </div>
 
         <div className="small-modal-body">
           {/* Icon picker */}
           <div className="form-field">
-            <label>Icon</label>
+            <label>אייקון</label>
             <div className="icon-grid">
               {PROJECT_ICONS.map(i => (
                 <button
@@ -61,10 +60,10 @@ export function NewProjectModal() {
 
           {/* Name */}
           <div className="form-field">
-            <label>Project Name *</label>
+            <label>שם הפרויקט *</label>
             <input
               className="form-input"
-              placeholder="e.g. Website Redesign"
+              placeholder="למשל: עיצוב מחדש של האתר"
               value={name}
               onChange={e => setName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleCreate()}
@@ -74,10 +73,10 @@ export function NewProjectModal() {
 
           {/* Description */}
           <div className="form-field">
-            <label>Description</label>
+            <label>תיאור</label>
             <textarea
               className="form-input form-textarea"
-              placeholder="What is this project about?"
+              placeholder="על מה הפרויקט?"
               value={description}
               onChange={e => setDescription(e.target.value)}
               rows={2}
@@ -86,7 +85,7 @@ export function NewProjectModal() {
 
           {/* Color picker */}
           <div className="form-field">
-            <label>Color</label>
+            <label>צבע</label>
             <div className="color-grid">
               {PROJECT_COLORS.map(c => (
                 <button
@@ -100,25 +99,26 @@ export function NewProjectModal() {
           </div>
 
           {/* Preview */}
-          <div className="project-preview" style={{ borderLeft: `4px solid ${color}` }}>
+          <div className="project-preview" style={{ borderRight: `4px solid ${color}`, borderLeft: 'none' }}>
             <span className="preview-icon">{icon}</span>
-            <div>
-              <div className="preview-name">{name || 'Project Name'}</div>
-              <div className="preview-desc">{description || 'No description'}</div>
+            <div style={{ textAlign: 'right' }}>
+              <div className="preview-name">{name || 'שם הפרויקט'}</div>
+              <div className="preview-desc">{description || 'אין תיאור'}</div>
             </div>
           </div>
         </div>
 
         <div className="small-modal-footer">
-          <button className="btn-secondary" onClick={() => dispatch({ type: 'CLOSE_NEW_PROJECT_MODAL' })}>
-            Cancel
-          </button>
           <button
             className="btn-primary"
             onClick={handleCreate}
             disabled={!name.trim()}
           >
-            Create Project
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
+            צור פרויקט
+          </button>
+          <button className="btn-secondary" onClick={() => dispatch({ type: 'CLOSE_NEW_PROJECT_MODAL' })}>
+            ביטול
           </button>
         </div>
       </div>

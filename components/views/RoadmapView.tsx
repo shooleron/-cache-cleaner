@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { Task } from '@/lib/types';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { addDays, startOfMonth, endOfMonth, eachDayOfInterval, format, isToday, differenceInDays, parseISO, startOfWeek, endOfWeek } from 'date-fns';
 
 type Zoom = 'week' | 'month' | 'quarter';

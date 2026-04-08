@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Task } from '@/lib/types';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -70,11 +69,11 @@ export function CalendarView() {
         {/* Calendar Header */}
         <div className="calendar-header">
           <button className="cal-nav-btn" onClick={() => setViewDate(new Date(year, month - 1, 1))}>
-            <ChevronLeft size={16} />
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>chevron_right</span>
           </button>
           <h2 className="calendar-month-title">{MONTHS[month]} {year}</h2>
           <button className="cal-nav-btn" onClick={() => setViewDate(new Date(year, month + 1, 1))}>
-            <ChevronRight size={16} />
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>chevron_left</span>
           </button>
           <button
             className="cal-today-btn"
