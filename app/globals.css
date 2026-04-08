@@ -1324,13 +1324,183 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .calendar-side-title { font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; color: var(--on-surface); margin-bottom: 12px; text-align: right; }
 
 /* ── ROADMAP ── */
-.roadmap-view { overflow-x: auto; }
-.roadmap-header { display: flex; flex-direction: row-reverse; margin-bottom: 4px; padding-right: 200px; }
-.roadmap-month-label { flex: 1; font-size: 11px; font-weight: 600; color: var(--on-surface-variant); text-align: center; text-transform: uppercase; }
-.roadmap-row { display: flex; flex-direction: row-reverse; align-items: center; margin-bottom: 6px; min-height: 36px; }
-.roadmap-task-name { width: 200px; min-width: 200px; font-size: 13px; color: var(--on-surface-variant); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 12px; text-align: right; }
-.roadmap-bar-area { flex: 1; position: relative; height: 28px; background: var(--surface-container-low); border-radius: var(--radius-sm); overflow: hidden; }
-.roadmap-bar { position: absolute; height: 100%; border-radius: var(--radius); display: flex; align-items: center; padding: 0 8px; font-size: 11px; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; }
+.roadmap-container { display: flex; flex-direction: column; gap: 16px; }
+
+.roadmap-controls {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.zoom-tabs {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 4px;
+  background: var(--surface-container-low);
+  border-radius: var(--radius-full);
+  padding: 4px;
+}
+
+.zoom-tab {
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--on-surface-variant);
+  background: none;
+  transition: all 0.15s;
+  font-family: 'Manrope', sans-serif;
+}
+.zoom-tab:hover { color: var(--on-surface); }
+.zoom-tab.active { background: var(--surface-container-lowest); color: var(--primary); box-shadow: var(--shadow-sm); }
+
+.roadmap-legend {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.legend-item { display: flex; flex-direction: row-reverse; align-items: center; gap: 5px; font-size: 12px; color: var(--on-surface-variant); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* Roadmap 2-column layout */
+.roadmap-layout {
+  display: flex;
+  flex-direction: row-reverse;
+  background: var(--surface-container-lowest);
+  border: 1px solid rgba(201,196,214,0.2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Left (right in RTL) sticky column: task names */
+.roadmap-names-col {
+  width: 220px;
+  min-width: 220px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--outline-variant);
+  background: var(--surface-container-lowest);
+  z-index: 2;
+}
+
+.roadmap-header-cell {
+  display: flex;
+  align-items: flex-end;
+  padding: 0 14px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--outline-variant);
+  background: var(--surface-container-low);
+  text-align: right;
+}
+
+.roadmap-task-label {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(201,196,214,0.08);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.roadmap-task-label:hover { background: var(--surface-container-low); }
+
+.roadmap-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.roadmap-task-name { font-size: 13px; font-family: 'Manrope', sans-serif; font-weight: 500; color: var(--on-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; flex: 1; }
+
+/* Timeline scroll pane */
+.roadmap-timeline-scroll {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+}
+
+/* Month header row */
+.roadmap-months { position: relative; height: 28px; border-bottom: 1px solid rgba(201,196,214,0.15); background: var(--surface-container-low); }
+.roadmap-month-label {
+  position: absolute;
+  top: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 6px 6px 0;
+  white-space: nowrap;
+}
+
+/* Day header row */
+.roadmap-days { display: flex; height: 28px; border-bottom: 1px solid var(--outline-variant); background: var(--surface-container-low); }
+.roadmap-day-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--on-surface-variant);
+  border-right: 1px solid rgba(201,196,214,0.08);
+  flex-shrink: 0;
+}
+.roadmap-day-cell.today { background: var(--primary-fixed); color: var(--primary); font-weight: 700; }
+
+/* Today vertical line */
+.today-line {
+  position: absolute;
+  top: 56px;
+  bottom: 0;
+  width: 2px;
+  background: var(--primary);
+  opacity: 0.6;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Task bars area */
+.roadmap-bars { position: relative; }
+.roadmap-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(201,196,214,0.08);
+  background: var(--surface-container-lowest);
+}
+.roadmap-row:nth-child(even) { background: rgba(248,249,251,0.6); }
+
+.roadmap-bar {
+  position: absolute;
+  height: 24px;
+  top: 8px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  cursor: pointer;
+  transition: opacity 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+.roadmap-bar:hover { opacity: 0.88; box-shadow: var(--shadow); }
+.roadmap-bar-label { font-size: 11px; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+
+.roadmap-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--on-surface-variant);
+  font-size: 14px;
+  line-height: 2;
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(201,196,214,0.2);
+}
 
 /* ── MODALS ── */
 .modal-overlay {
