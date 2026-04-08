@@ -1163,7 +1163,11 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .kanban-card-title { font-size: 13px; font-weight: 600; color: var(--on-surface); text-align: right; margin-bottom: 8px; line-height: 1.4; font-family: 'Manrope', sans-serif; }
 
 /* ── TABLE VIEW ── */
-.table-view { width: 100%; border-collapse: collapse; }
+.table-view {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
 .table-group { margin-bottom: 0; border-bottom: 2px solid var(--primary); }
 .table-group:last-child { border-bottom: none; }
 
@@ -1915,18 +1919,19 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 }
 .group-collapse-btn:hover { background: var(--surface-container); }
 .group-task-count { font-size: 11px; color: var(--on-surface-variant); background: var(--surface-container); padding: 2px 8px; border-radius: var(--radius-full); }
-.table-row { border-bottom: 1px solid var(--card-border); transition: background 0.15s; }
-.table-row:last-child { border-bottom: none; }
-.table-row:hover { background: var(--surface-container-low); }
+.table-row { transition: background 0.15s; }
+.table-row:hover td { background: var(--surface-container-low); }
 .table-cell {
   padding: 10px 14px;
   font-size: 13px;
   color: var(--on-surface);
   text-align: right;
   vertical-align: middle;
+  border-bottom: 1px solid var(--card-border);
   border-left: 1px solid var(--card-border);
 }
-.table-cell:last-child { border-left: none; }
+.table-cell:first-child { border-left: none; }
+.table-row:last-child .table-cell { border-bottom: none; }
 .task-name-cell { }
 .task-name-wrapper { display: flex; flex-direction: row-reverse; align-items: center; gap: 8px; }
 .task-checkbox { accent-color: var(--primary); width: 14px; height: 14px; flex-shrink: 0; cursor: pointer; }
