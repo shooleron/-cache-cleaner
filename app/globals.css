@@ -3417,6 +3417,123 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 }
 .onboarding-dot.active { background: var(--primary); }
 
+/* Progress bar variant */
+.onboarding-progress-bar {
+  height: 4px;
+  background: var(--outline-variant);
+  border-radius: 2px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.onboarding-progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+.onboarding-step-label {
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  text-align: left;
+  margin-bottom: 20px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+}
+
+/* Role cards */
+.onboarding-role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.onboarding-role-card {
+  border: 2px solid var(--outline-variant);
+  border-radius: 14px;
+  padding: 16px 14px;
+  cursor: pointer;
+  background: var(--surface-container-low);
+  transition: all 0.15s;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.onboarding-role-card:hover { border-color: var(--primary); background: #f5f3ff; }
+.onboarding-role-card.selected {
+  border-color: var(--primary);
+  background: #ede9fe;
+}
+.onboarding-role-icon {
+  font-size: 26px;
+  color: var(--primary);
+}
+.onboarding-role-name {
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--on-surface);
+}
+.onboarding-role-desc {
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  line-height: 1.4;
+}
+
+/* Two-col layout */
+.onboarding-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Input with icon */
+.onboarding-input-icon-wrap {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  gap: 8px;
+  padding: 11px 12px;
+  border: 1.5px solid var(--outline-variant);
+  border-radius: 12px;
+  background: var(--surface-container-low);
+  transition: border-color 0.15s;
+}
+.onboarding-input-icon-wrap:focus-within { border-color: var(--primary); }
+.onboarding-input-bare {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--on-surface);
+  font-family: 'Inter', sans-serif;
+  min-width: 0;
+}
+.onboarding-input-bare::placeholder { color: var(--outline); }
+
+/* Summary box */
+.onboarding-summary {
+  background: var(--surface-container-low);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.onboarding-summary-row {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--on-surface);
+  text-align: right;
+  font-family: 'Inter', sans-serif;
+}
+
 .onboarding-title {
   font-family: 'Manrope', sans-serif;
   font-size: 22px;
@@ -3505,6 +3622,50 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   white-space: nowrap;
 }
 .onboarding-btn-back:hover { background: var(--surface-container-high); }
+
+/* User contact section */
+.user-contact-section {
+  background: var(--surface-container-low);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.user-contact-row {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--on-surface);
+  text-align: right;
+}
+.user-contact-row .material-symbols-outlined { color: var(--primary); flex-shrink: 0; }
+
+/* Role selector */
+.user-role-selector {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 8px;
+}
+.user-role-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid var(--outline-variant);
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  color: var(--on-surface-variant);
+  background: var(--surface-container-low);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.user-role-btn:hover { border-color: var(--primary); color: var(--primary); }
+.user-role-btn.active { font-weight: 800; }
 
 /* ===================== INVITE MODAL ===================== */
 .invite-modal {

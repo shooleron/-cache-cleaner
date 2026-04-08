@@ -14,11 +14,13 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   avatar: string;
   color: string;
   role: UserRole;
   status: UserStatus;
   company?: string;
+  companyAddress?: string;
   jobTitle?: string;
 }
 
@@ -190,4 +192,5 @@ export interface AppState {
   contactModalId: string | null;
   dealModalId: string | null;
   onboardingComplete: boolean;
+  workspaceName: string;
 }

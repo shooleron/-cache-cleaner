@@ -62,7 +62,8 @@ type Action =
   | { type: 'ADD_AI_MESSAGE'; payload: AIMessage }
   | { type: 'CLEAR_AI_MESSAGES' }
   | { type: 'LOAD_STATE'; payload: AppState }
-  | { type: 'COMPLETE_ONBOARDING'; payload: { name: string; jobTitle: string; company: string } };
+  | { type: 'COMPLETE_ONBOARDING'; payload: { name: string; jobTitle: string; company: string; companyAddress: string; phone: string; email: string; isAdmin: boolean } }
+  | { type: 'SET_USER_ROLE'; payload: { userId: string; role: import('./types').UserRole } };
 
 // Fields that should NOT be synced to Supabase (UI-only state)
 const UI_ONLY_FIELDS: (keyof AppState)[] = [
@@ -323,17 +324,32 @@ function reducer(state: AppState, action: Action): AppState {
 
     case 'COMPLETE_ONBOARDING': {
       const avatar = action.payload.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      const role = action.payload.isAdmin ? 'owner' : 'member';
+      const updatedUser = {
+        ...state.currentUser,
+        name: action.payload.name,
+        email: action.payload.email || state.currentUser.email,
+        phone: action.payload.phone,
+        jobTitle: action.payload.jobTitle,
+        company: action.payload.company,
+        companyAddress: action.payload.companyAddress,
+        avatar,
+        role: role as import('./types').UserRole,
+      };
       return {
         ...state,
-        currentUser: {
-          ...state.currentUser,
-          name: action.payload.name,
-          jobTitle: action.payload.jobTitle,
-          company: action.payload.company,
-          avatar,
-        },
+        currentUser: updatedUser,
+        users: state.users.map(u => u.id === state.currentUser.id ? updatedUser : u),
+        workspaceName: action.payload.company || state.workspaceName,
         onboardingComplete: true,
       };
+    }
+
+    case 'SET_USER_ROLE': {
+      const updatedUsers = state.users.map(u =>
+        u.id === action.payload.userId ? { ...u, role: action.payload.role } : u
+      );
+      return { ...state, users: updatedUsers };
     }
 
     default:
@@ -385,6 +401,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('atelier_onboarding', JSON.stringify({
         onboardingComplete: true,
         currentUser: state.currentUser,
+        workspaceName: state.workspaceName,
       }));
     }
   }, [state.onboardingComplete, state.currentUser]);

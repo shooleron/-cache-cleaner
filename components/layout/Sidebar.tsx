@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { AppSection } from '@/lib/types';
+import { isAdmin, canManageAutomations } from '@/lib/permissions';
 
 export function Sidebar() {
   const { state, dispatch } = useStore();
@@ -12,13 +13,16 @@ export function Sidebar() {
     dispatch({ type: 'SET_ACTIVE_SECTION', payload: section });
   }
 
-  const navItems: { section: AppSection; icon: string; label: string }[] = [
-    { section: 'crm', icon: 'payments', label: 'מכירות' },
+  const admin = isAdmin(state.currentUser);
+
+  const allNavItems: { section: AppSection; icon: string; label: string; adminOnly?: boolean }[] = [
     { section: 'dashboard', icon: 'dashboard', label: 'תפעול' },
-    { section: 'automations', icon: 'bolt', label: 'אוטומציות' },
+    { section: 'crm', icon: 'payments', label: 'מכירות' },
     { section: 'projects', icon: 'event', label: 'ניהול פרויקטים' },
-    { section: 'users', icon: 'group', label: 'משתמשים' },
+    { section: 'automations', icon: 'bolt', label: 'אוטומציות', adminOnly: true },
+    { section: 'users', icon: 'group', label: 'משתמשים', adminOnly: true },
   ];
+  const navItems = allNavItems.filter(item => !item.adminOnly || admin);
 
   return (
     <aside className="sidebar">
@@ -26,8 +30,8 @@ export function Sidebar() {
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">A</div>
         <div className="sidebar-logo-text">
-          <span className="sidebar-logo-name">אטלייה</span>
-          <span className="sidebar-logo-sub">ניהול פרודוקטיביות</span>
+          <span className="sidebar-logo-name">{state.workspaceName || 'אטלייה'}</span>
+          <span className="sidebar-logo-sub">סביבת עבודה</span>
         </div>
       </div>
 
@@ -58,14 +62,16 @@ export function Sidebar() {
         ))}
       </nav>
 
-      {/* Add project button */}
-      <button
-        className="sidebar-add-btn"
-        onClick={() => dispatch({ type: 'OPEN_NEW_PROJECT_MODAL' })}
-      >
-        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
-        הוסף פרויקט
-      </button>
+      {/* Add project button — admin only */}
+      {admin && (
+        <button
+          className="sidebar-add-btn"
+          onClick={() => dispatch({ type: 'OPEN_NEW_PROJECT_MODAL' })}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
+          הוסף פרויקט
+        </button>
+      )}
 
       {/* Footer */}
       <div className="sidebar-footer">

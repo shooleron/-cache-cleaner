@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { User, UserRole, UserStatus } from '@/lib/types';
+import { isAdmin, canManageRoles, canInviteUsers } from '@/lib/permissions';
 
 const ROLE_LABELS: Record<UserRole, { label: string; bg: string; color: string }> = {
   owner:  { label: 'בעלים',  bg: '#ede9fe', color: '#7c3aed' },
@@ -22,13 +23,18 @@ const AVATAR_COLORS = [
 ];
 
 function UserModal({ user, onClose }: { user: User | null; onClose: () => void }) {
-  const { state } = useStore();
+  const { state, dispatch } = useStore();
   if (!user) return null;
 
+  const currentIsAdmin = isAdmin(state.currentUser);
   const userTasks = state.tasks.filter(t => t.assigneeIds.includes(user.id));
   const doneTasks = userTasks.filter(t => t.status === 'done').length;
   const activeTasks = userTasks.filter(t => t.status === 'in_progress').length;
   const userProjects = state.projects.filter(p => p.memberIds.includes(user.id));
+
+  const handleRoleChange = (role: UserRole) => {
+    dispatch({ type: 'SET_USER_ROLE', payload: { userId: user.id, role } });
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -45,6 +51,11 @@ function UserModal({ user, onClose }: { user: User | null; onClose: () => void }
               </p>
             )}
             <p className="user-modal-email">{user.email}</p>
+            {user.phone && (
+              <p style={{ fontSize: 12, color: 'var(--on-surface-variant)', direction: 'ltr', textAlign: 'right' }}>
+                {user.phone}
+              </p>
+            )}
             <div style={{ display: 'flex', gap: 6, marginTop: 8, flexDirection: 'row-reverse' }}>
               <span className="user-badge" style={{ background: ROLE_LABELS[user.role].bg, color: ROLE_LABELS[user.role].color }}>
                 {ROLE_LABELS[user.role].label}
@@ -60,6 +71,53 @@ function UserModal({ user, onClose }: { user: User | null; onClose: () => void }
         </div>
 
         <div className="user-modal-body">
+          {/* Contact info */}
+          {(user.companyAddress || user.phone || user.email) && (
+            <div className="user-contact-section">
+              {user.companyAddress && (
+                <div className="user-contact-row">
+                  <span className="material-symbols-outlined" style={{ fontSize: 15 }}>location_on</span>
+                  <span>{user.companyAddress}</span>
+                </div>
+              )}
+              {user.phone && (
+                <div className="user-contact-row">
+                  <span className="material-symbols-outlined" style={{ fontSize: 15 }}>phone</span>
+                  <span dir="ltr">{user.phone}</span>
+                </div>
+              )}
+              {user.email && (
+                <div className="user-contact-row">
+                  <span className="material-symbols-outlined" style={{ fontSize: 15 }}>mail</span>
+                  <span dir="ltr">{user.email}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Role management — admin only, can't change own role */}
+          {currentIsAdmin && user.id !== state.currentUser.id && (
+            <div className="user-modal-section">
+              <h4>הרשאות</h4>
+              <div className="user-role-selector">
+                {(['owner', 'member', 'viewer'] as UserRole[]).map(r => (
+                  <button
+                    key={r}
+                    className={`user-role-btn ${user.role === r ? 'active' : ''}`}
+                    style={user.role === r ? { background: ROLE_LABELS[r].bg, color: ROLE_LABELS[r].color, borderColor: ROLE_LABELS[r].color } : {}}
+                    onClick={() => handleRoleChange(r)}
+                  >
+                    {ROLE_LABELS[r].label}
+                  </button>
+                ))}
+              </div>
+              <p style={{ fontSize: 11, color: 'var(--on-surface-variant)', textAlign: 'right', marginTop: 6 }}>
+                {user.role === 'owner' ? 'גישה מלאה לכל הסביבה כולל הגדרות ואוטומציות' :
+                 user.role === 'member' ? 'גישה לפרויקטים, CRM ומשימות' :
+                 'גישת צפייה בלבד — לא ניתן לערוך'}
+              </p>
+            </div>
+          )}
           {/* Stats */}
           <div className="user-stats-grid">
             <div className="user-stat-card">
@@ -123,6 +181,8 @@ export function UsersView() {
   const [filterRole, setFilterRole] = useState<UserRole | 'all'>('all');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
+  const currentIsAdmin = isAdmin(state.currentUser);
+
   const filtered = state.users.filter(u => {
     const matchSearch = u.name.includes(search) || u.email.includes(search);
     const matchRole = filterRole === 'all' || u.role === filterRole;
@@ -137,15 +197,19 @@ export function UsersView() {
       {/* Header */}
       <div className="users-header">
         <div>
-          <h1 className="page-title" style={{ marginBottom: 4 }}>משתמשים</h1>
+          <h1 className="page-title" style={{ marginBottom: 4 }}>
+            {currentIsAdmin ? 'ניהול משתמשים' : 'חברי הצוות'}
+          </h1>
           <p style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
             {state.users.length} משתמשים · {activeCount} פעילים · {pendingCount} ממתינים
           </p>
         </div>
-        <button className="btn-invite" onClick={() => dispatch({ type: 'OPEN_INVITE_MODAL' })}>
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person_add</span>
-          הזמן משתמש
-        </button>
+        {currentIsAdmin && (
+          <button className="btn-invite" onClick={() => dispatch({ type: 'OPEN_INVITE_MODAL' })}>
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person_add</span>
+            הזמן עובד
+          </button>
+        )}
       </div>
 
       {/* Filters */}

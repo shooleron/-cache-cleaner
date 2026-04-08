@@ -94,4 +94,5 @@ export const INITIAL_STATE: AppState = {
   contactModalId: null,
   dealModalId: null,
   onboardingComplete: false,
+  workspaceName: 'אטלייה',
 };
