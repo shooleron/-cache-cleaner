@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
+import { hashPassword } from '@/lib/password';
 
 const JOB_TITLES = [
   'מנכ״ל / בעלים',
@@ -16,7 +17,7 @@ const JOB_TITLES = [
   'אחר',
 ];
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 4;
 
 export function OnboardingModal() {
   const { dispatch } = useStore();
@@ -35,12 +36,32 @@ export function OnboardingModal() {
   const [company, setCompany] = useState('');
   const [companyAddress, setCompanyAddress] = useState('');
 
+  // Step 4
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+
   const canStep1 = name.trim().length > 1 && isAdmin !== null;
   const canStep2 = jobTitle.length > 0;
   const canStep3 = company.trim().length > 0;
+  const canStep4 = password.length >= 6 && password === confirmPassword;
 
-  const handleSubmit = () => {
-    if (!canStep3) return;
+  const handleSubmit = async () => {
+    if (password && password !== confirmPassword) {
+      setPasswordError('הסיסמאות אינן תואמות');
+      return;
+    }
+    if (password && password.length < 6) {
+      setPasswordError('הסיסמה חייבת להכיל לפחות 6 תווים');
+      return;
+    }
+    // Save password hash if set
+    if (password) {
+      const { savePasswordHash } = await import('@/lib/password');
+      const hash = await hashPassword(password);
+      savePasswordHash(hash);
+    }
     dispatch({
       type: 'COMPLETE_ONBOARDING',
       payload: {
@@ -251,13 +272,97 @@ export function OnboardingModal() {
               <button
                 className="onboarding-btn-primary"
                 disabled={!canStep3}
+                onClick={() => setStep(4)}
+              >
+                המשך
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back</span>
+              </button>
+              <button className="onboarding-btn-back" onClick={() => setStep(2)}>חזור</button>
+            </div>
+          </>
+        )}
+
+        {/* ── STEP 4: Password ── */}
+        {step === 4 && (
+          <>
+            <h2 className="onboarding-title">אבטחת הכניסה</h2>
+            <p className="onboarding-sub">הגדר סיסמה לסביבת העבודה שלך — ניתן לדלג ולהגדיר מאוחר יותר</p>
+
+            <div className="onboarding-field">
+              <label className="onboarding-label">סיסמה</label>
+              <div className="onboarding-input-icon-wrap">
+                <span className="material-symbols-outlined" style={{ fontSize: 17, color: 'var(--outline)' }}>lock</span>
+                <input
+                  className="onboarding-input-bare"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="לפחות 6 תווים"
+                  value={password}
+                  onChange={e => { setPassword(e.target.value); setPasswordError(''); }}
+                  dir="ltr"
+                  autoFocus
+                />
+                <button type="button" className="password-toggle-btn" onClick={() => setShowPassword(v => !v)} tabIndex={-1}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 17 }}>{showPassword ? 'visibility_off' : 'visibility'}</span>
+                </button>
+              </div>
+            </div>
+
+            {password.length > 0 && (
+              <>
+                <div className="onboarding-field">
+                  <label className="onboarding-label">אימות סיסמה</label>
+                  <div className="onboarding-input-icon-wrap">
+                    <span className="material-symbols-outlined" style={{ fontSize: 17, color: 'var(--outline)' }}>key</span>
+                    <input
+                      className="onboarding-input-bare"
+                      type="password"
+                      placeholder="הכנס שוב"
+                      value={confirmPassword}
+                      onChange={e => { setConfirmPassword(e.target.value); setPasswordError(''); }}
+                      dir="ltr"
+                      onKeyDown={e => e.key === 'Enter' && canStep4 && handleSubmit()}
+                    />
+                  </div>
+                </div>
+
+                {/* Strength bar */}
+                <div className="password-strength" style={{ marginBottom: 12 }}>
+                  <div className="password-strength-bar">
+                    {[1,2,3,4].map(n => (
+                      <div key={n} className="password-strength-seg" style={{
+                        background: password.length >= n * 3
+                          ? n <= 1 ? '#e2445c' : n <= 2 ? '#fdab3d' : n <= 3 ? '#f2d600' : '#00c875'
+                          : 'var(--outline-variant)'
+                      }} />
+                    ))}
+                  </div>
+                  <span className="password-strength-label">
+                    {password.length < 4 ? 'חלשה' : password.length < 8 ? 'בינונית' : password.length < 12 ? 'חזקה' : 'חזקה מאוד'}
+                  </span>
+                </div>
+              </>
+            )}
+
+            {passwordError && (
+              <p style={{ fontSize: 12, color: '#e2445c', textAlign: 'right', marginBottom: 8 }}>{passwordError}</p>
+            )}
+
+            <div style={{ display: 'flex', gap: 10, flexDirection: 'row-reverse', marginTop: 4 }}>
+              <button
+                className="onboarding-btn-primary"
+                disabled={password.length > 0 && !canStep4}
                 onClick={handleSubmit}
               >
                 כניסה למערכת
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>login</span>
               </button>
-              <button className="onboarding-btn-back" onClick={() => setStep(2)}>חזור</button>
+              <button className="onboarding-btn-back" onClick={() => setStep(3)}>חזור</button>
             </div>
+            {!password && (
+              <p style={{ fontSize: 11, color: 'var(--on-surface-variant)', textAlign: 'center', marginTop: 8 }}>
+                ניתן גם לדלג — תוכל להגדיר סיסמה מאוחר יותר בפרופיל
+              </p>
+            )}
           </>
         )}
       </div>

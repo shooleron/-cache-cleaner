@@ -18,6 +18,8 @@ import { TaskModal } from '@/components/modals/TaskModal';
 import { NewProjectModal } from '@/components/modals/NewProjectModal';
 import { InviteModal } from '@/components/modals/InviteModal';
 import { OnboardingModal } from '@/components/modals/OnboardingModal';
+import { ProfileModal } from '@/components/modals/ProfileModal';
+import { PasswordGate } from '@/components/auth/PasswordGate';
 
 function AppContent() {
   const { state } = useStore();
@@ -52,6 +54,8 @@ function AppContent() {
       {state.newProjectModalOpen && <NewProjectModal />}
       {state.inviteModalOpen && <InviteModal />}
       {!state.onboardingComplete && <OnboardingModal />}
+      {state.onboardingComplete && state.appLocked && <PasswordGate />}
+      {state.profileModalOpen && <ProfileModal />}
     </div>
   );
 }

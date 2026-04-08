@@ -93,7 +93,12 @@ export function Sidebar() {
         </div>
 
         {/* User */}
-        <div className="sidebar-user">
+        <div
+          className="sidebar-user"
+          onClick={() => dispatch({ type: 'OPEN_PROFILE_MODAL' })}
+          style={{ cursor: 'pointer' }}
+          title="פרופיל"
+        >
           <div className="sidebar-user-avatar" style={{ background: state.currentUser.color }}>
             {state.currentUser.avatar}
           </div>
@@ -101,6 +106,13 @@ export function Sidebar() {
             <div className="sidebar-user-name">{state.currentUser.name}</div>
             <div className="sidebar-user-role">{state.currentUser.jobTitle || 'מנהל תפעול'}</div>
           </div>
+          <button
+            className="sidebar-lock-btn"
+            onClick={e => { e.stopPropagation(); dispatch({ type: 'LOCK_APP' }); }}
+            title="נעל את האפליקציה"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>lock</span>
+          </button>
         </div>
       </div>
     </aside>

@@ -95,4 +95,6 @@ export const INITIAL_STATE: AppState = {
   dealModalId: null,
   onboardingComplete: false,
   workspaceName: 'אטלייה',
+  appLocked: false,
+  profileModalOpen: false,
 };

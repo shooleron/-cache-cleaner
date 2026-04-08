@@ -193,4 +193,6 @@ export interface AppState {
   dealModalId: string | null;
   onboardingComplete: boolean;
   workspaceName: string;
+  appLocked: boolean;
+  profileModalOpen: boolean;
 }

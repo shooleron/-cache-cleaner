@@ -62,8 +62,13 @@ type Action =
   | { type: 'ADD_AI_MESSAGE'; payload: AIMessage }
   | { type: 'CLEAR_AI_MESSAGES' }
   | { type: 'LOAD_STATE'; payload: AppState }
-  | { type: 'COMPLETE_ONBOARDING'; payload: { name: string; jobTitle: string; company: string; companyAddress: string; phone: string; email: string; isAdmin: boolean } }
-  | { type: 'SET_USER_ROLE'; payload: { userId: string; role: import('./types').UserRole } };
+  | { type: 'COMPLETE_ONBOARDING'; payload: { name: string; jobTitle: string; company: string; companyAddress: string; phone: string; email: string; isAdmin: boolean; passwordHash?: string } }
+  | { type: 'SET_USER_ROLE'; payload: { userId: string; role: import('./types').UserRole } }
+  | { type: 'UNLOCK_APP' }
+  | { type: 'LOCK_APP' }
+  | { type: 'OPEN_PROFILE_MODAL' }
+  | { type: 'CLOSE_PROFILE_MODAL' }
+  | { type: 'UPDATE_PROFILE'; payload: { name?: string; jobTitle?: string; phone?: string; email?: string; company?: string; companyAddress?: string } };
 
 // Fields that should NOT be synced to Supabase (UI-only state)
 const UI_ONLY_FIELDS: (keyof AppState)[] = [
@@ -76,6 +81,8 @@ const UI_ONLY_FIELDS: (keyof AppState)[] = [
   'dealModalId',
   'aiMessages',
   'onboardingComplete',
+  'appLocked',
+  'profileModalOpen',
 ];
 
 function reducer(state: AppState, action: Action): AppState {
@@ -342,6 +349,7 @@ function reducer(state: AppState, action: Action): AppState {
         users: state.users.map(u => u.id === state.currentUser.id ? updatedUser : u),
         workspaceName: action.payload.company || state.workspaceName,
         onboardingComplete: true,
+        appLocked: false, // unlocked right after first setup
       };
     }
 
@@ -350,6 +358,30 @@ function reducer(state: AppState, action: Action): AppState {
         u.id === action.payload.userId ? { ...u, role: action.payload.role } : u
       );
       return { ...state, users: updatedUsers };
+    }
+
+    case 'UNLOCK_APP':
+      return { ...state, appLocked: false };
+
+    case 'LOCK_APP':
+      return { ...state, appLocked: true };
+
+    case 'OPEN_PROFILE_MODAL':
+      return { ...state, profileModalOpen: true };
+
+    case 'CLOSE_PROFILE_MODAL':
+      return { ...state, profileModalOpen: false };
+
+    case 'UPDATE_PROFILE': {
+      const updatedUser = { ...state.currentUser, ...action.payload };
+      const avatar = updatedUser.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      updatedUser.avatar = avatar;
+      return {
+        ...state,
+        currentUser: updatedUser,
+        users: state.users.map(u => u.id === state.currentUser.id ? updatedUser : u),
+        profileModalOpen: false,
+      };
     }
 
     default:
@@ -380,12 +412,17 @@ function isSyncAction(action: Action): boolean {
 
 const StoreContext = createContext<{ state: AppState; dispatch: React.Dispatch<Action> } | null>(null);
 
+import { getStoredPasswordHash } from './password';
+
 function loadOnboardingFromStorage(): Partial<AppState> {
   if (typeof window === 'undefined') return {};
   try {
     const raw = localStorage.getItem('atelier_onboarding');
     if (!raw) return {};
-    return JSON.parse(raw);
+    const saved = JSON.parse(raw);
+    // If a password has been set, lock the app on load
+    const hasPassword = !!getStoredPasswordHash();
+    return { ...saved, appLocked: hasPassword };
   } catch { return {}; }
 }
 
