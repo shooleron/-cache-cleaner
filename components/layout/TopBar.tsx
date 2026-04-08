@@ -13,6 +13,8 @@ export function TopBar() {
     crm: 'מכירות ו-CRM',
     automations: 'אוטומציות',
     projects: activeProject?.name || 'פרויקטים',
+    users: 'משתמשים',
+    ai: 'AI אסיסטנט',
   };
 
   const views: { value: BoardView; label: string }[] = [

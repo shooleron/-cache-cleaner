@@ -113,7 +113,7 @@ function UserModal({ user, onClose }: { user: User | null; onClose: () => void }
 }
 
 export function UsersView() {
-  const { state } = useStore();
+  const { state, dispatch } = useStore();
   const [search, setSearch] = useState('');
   const [filterRole, setFilterRole] = useState<UserRole | 'all'>('all');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -137,7 +137,7 @@ export function UsersView() {
             {state.users.length} משתמשים · {activeCount} פעילים · {pendingCount} ממתינים
           </p>
         </div>
-        <button className="btn-invite" onClick={() => state.inviteModalOpen || window.location.reload()}>
+        <button className="btn-invite" onClick={() => dispatch({ type: 'OPEN_INVITE_MODAL' })}>
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person_add</span>
           הזמן משתמש
         </button>
