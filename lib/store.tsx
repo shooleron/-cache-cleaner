@@ -61,7 +61,8 @@ type Action =
   | { type: 'TOGGLE_AUTOMATION'; payload: string }
   | { type: 'ADD_AI_MESSAGE'; payload: AIMessage }
   | { type: 'CLEAR_AI_MESSAGES' }
-  | { type: 'LOAD_STATE'; payload: AppState };
+  | { type: 'LOAD_STATE'; payload: AppState }
+  | { type: 'COMPLETE_ONBOARDING'; payload: { name: string; jobTitle: string; company: string } };
 
 // Fields that should NOT be synced to Supabase (UI-only state)
 const UI_ONLY_FIELDS: (keyof AppState)[] = [
@@ -73,6 +74,7 @@ const UI_ONLY_FIELDS: (keyof AppState)[] = [
   'contactModalId',
   'dealModalId',
   'aiMessages',
+  'onboardingComplete',
 ];
 
 function reducer(state: AppState, action: Action): AppState {
@@ -319,6 +321,21 @@ function reducer(state: AppState, action: Action): AppState {
     case 'CLEAR_AI_MESSAGES':
       return { ...state, aiMessages: [] };
 
+    case 'COMPLETE_ONBOARDING': {
+      const avatar = action.payload.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          name: action.payload.name,
+          jobTitle: action.payload.jobTitle,
+          company: action.payload.company,
+          avatar,
+        },
+        onboardingComplete: true,
+      };
+    }
+
     default:
       return state;
   }
@@ -347,11 +364,30 @@ function isSyncAction(action: Action): boolean {
 
 const StoreContext = createContext<{ state: AppState; dispatch: React.Dispatch<Action> } | null>(null);
 
+function loadOnboardingFromStorage(): Partial<AppState> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem('atelier_onboarding');
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch { return {}; }
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
+  const [state, dispatch] = useReducer(reducer, { ...INITIAL_STATE, ...loadOnboardingFromStorage() });
   const isLoadingRef = useRef(false);
   const lastSyncRef = useRef<string>('');
   const pendingSyncRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Persist onboarding state to localStorage
+  useEffect(() => {
+    if (state.onboardingComplete) {
+      localStorage.setItem('atelier_onboarding', JSON.stringify({
+        onboardingComplete: true,
+        currentUser: state.currentUser,
+      }));
+    }
+  }, [state.onboardingComplete, state.currentUser]);
 
   // Load from Supabase on mount
   useEffect(() => {

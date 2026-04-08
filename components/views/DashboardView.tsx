@@ -11,8 +11,31 @@ export function DashboardView() {
   ).length;
   const activeProjects = state.projects.length;
 
+  const firstName = state.currentUser.name.split(' ')[0];
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'בוקר טוב' : hour < 17 ? 'צהריים טובים' : 'ערב טוב';
+
   return (
     <div className="dashboard-view">
+      {/* Personal greeting */}
+      <div className="dashboard-greeting">
+        <div>
+          <h2 className="dashboard-greeting-title">{greeting}, {firstName} 👋</h2>
+          {state.currentUser.company && (
+            <p className="dashboard-greeting-sub">{state.currentUser.company}</p>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            className="dashboard-greeting-btn"
+            onClick={() => dispatch({ type: 'OPEN_NEW_PROJECT_MODAL' })}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
+            פרויקט חדש
+          </button>
+        </div>
+      </div>
+
       {/* KPI Grid */}
       <div className="kpi-grid">
         <div className="kpi-card">

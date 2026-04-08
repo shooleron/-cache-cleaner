@@ -93,7 +93,7 @@ export function Sidebar() {
           </div>
           <div className="sidebar-user-info">
             <div className="sidebar-user-name">{state.currentUser.name}</div>
-            <div className="sidebar-user-role">מנהל תפעול</div>
+            <div className="sidebar-user-role">{state.currentUser.jobTitle || 'מנהל תפעול'}</div>
           </div>
         </div>
       </div>

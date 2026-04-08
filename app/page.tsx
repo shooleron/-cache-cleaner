@@ -17,6 +17,7 @@ import { NotificationsPanel } from '@/components/panels/NotificationsPanel';
 import { TaskModal } from '@/components/modals/TaskModal';
 import { NewProjectModal } from '@/components/modals/NewProjectModal';
 import { InviteModal } from '@/components/modals/InviteModal';
+import { OnboardingModal } from '@/components/modals/OnboardingModal';
 
 function AppContent() {
   const { state } = useStore();
@@ -50,6 +51,7 @@ function AppContent() {
       {state.taskModalId && <TaskModal />}
       {state.newProjectModalOpen && <NewProjectModal />}
       {state.inviteModalOpen && <InviteModal />}
+      {!state.onboardingComplete && <OnboardingModal />}
     </div>
   );
 }

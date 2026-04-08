@@ -78,7 +78,7 @@ export function TopBar() {
         <div className="topbar-user-chip">
           <div style={{ textAlign: 'right' }}>
             <div className="topbar-user-name">{state.currentUser.name}</div>
-            <div className="topbar-user-role">מנהל תפעול</div>
+            <div className="topbar-user-role">{state.currentUser.jobTitle || 'מנהל תפעול'}</div>
           </div>
           <div
             className="topbar-user-avatar"

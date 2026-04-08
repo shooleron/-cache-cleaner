@@ -2,16 +2,27 @@
 
 import React from 'react';
 import { useStore } from '@/lib/store';
-import { X, Bell, Check, CheckCheck } from 'lucide-react';
-import { format } from 'date-fns';
 
 const TYPE_ICONS: Record<string, string> = {
-  assigned: '👤',
-  commented: '💬',
-  status_changed: '🔄',
-  due_soon: '⚠️',
-  mentioned: '@',
+  assigned: 'person_add',
+  commented: 'chat_bubble',
+  status_changed: 'sync',
+  due_soon: 'schedule',
+  mentioned: 'alternate_email',
+  deal_updated: 'payments',
+  automation_fired: 'bolt',
 };
+
+function formatRelativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'עכשיו';
+  if (mins < 60) return `לפני ${mins} דק׳`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `לפני ${hours} שע׳`;
+  const days = Math.floor(hours / 24);
+  return `לפני ${days} ימים`;
+}
 
 export function NotificationsPanel() {
   const { state, dispatch } = useStore();
@@ -26,18 +37,16 @@ export function NotificationsPanel() {
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className="panel-backdrop"
         onClick={() => dispatch({ type: 'TOGGLE_NOTIFICATIONS_PANEL' })}
       />
-
-      {/* Panel */}
       <div className="notifications-panel">
+        {/* Header */}
         <div className="panel-header">
           <div className="panel-title">
-            <Bell size={16} />
-            <span>Notifications</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>notifications</span>
+            <span>התראות</span>
             {unreadCount > 0 && (
               <span className="panel-badge">{unreadCount}</span>
             )}
@@ -47,26 +56,29 @@ export function NotificationsPanel() {
               <button
                 className="mark-all-btn"
                 onClick={() => dispatch({ type: 'MARK_ALL_NOTIFICATIONS_READ' })}
-                title="Mark all as read"
+                title="סמן הכל כנקרא"
               >
-                <CheckCheck size={14} />
-                <span>Mark all read</span>
+                <span className="material-symbols-outlined" style={{ fontSize: 15 }}>done_all</span>
+                <span>סמן הכל</span>
               </button>
             )}
             <button
               className="modal-close-btn"
               onClick={() => dispatch({ type: 'TOGGLE_NOTIFICATIONS_PANEL' })}
             >
-              <X size={16} />
+              <span className="material-symbols-outlined">close</span>
             </button>
           </div>
         </div>
 
+        {/* List */}
         <div className="notifications-list">
           {userNotifications.length === 0 ? (
             <div className="notifications-empty">
-              <Bell size={32} strokeWidth={1} />
-              <p>No notifications yet</p>
+              <span className="material-symbols-outlined" style={{ fontSize: 36, color: 'var(--outline)' }}>
+                notifications_off
+              </span>
+              <p>אין התראות חדשות</p>
             </div>
           ) : (
             userNotifications.map(notif => (
@@ -81,16 +93,16 @@ export function NotificationsPanel() {
                   }
                 }}
               >
-                <div className="notif-icon">{TYPE_ICONS[notif.type] || '🔔'}</div>
+                <div className="notif-icon-wrap">
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
+                    {TYPE_ICONS[notif.type] || 'notifications'}
+                  </span>
+                </div>
                 <div className="notif-content">
                   <p className="notif-message">{notif.message}</p>
-                  <p className="notif-time">
-                    {format(new Date(notif.createdAt), 'MMM d, HH:mm')}
-                  </p>
+                  <p className="notif-time">{formatRelativeTime(notif.createdAt)}</p>
                 </div>
-                {!notif.read && (
-                  <div className="unread-dot" />
-                )}
+                {!notif.read && <div className="unread-dot" />}
               </div>
             ))
           )}

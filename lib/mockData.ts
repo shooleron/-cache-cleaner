@@ -93,4 +93,5 @@ export const INITIAL_STATE: AppState = {
   aiPanelOpen: false,
   contactModalId: null,
   dealModalId: null,
+  onboardingComplete: false,
 };

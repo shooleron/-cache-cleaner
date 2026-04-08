@@ -18,6 +18,8 @@ export interface User {
   color: string;
   role: UserRole;
   status: UserStatus;
+  company?: string;
+  jobTitle?: string;
 }
 
 export interface Comment {
@@ -187,4 +189,5 @@ export interface AppState {
   aiPanelOpen: boolean;
   contactModalId: string | null;
   dealModalId: string | null;
+  onboardingComplete: boolean;
 }

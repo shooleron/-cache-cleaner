@@ -39,6 +39,11 @@ function UserModal({ user, onClose }: { user: User | null; onClose: () => void }
           </div>
           <div className="user-modal-identity">
             <h2 className="user-modal-name">{user.name}</h2>
+            {(user.jobTitle || user.company) && (
+              <p style={{ fontSize: 13, color: 'var(--on-surface-variant)', marginBottom: 2 }}>
+                {[user.jobTitle, user.company].filter(Boolean).join(' · ')}
+              </p>
+            )}
             <p className="user-modal-email">{user.email}</p>
             <div style={{ display: 'flex', gap: 6, marginTop: 8, flexDirection: 'row-reverse' }}>
               <span className="user-badge" style={{ background: ROLE_LABELS[user.role].bg, color: ROLE_LABELS[user.role].color }}>
@@ -188,6 +193,7 @@ export function UsersView() {
               </div>
 
               <div className="user-card-name">{user.name}</div>
+              {user.jobTitle && <div style={{ fontSize: 12, color: 'var(--on-surface-variant)', textAlign: 'right' }}>{user.jobTitle}</div>}
               <div className="user-card-email">{user.email}</div>
 
               <span className="user-badge user-role-badge" style={{ background: ROLE_LABELS[user.role].bg, color: ROLE_LABELS[user.role].color }}>
