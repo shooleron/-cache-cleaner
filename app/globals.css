@@ -1163,18 +1163,20 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .kanban-card-title { font-size: 13px; font-weight: 600; color: var(--on-surface); text-align: right; margin-bottom: 8px; line-height: 1.4; font-family: 'Manrope', sans-serif; }
 
 /* ── TABLE VIEW ── */
-.table-view { width: 100%; }
-.table-group { margin-bottom: 28px; }
+.table-view { width: 100%; border-collapse: collapse; }
+.table-group { margin-bottom: 0; border-bottom: 2px solid var(--primary); }
+.table-group:last-child { border-bottom: none; }
 
 .table-group-header {
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
-  border-radius: var(--radius);
-  margin-bottom: 6px;
+  padding: 8px 14px;
+  background: var(--surface-container-low);
+  border-bottom: 1px solid var(--card-border);
   cursor: pointer;
+  border-radius: 0;
 }
 
 .group-color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
@@ -1183,18 +1185,18 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 
 .table-wrap {
   background: var(--surface-container-lowest);
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   overflow: hidden;
-  border: 1px solid var(--card-border);
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 8px;
+  border: none;
+  margin-bottom: 0;
 }
 
 .table-header {
   display: grid;
   grid-template-columns: 1fr 140px 140px 110px 80px;
-  padding: 10px 16px;
+  padding: 0;
   background: var(--surface-container-low);
+  border-bottom: 1px solid var(--card-border);
 }
 
 .table-header-cell {
@@ -1871,19 +1873,35 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .drag-overlay { opacity: 0.9; box-shadow: var(--shadow-lg) !important; transform: rotate(2deg); }
 
 /* ── TABLE VIEW EXTRAS ── */
-.table-view-container { }
+.table-view-container {
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
 .table-column-headers {
   display: grid;
   grid-template-columns: 1fr 140px 140px 110px 100px 40px;
-  padding: 10px 16px;
+  padding: 0;
   background: var(--surface-container-low);
-  border-radius: var(--radius) var(--radius) 0 0;
-  margin-bottom: 2px;
-  border: 1px solid rgba(201,196,214,0.15);
-  border-bottom: none;
+  border-bottom: 2px solid var(--card-border);
+  margin-bottom: 0;
+  border-radius: 0;
+  border: none;
 }
-.col-header { font-size: 11px; font-weight: 600; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.05em; text-align: right; }
-.col-header.task-col { }
+.col-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: right;
+  padding: 10px 14px;
+  border-left: 1px solid var(--card-border);
+}
+.col-header:last-child { border-left: none; }
+.col-header.task-col { border-left: none; }
 .group-collapse-btn {
   background: none;
   border: none;
@@ -1897,9 +1915,18 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 }
 .group-collapse-btn:hover { background: var(--surface-container); }
 .group-task-count { font-size: 11px; color: var(--on-surface-variant); background: var(--surface-container); padding: 2px 8px; border-radius: var(--radius-full); }
-.table-row { border-bottom: 1px solid rgba(201,196,214,0.1); transition: background 0.15s; }
+.table-row { border-bottom: 1px solid var(--card-border); transition: background 0.15s; }
+.table-row:last-child { border-bottom: none; }
 .table-row:hover { background: var(--surface-container-low); }
-.table-cell { padding: 10px 14px; font-size: 13px; color: var(--on-surface); text-align: right; vertical-align: middle; }
+.table-cell {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--on-surface);
+  text-align: right;
+  vertical-align: middle;
+  border-left: 1px solid var(--card-border);
+}
+.table-cell:last-child { border-left: none; }
 .task-name-cell { }
 .task-name-wrapper { display: flex; flex-direction: row-reverse; align-items: center; gap: 8px; }
 .task-checkbox { accent-color: var(--primary); width: 14px; height: 14px; flex-shrink: 0; cursor: pointer; }
