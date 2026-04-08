@@ -2,58 +2,29 @@
 
 import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
-import { Plus, Zap, ToggleLeft, ToggleRight, Trash2, X, ChevronRight } from 'lucide-react';
 import { AutomationRule, AutomationTrigger, AutomationActionType } from '@/lib/types';
 
-const TRIGGERS: { value: AutomationTrigger; label: string; description: string }[] = [
-  { value: 'task_created', label: 'Task Created', description: 'When a new task is created' },
-  { value: 'status_changed', label: 'Status Changed', description: 'When a task status changes' },
-  { value: 'due_date_passed', label: 'Due Date Passed', description: 'When a task passes its due date' },
-  { value: 'deal_stage_changed', label: 'Deal Stage Changed', description: 'When a deal moves to a new stage' },
-  { value: 'task_assigned', label: 'Task Assigned', description: 'When a task is assigned to someone' },
+const TRIGGERS: { value: AutomationTrigger; label: string }[] = [
+  { value: 'task_created', label: 'משימה נוצרה' },
+  { value: 'status_changed', label: 'סטטוס השתנה' },
+  { value: 'due_date_passed', label: 'תאריך יעד עבר' },
+  { value: 'deal_stage_changed', label: 'עסקה עברה שלב' },
+  { value: 'task_assigned', label: 'משימה הוקצתה' },
 ];
 
 const ACTIONS: { value: AutomationActionType; label: string }[] = [
-  { value: 'send_notification', label: 'Send Notification' },
-  { value: 'change_status', label: 'Change Task Status' },
-  { value: 'assign_to', label: 'Assign to User' },
-  { value: 'move_deal_stage', label: 'Move Deal to Stage' },
-  { value: 'create_task', label: 'Create New Task' },
+  { value: 'send_notification', label: 'שלח התראה' },
+  { value: 'change_status', label: 'שנה סטטוס משימה' },
+  { value: 'assign_to', label: 'הקצה למשתמש' },
+  { value: 'move_deal_stage', label: 'הזז עסקה לשלב' },
+  { value: 'create_task', label: 'צור משימה חדשה' },
 ];
-
-const TRIGGER_VALUE_LABELS: Partial<Record<AutomationTrigger, { label: string; options?: { value: string; label: string }[] }>> = {
-  status_changed: {
-    label: 'When status changes to',
-    options: [
-      { value: 'todo', label: 'Todo' },
-      { value: 'in_progress', label: 'In Progress' },
-      { value: 'stuck', label: 'Stuck' },
-      { value: 'done', label: 'Done' },
-    ],
-  },
-  deal_stage_changed: {
-    label: 'When deal moves to',
-    options: [
-      { value: 'lead', label: 'Lead' },
-      { value: 'qualified', label: 'Qualified' },
-      { value: 'proposal', label: 'Proposal' },
-      { value: 'negotiation', label: 'Negotiation' },
-      { value: 'closed_won', label: 'Closed Won' },
-      { value: 'closed_lost', label: 'Closed Lost' },
-    ],
-  },
-};
 
 function RuleModal({ rule, onClose }: { rule: Partial<AutomationRule> | null; onClose: () => void }) {
   const { state, dispatch } = useStore();
   const [form, setForm] = useState<Partial<AutomationRule>>(rule || {
-    name: '',
-    trigger: 'status_changed',
-    triggerValue: 'done',
-    action: 'send_notification',
-    actionValue: '',
-    projectId: state.activeProjectId,
-    enabled: true,
+    name: '', trigger: 'status_changed', triggerValue: 'done',
+    action: 'send_notification', actionValue: '', projectId: state.activeProjectId, enabled: true,
   });
 
   function save() {
@@ -66,140 +37,90 @@ function RuleModal({ rule, onClose }: { rule: Partial<AutomationRule> | null; on
     onClose();
   }
 
-  const triggerConfig = TRIGGER_VALUE_LABELS[form.trigger as AutomationTrigger];
+  const inp: React.CSSProperties = {
+    width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-full)',
+    border: '1px solid var(--outline-variant)', background: 'var(--surface-container-low)',
+    fontSize: 13, color: 'var(--on-surface)', outline: 'none', fontFamily: 'Inter, sans-serif',
+    textAlign: 'right',
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-panel automation-modal" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>{form.id ? 'Edit Automation' : 'New Automation'}</h2>
-          <button className="modal-close" onClick={onClose}><X size={18} /></button>
+      <div className="modal-box" style={{ maxWidth: 520 }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <h2 className="modal-title" style={{ margin: 0 }}>{form.id ? 'עריכת אוטומציה' : 'אוטומציה חדשה'}</h2>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--on-surface-variant)' }}>
+            <span className="material-symbols-outlined">close</span>
+          </button>
         </div>
 
-        <div className="automation-modal-body">
-          <div className="form-group">
-            <label>Automation Name</label>
-            <input
-              className="form-input"
-              placeholder="e.g. Notify on completion"
-              value={form.name || ''}
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            />
-          </div>
+        {/* Name */}
+        <div className="modal-field">
+          <label className="modal-label">שם האוטומציה</label>
+          <input style={inp} placeholder="לדוגמה: התראה כשמשימה הושלמה" value={form.name || ''} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+        </div>
 
-          <div className="automation-flow">
-            {/* Trigger block */}
-            <div className="automation-block trigger-block">
-              <div className="automation-block-label">
-                <span className="automation-badge trigger-badge">WHEN</span>
-              </div>
-              <select
-                className="form-input"
-                value={form.trigger}
-                onChange={e => setForm(f => ({ ...f, trigger: e.target.value as AutomationTrigger, triggerValue: '' }))}
-              >
-                {TRIGGERS.map(t => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
-                ))}
-              </select>
-              {triggerConfig && (
-                <div className="form-group" style={{ marginTop: '10px' }}>
-                  <label>{triggerConfig.label}</label>
-                  {triggerConfig.options ? (
-                    <select
-                      className="form-input"
-                      value={form.triggerValue || ''}
-                      onChange={e => setForm(f => ({ ...f, triggerValue: e.target.value }))}
-                    >
-                      {triggerConfig.options.map(o => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      className="form-input"
-                      placeholder="Value..."
-                      value={form.triggerValue || ''}
-                      onChange={e => setForm(f => ({ ...f, triggerValue: e.target.value }))}
-                    />
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="automation-arrow">
-              <ChevronRight size={20} />
-              <span>THEN</span>
-              <ChevronRight size={20} />
-            </div>
-
-            {/* Action block */}
-            <div className="automation-block action-block">
-              <div className="automation-block-label">
-                <span className="automation-badge action-badge">DO</span>
-              </div>
-              <select
-                className="form-input"
-                value={form.action}
-                onChange={e => setForm(f => ({ ...f, action: e.target.value as AutomationActionType, actionValue: '' }))}
-              >
-                {ACTIONS.map(a => (
-                  <option key={a.value} value={a.value}>{a.label}</option>
-                ))}
-              </select>
-              <div className="form-group" style={{ marginTop: '10px' }}>
-                <label>
-                  {form.action === 'send_notification' ? 'Notification message' :
-                   form.action === 'change_status' ? 'New status' :
-                   form.action === 'assign_to' ? 'Assign to user' :
-                   form.action === 'move_deal_stage' ? 'Target stage' : 'Value'}
-                </label>
-                {form.action === 'assign_to' ? (
-                  <select className="form-input" value={form.actionValue || ''} onChange={e => setForm(f => ({ ...f, actionValue: e.target.value }))}>
-                    <option value="">Select user...</option>
-                    {state.users.filter(u => u.status === 'active').map(u => (
-                      <option key={u.id} value={u.id}>{u.name}</option>
-                    ))}
-                  </select>
-                ) : form.action === 'change_status' ? (
-                  <select className="form-input" value={form.actionValue || ''} onChange={e => setForm(f => ({ ...f, actionValue: e.target.value }))}>
-                    <option value="todo">Todo</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="stuck">Stuck</option>
-                    <option value="done">Done</option>
-                  </select>
-                ) : form.action === 'move_deal_stage' ? (
-                  <select className="form-input" value={form.actionValue || ''} onChange={e => setForm(f => ({ ...f, actionValue: e.target.value }))}>
-                    <option value="qualified">Qualified</option>
-                    <option value="proposal">Proposal</option>
-                    <option value="negotiation">Negotiation</option>
-                    <option value="closed_won">Closed Won</option>
-                    <option value="closed_lost">Closed Lost</option>
-                  </select>
-                ) : (
-                  <input
-                    className="form-input"
-                    placeholder="Enter value..."
-                    value={form.actionValue || ''}
-                    onChange={e => setForm(f => ({ ...f, actionValue: e.target.value }))}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Apply to Project</label>
-            <select className="form-input" value={form.projectId || ''} onChange={e => setForm(f => ({ ...f, projectId: e.target.value || null }))}>
-              <option value="">All Projects</option>
-              {state.projects.map(p => <option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}
+        {/* WHEN → THEN visual flow */}
+        <div style={{ display: 'flex', flexDirection: 'row-reverse', gap: 12, margin: '20px 0', alignItems: 'flex-start' }}>
+          {/* WHEN block */}
+          <div style={{ flex: 1, background: 'var(--primary-fixed)', borderRadius: 'var(--radius-lg)', padding: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10, textAlign: 'right' }}>כאשר</div>
+            <select style={inp} value={form.trigger} onChange={e => setForm(f => ({ ...f, trigger: e.target.value as AutomationTrigger, triggerValue: '' }))}>
+              {TRIGGERS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
+            {(form.trigger === 'status_changed' || form.trigger === 'deal_stage_changed') && (
+              <select style={{ ...inp, marginTop: 8 }} value={form.triggerValue || ''} onChange={e => setForm(f => ({ ...f, triggerValue: e.target.value }))}>
+                {form.trigger === 'status_changed'
+                  ? [['todo','ממתין'],['in_progress','בתהליך'],['stuck','תקוע'],['done','הושלם']].map(([v,l]) => <option key={v} value={v}>{l}</option>)
+                  : [['lead','ליד'],['qualified','מוסמך'],['proposal','הצעה'],['negotiation','משא ומתן'],['closed_won','נסגר ✓'],['closed_lost','נסגר ✗']].map(([v,l]) => <option key={v} value={v}>{l}</option>)
+                }
+              </select>
+            )}
+          </div>
+
+          {/* Arrow */}
+          <div style={{ display: 'flex', alignItems: 'center', paddingTop: 40, color: 'var(--outline)', flexShrink: 0 }}>
+            <span className="material-symbols-outlined">arrow_back</span>
+          </div>
+
+          {/* THEN block */}
+          <div style={{ flex: 1, background: '#f0fdf4', borderRadius: 'var(--radius-lg)', padding: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10, textAlign: 'right' }}>אז</div>
+            <select style={inp} value={form.action} onChange={e => setForm(f => ({ ...f, action: e.target.value as AutomationActionType, actionValue: '' }))}>
+              {ACTIONS.map(a => <option key={a.value} value={a.value}>{a.label}</option>)}
+            </select>
+            {form.action === 'assign_to' ? (
+              <select style={{ ...inp, marginTop: 8 }} value={form.actionValue || ''} onChange={e => setForm(f => ({ ...f, actionValue: e.target.value }))}>
+                <option value="">בחר משתמש...</option>
+                {state.users.filter(u => u.status === 'active').map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+              </select>
+            ) : form.action === 'change_status' ? (
+              <select style={{ ...inp, marginTop: 8 }} value={form.actionValue || ''} onChange={e => setForm(f => ({ ...f, actionValue: e.target.value }))}>
+                <option value="todo">ממתין</option><option value="in_progress">בתהליך</option>
+                <option value="stuck">תקוע</option><option value="done">הושלם</option>
+              </select>
+            ) : form.action === 'move_deal_stage' ? (
+              <select style={{ ...inp, marginTop: 8 }} value={form.actionValue || ''} onChange={e => setForm(f => ({ ...f, actionValue: e.target.value }))}>
+                {[['qualified','מוסמך'],['proposal','הצעה'],['negotiation','משא ומתן'],['closed_won','נסגר ✓'],['closed_lost','נסגר ✗']].map(([v,l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+            ) : (
+              <input style={{ ...inp, marginTop: 8 }} placeholder="ערך..." value={form.actionValue || ''} onChange={e => setForm(f => ({ ...f, actionValue: e.target.value }))} />
+            )}
           </div>
         </div>
 
-        <div className="modal-footer">
-          <button className="btn-secondary" onClick={onClose}>Cancel</button>
-          <button className="btn-primary" onClick={save}>{form.id ? 'Save' : 'Create Automation'}</button>
+        {/* Project */}
+        <div className="modal-field">
+          <label className="modal-label">פרויקט (אופציונלי)</label>
+          <select style={inp} value={form.projectId || ''} onChange={e => setForm(f => ({ ...f, projectId: e.target.value || null }))}>
+            <option value="">כל הפרויקטים</option>
+            {state.projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+        </div>
+
+        <div className="modal-actions">
+          <button className="btn btn-primary" onClick={save}>{form.id ? 'שמור' : 'צור אוטומציה'}</button>
+          <button className="btn btn-ghost" onClick={onClose}>ביטול</button>
         </div>
       </div>
     </div>
@@ -211,95 +132,113 @@ export function AutomationsPanel() {
   const [showModal, setShowModal] = useState(false);
   const [editRule, setEditRule] = useState<Partial<AutomationRule> | null>(null);
 
-  const totalFired = state.automations.reduce((s, a) => s + a.timesTriggered, 0);
   const activeCount = state.automations.filter(a => a.enabled).length;
+  const totalFired = state.automations.reduce((s, a) => s + a.timesTriggered, 0);
+
+  const triggerLabel = (v: AutomationTrigger) => TRIGGERS.find(t => t.value === v)?.label || v;
+  const actionLabel = (v: AutomationActionType) => ACTIONS.find(a => a.value === v)?.label || v;
 
   return (
-    <div className="automations-view">
-      <div className="crm-header">
-        <div>
-          <h2 className="crm-title">Automations</h2>
-          <p className="crm-subtitle">{activeCount} active · {totalFired} total runs</p>
+    <div style={{ maxWidth: 900 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
+        <div style={{ textAlign: 'right' }}>
+          <h1 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 24, fontWeight: 900, color: 'var(--on-surface)' }}>אוטומציות</h1>
+          <p style={{ fontSize: 13, color: 'var(--on-surface-variant)', marginTop: 4 }}>{activeCount} פעילות · {totalFired} הפעלות סה״כ</p>
         </div>
-        <button className="btn-primary" onClick={() => { setEditRule(null); setShowModal(true); }}>
-          <Plus size={14} /> New Automation
+        <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6 }} onClick={() => { setEditRule(null); setShowModal(true); }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>add</span>
+          אוטומציה חדשה
         </button>
       </div>
 
-      {/* Stats */}
-      <div className="automation-stats">
-        <div className="automation-stat-card">
-          <div className="automation-stat-val">{state.automations.length}</div>
-          <div className="automation-stat-label">Total Rules</div>
-        </div>
-        <div className="automation-stat-card">
-          <div className="automation-stat-val" style={{ color: '#00c875' }}>{activeCount}</div>
-          <div className="automation-stat-label">Active</div>
-        </div>
-        <div className="automation-stat-card">
-          <div className="automation-stat-val" style={{ color: '#0073ea' }}>{totalFired}</div>
-          <div className="automation-stat-label">Times Triggered</div>
-        </div>
-        <div className="automation-stat-card">
-          <div className="automation-stat-val" style={{ color: '#fdab3d' }}>{state.automations.filter(a => !a.enabled).length}</div>
-          <div className="automation-stat-label">Paused</div>
-        </div>
+      {/* Stats strip */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 28 }}>
+        {[
+          { label: 'כלל הכללים', value: state.automations.length, color: 'var(--on-surface)' },
+          { label: 'פעילות', value: activeCount, color: '#059669' },
+          { label: 'הופעלו', value: totalFired, color: 'var(--primary)' },
+          { label: 'מושהות', value: state.automations.filter(a => !a.enabled).length, color: '#d97706' },
+        ].map(s => (
+          <div key={s.label} style={{ background: 'var(--surface-container-lowest)', border: '1px solid rgba(201,196,214,0.2)', borderRadius: 'var(--radius-lg)', padding: '16px 20px', boxShadow: 'var(--shadow-sm)', textAlign: 'right' }}>
+            <div style={{ fontFamily: 'Manrope, sans-serif', fontSize: 28, fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontSize: 12, color: 'var(--on-surface-variant)', marginTop: 6 }}>{s.label}</div>
+          </div>
+        ))}
       </div>
 
-      {/* Rules List */}
-      <div className="automations-list">
+      {/* Rules list */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {state.automations.length === 0 && (
-          <div className="empty-state">
-            <div className="empty-state-icon"><Zap size={40} color="#c5c7d4" /></div>
-            <h2>No automations yet</h2>
-            <p>Create rules to automate repetitive tasks — like sending notifications when a task is done.</p>
-            <button className="btn-primary" onClick={() => setShowModal(true)}>
-              <Plus size={14} /> Create first automation
-            </button>
+          <div style={{ background: 'var(--surface-container-lowest)', borderRadius: 'var(--radius-lg)', padding: 48, textAlign: 'center', border: '1px solid rgba(201,196,214,0.2)', boxShadow: 'var(--shadow-sm)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--outline-variant)', display: 'block', marginBottom: 12 }}>bolt</span>
+            <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: 16, fontWeight: 700, color: 'var(--on-surface)', marginBottom: 6 }}>אין אוטומציות עדיין</p>
+            <p style={{ fontSize: 13, color: 'var(--on-surface-variant)', marginBottom: 20 }}>צור כללים שיחסכו לך עבודה חוזרת</p>
+            <button className="btn btn-primary" onClick={() => setShowModal(true)}>צור אוטומציה ראשונה</button>
           </div>
         )}
+
         {state.automations.map(rule => {
-          const trigger = TRIGGERS.find(t => t.value === rule.trigger);
-          const action = ACTIONS.find(a => a.value === rule.action);
           const project = rule.projectId ? state.projects.find(p => p.id === rule.projectId) : null;
           return (
-            <div key={rule.id} className={`automation-rule-card ${rule.enabled ? '' : 'disabled'}`}>
-              <div className="automation-rule-toggle">
-                <button
-                  className="toggle-btn"
-                  onClick={() => dispatch({ type: 'TOGGLE_AUTOMATION', payload: rule.id })}
-                >
-                  {rule.enabled
-                    ? <ToggleRight size={28} color="#00c875" />
-                    : <ToggleLeft size={28} color="#c5c7d4" />
-                  }
-                </button>
-              </div>
-              <div className="automation-rule-body" onClick={() => { setEditRule(rule); setShowModal(true); }}>
-                <div className="automation-rule-name">{rule.name}</div>
-                <div className="automation-rule-desc">
-                  <span className="automation-badge trigger-badge">{trigger?.label || rule.trigger}</span>
-                  <ChevronRight size={14} color="#adb1bc" />
-                  <span className="automation-badge action-badge">{action?.label || rule.action}</span>
+            <div
+              key={rule.id}
+              style={{
+                background: 'var(--surface-container-lowest)',
+                border: '1px solid rgba(201,196,214,0.2)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '18px 20px',
+                display: 'flex',
+                flexDirection: 'row-reverse',
+                alignItems: 'center',
+                gap: 16,
+                boxShadow: 'var(--shadow-sm)',
+                opacity: rule.enabled ? 1 : 0.5,
+                transition: 'box-shadow 0.15s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.boxShadow = 'var(--shadow)')}
+              onMouseLeave={e => (e.currentTarget.style.boxShadow = 'var(--shadow-sm)')}
+            >
+              {/* Toggle */}
+              <label className="toggle-switch" style={{ flexShrink: 0 }}>
+                <input type="checkbox" checked={rule.enabled} onChange={() => dispatch({ type: 'TOGGLE_AUTOMATION', payload: rule.id })} />
+                <span className="toggle-slider" />
+              </label>
+
+              {/* WHEN → THEN flow */}
+              <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => { setEditRule(rule); setShowModal(true); }}>
+                <div style={{ fontFamily: 'Manrope, sans-serif', fontSize: 14, fontWeight: 700, color: 'var(--on-surface)', textAlign: 'right', marginBottom: 8 }}>{rule.name}</div>
+                <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <span style={{ padding: '4px 12px', borderRadius: 'var(--radius-full)', fontSize: 12, fontWeight: 600, background: 'var(--primary-fixed)', color: 'var(--primary)' }}>
+                    כאשר: {triggerLabel(rule.trigger)}
+                  </span>
+                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--outline)' }}>arrow_back</span>
+                  <span style={{ padding: '4px 12px', borderRadius: 'var(--radius-full)', fontSize: 12, fontWeight: 600, background: '#d1fae5', color: '#065f46' }}>
+                    אז: {actionLabel(rule.action)}
+                  </span>
                   {rule.triggerValue && (
-                    <span className="automation-rule-value">({rule.triggerValue})</span>
+                    <span style={{ fontSize: 11, color: 'var(--on-surface-variant)', background: 'var(--surface-container)', padding: '3px 8px', borderRadius: 'var(--radius-full)' }}>({rule.triggerValue})</span>
+                  )}
+                  {project && (
+                    <span style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>· {project.name}</span>
                   )}
                 </div>
-                {project && (
-                  <div className="automation-rule-project">
-                    <span style={{ color: project.color }}>{project.icon} {project.name}</span>
-                  </div>
-                )}
               </div>
-              <div className="automation-rule-stats">
-                <div className="automation-runs">{rule.timesTriggered} runs</div>
+
+              {/* Runs count */}
+              <div style={{ textAlign: 'center', flexShrink: 0 }}>
+                <div style={{ fontFamily: 'Manrope, sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--primary)' }}>{rule.timesTriggered}</div>
+                <div style={{ fontSize: 10, color: 'var(--on-surface-variant)' }}>הפעלות</div>
               </div>
+
+              {/* Delete */}
               <button
-                className="icon-btn danger"
                 onClick={() => dispatch({ type: 'DELETE_AUTOMATION', payload: rule.id })}
-                title="Delete"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--outline)', borderRadius: 'var(--radius-full)', padding: 6, display: 'flex', alignItems: 'center', transition: 'all 0.15s', flexShrink: 0 }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#fef2f2'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--error)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--outline)'; }}
               >
-                <Trash2 size={14} />
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>delete</span>
               </button>
             </div>
           );
@@ -307,10 +246,7 @@ export function AutomationsPanel() {
       </div>
 
       {showModal && (
-        <RuleModal
-          rule={editRule}
-          onClose={() => { setShowModal(false); setEditRule(null); }}
-        />
+        <RuleModal rule={editRule} onClose={() => { setShowModal(false); setEditRule(null); }} />
       )}
     </div>
   );
