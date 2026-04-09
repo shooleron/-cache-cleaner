@@ -6136,3 +6136,15 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .event-speaker-name { font-size: 13px; font-weight: 600; }
 .event-speaker-meta { font-size: 11px; color: var(--on-surface-variant); margin-top: 1px; }
 .event-speaker-status { font-size: 10px; font-weight: 700; border-radius: 999px; padding: 2px 8px; }
+
+/* ===================== SIDEBAR GROUP (ניהול) ===================== */
+.sidebar-group-header {
+  display: flex; flex-direction: row-reverse; align-items: center;
+}
+.sidebar-group-items {
+  display: flex; flex-direction: column;
+}
+.sidebar-sub-item {
+  padding-right: 28px !important;
+  font-size: 13px;
+}

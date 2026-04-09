@@ -99,6 +99,9 @@ export function Sidebar() {
     new Set(state.events.filter(e => e.status !== 'archived').map(e => e.id).slice(0, 2))
   );
   const [archiveOpen, setArchiveOpen] = useState(false);
+  const [mgmtOpen, setMgmtOpen] = useState(
+    state.activeSection === 'crm' || state.activeSection === 'speakers'
+  );
   const admin = isAdmin(state.currentUser);
 
   function setSection(section: AppSection) {
@@ -120,17 +123,18 @@ export function Sidebar() {
     dispatch({ type: 'SET_ACTIVE_SECTION', payload: 'events' });
   }
 
-  const allNavItems: { section: AppSection; icon: string; label: string; adminOnly?: boolean }[] = [
+  const mainNavItems: { section: AppSection; icon: string; label: string }[] = [
     { section: 'dashboard', icon: 'dashboard', label: 'דשבורד' },
     { section: 'my-tasks', icon: 'task_alt', label: 'המשימות שלי' },
     { section: 'events', icon: 'event', label: 'אירועים' },
+  ];
+
+  const mgmtNavItems: { section: AppSection; icon: string; label: string }[] = [
     { section: 'crm', icon: 'payments', label: 'מכירות' },
     { section: 'speakers', icon: 'mic', label: 'דוברים' },
-    { section: 'automations', icon: 'bolt', label: 'אוטומציות', adminOnly: true },
-    { section: 'users', icon: 'group', label: 'משתמשים', adminOnly: true },
   ];
-  const navItems = allNavItems.filter(item => !item.adminOnly || admin);
 
+  const isMgmtActive = state.activeSection === 'crm' || state.activeSection === 'speakers';
   const activeEvents = state.events.filter(e => e.status !== 'archived');
   const archivedEvents = state.events.filter(e => e.status === 'archived');
 
@@ -147,7 +151,7 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="sidebar-nav">
-        {navItems.map(item => (
+        {mainNavItems.map(item => (
           <div
             key={item.section}
             className={`sidebar-item ${state.activeSection === item.section ? 'active' : ''}`}
@@ -173,8 +177,6 @@ export function Sidebar() {
                 </div>
               );
             })}
-
-            {/* Archive */}
             {archivedEvents.length > 0 && (
               <div className="sidebar-archive-section">
                 <div className="sidebar-archive-toggle" onClick={() => setArchiveOpen(o => !o)}>
@@ -194,6 +196,32 @@ export function Sidebar() {
             )}
           </div>
         )}
+
+        {/* ניהול — collapsible group */}
+        <div
+          className={`sidebar-item sidebar-group-header ${isMgmtActive ? 'active' : ''}`}
+          onClick={() => setMgmtOpen(o => !o)}
+        >
+          <span className="material-symbols-outlined sidebar-item-icon">manage_accounts</span>
+          <span style={{ flex: 1 }}>ניהול</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 16, transition: 'transform 0.2s', transform: mgmtOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+            chevron_left
+          </span>
+        </div>
+        {mgmtOpen && (
+          <div className="sidebar-group-items">
+            {mgmtNavItems.map(item => (
+              <div
+                key={item.section}
+                className={`sidebar-item sidebar-sub-item ${state.activeSection === item.section ? 'active' : ''}`}
+                onClick={() => setSection(item.section)}
+              >
+                <span className="material-symbols-outlined sidebar-item-icon">{item.icon}</span>
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </nav>
 
       {/* Add event button — admin only */}
@@ -207,17 +235,6 @@ export function Sidebar() {
         </button>
       )}
 
-      {/* Invite button — admin only, subtle */}
-      {admin && (
-        <button
-          className="sidebar-invite-btn"
-          onClick={() => dispatch({ type: 'OPEN_INVITE_MODAL' })}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: 15 }}>person_add</span>
-          הזמן משתתפים
-        </button>
-      )}
-
       {/* Footer */}
       <div className="sidebar-footer">
         <div
@@ -227,14 +244,6 @@ export function Sidebar() {
         >
           <span className="material-symbols-outlined sidebar-item-icon">smart_toy</span>
           <span>AI אסיסטנט</span>
-        </div>
-        <div className="sidebar-item" onClick={() => dispatch({ type: 'TOGGLE_NOTIFICATIONS_PANEL' })}>
-          <span className="material-symbols-outlined sidebar-item-icon">settings</span>
-          <span>הגדרות</span>
-        </div>
-        <div className="sidebar-item">
-          <span className="material-symbols-outlined sidebar-item-icon">contact_support</span>
-          <span>עזרה</span>
         </div>
         <div
           className="sidebar-user"
@@ -249,13 +258,24 @@ export function Sidebar() {
             <div className="sidebar-user-name">{state.currentUser.name}</div>
             <div className="sidebar-user-role">{state.currentUser.jobTitle || 'מנהל תפעול'}</div>
           </div>
-          <button
-            className="sidebar-lock-btn"
-            onClick={e => { e.stopPropagation(); dispatch({ type: 'LOCK_APP' }); }}
-            title="נעל את האפליקציה"
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>lock</span>
-          </button>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {admin && (
+              <button
+                className="sidebar-lock-btn"
+                onClick={e => { e.stopPropagation(); dispatch({ type: 'SET_ACTIVE_SECTION', payload: 'users' }); }}
+                title="משתמשים"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>group</span>
+              </button>
+            )}
+            <button
+              className="sidebar-lock-btn"
+              onClick={e => { e.stopPropagation(); dispatch({ type: 'LOCK_APP' }); }}
+              title="נעל"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>lock</span>
+            </button>
+          </div>
         </div>
       </div>
     </aside>
