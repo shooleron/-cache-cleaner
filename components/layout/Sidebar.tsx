@@ -262,6 +262,15 @@ export function Sidebar() {
             {admin && (
               <button
                 className="sidebar-lock-btn"
+                onClick={e => { e.stopPropagation(); dispatch({ type: 'OPEN_INVITE_MODAL' }); }}
+                title="הזמן משתתפים"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person_add</span>
+              </button>
+            )}
+            {admin && (
+              <button
+                className="sidebar-lock-btn"
                 onClick={e => { e.stopPropagation(); dispatch({ type: 'SET_ACTIVE_SECTION', payload: 'users' }); }}
                 title="משתמשים"
               >
