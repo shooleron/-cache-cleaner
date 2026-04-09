@@ -89,7 +89,7 @@ export interface Attachment {
   createdAt: string;
 }
 
-export type CommentType = 'comment' | 'note';
+export type CommentType = 'comment' | 'note' | 'activity';
 
 export interface TaskNote {
   id: string;

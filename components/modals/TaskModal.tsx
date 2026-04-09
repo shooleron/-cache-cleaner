@@ -387,7 +387,10 @@ function ChatTab({ task }: { task: Task }) {
   const [text, setText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const comments = task.comments.filter(c => c.type === 'comment');
+  // Merge comments + activity entries, sorted by time
+  const allItems = [...task.comments].sort((a, b) =>
+    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
 
   const send = () => {
     if (!text.trim()) return;
@@ -399,24 +402,42 @@ function ChatTab({ task }: { task: Task }) {
   return (
     <div className="chat-tab">
       <div className="chat-messages">
-        {comments.length === 0 && (
+        {allItems.length === 0 && (
           <div className="chat-empty">
             <span className="material-symbols-outlined">forum</span>
             <p>אין הודעות עדיין — התחל שיחה</p>
           </div>
         )}
-        {comments.map(comment => {
-          const author = state.users.find(u => u.id === comment.userId);
-          const isMe = comment.userId === state.currentUser.id;
+        {allItems.map(item => {
+          const author = state.users.find(u => u.id === item.userId);
+
+          // Activity entry — inline system row
+          if (item.type === 'activity') {
+            return (
+              <div key={item.id} className="chat-activity-row">
+                <div className="chat-activity-avatar" style={{ background: author?.color || '#94a3b8' }}>
+                  {author?.avatar}
+                </div>
+                <div className="chat-activity-body">
+                  <span className="chat-activity-actor">{author?.name}</span>
+                  <span className="chat-activity-text">{item.text}</span>
+                  <span className="chat-activity-time">{formatRelativeTime(item.createdAt)}</span>
+                </div>
+              </div>
+            );
+          }
+
+          // Regular comment
+          const isMe = item.userId === state.currentUser.id;
           return (
-            <div key={comment.id} className={`chat-message-row ${isMe ? 'mine' : 'theirs'}`}>
+            <div key={item.id} className={`chat-message-row ${isMe ? 'mine' : 'theirs'}`}>
               {!isMe && (
                 <div className="chat-avatar" style={{ background: author?.color || '#ccc' }}>{author?.avatar}</div>
               )}
               <div className={`chat-bubble ${isMe ? 'mine' : 'theirs'}`}>
                 {!isMe && <div className="chat-sender">{author?.name}</div>}
-                <p className="chat-text">{comment.text}</p>
-                <span className="chat-time">{formatRelativeTime(comment.createdAt)}</span>
+                <p className="chat-text">{item.text}</p>
+                <span className="chat-time">{formatRelativeTime(item.createdAt)}</span>
               </div>
               {isMe && (
                 <div className="chat-avatar" style={{ background: state.currentUser.color }}>{state.currentUser.avatar}</div>

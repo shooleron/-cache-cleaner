@@ -221,23 +221,82 @@ function reducer(state: AppState, action: Action): AppState {
 
     case 'UPDATE_TASK': {
       const now = new Date().toISOString();
-      const updatedTasks = state.tasks.map(t =>
-        t.id === action.payload.id ? { ...t, ...action.payload, updatedAt: now } : t
-      );
+      const oldTask = state.tasks.find(t => t.id === action.payload.id);
+      const actor = state.currentUser;
+
+      // Build activity comments for tracked field changes
+      const activityComments: import('./types').Comment[] = [];
+
+      if (oldTask) {
+        const STATUS_LABELS: Record<string, string> = { todo: 'לביצוע', in_progress: 'בתהליך', done: 'הושלם', stuck: 'תקוע', backlog: 'בקלוג' };
+        const PRIORITY_LABELS: Record<string, string> = { critical: 'קריטי', high: 'גבוה', medium: 'בינוני', low: 'נמוך' };
+
+        if (action.payload.status && action.payload.status !== oldTask.status) {
+          activityComments.push({ id: uuidv4(), taskId: oldTask.id, userId: actor.id, type: 'activity',
+            text: `שינה סטטוס מ-"${STATUS_LABELS[oldTask.status] || oldTask.status}" ל-"${STATUS_LABELS[action.payload.status] || action.payload.status}"`, createdAt: now });
+        }
+        if (action.payload.priority && action.payload.priority !== oldTask.priority) {
+          activityComments.push({ id: uuidv4(), taskId: oldTask.id, userId: actor.id, type: 'activity',
+            text: `שינה עדיפות מ-"${PRIORITY_LABELS[oldTask.priority]}" ל-"${PRIORITY_LABELS[action.payload.priority]}"`, createdAt: now });
+        }
+        if (action.payload.assigneeIds) {
+          const added = action.payload.assigneeIds.filter(id => !oldTask.assigneeIds.includes(id));
+          const removed = oldTask.assigneeIds.filter(id => !action.payload.assigneeIds!.includes(id));
+          added.forEach(id => {
+            const u = state.users.find(u => u.id === id);
+            if (u) activityComments.push({ id: uuidv4(), taskId: oldTask.id, userId: actor.id, type: 'activity',
+              text: `הוסיף את ${u.name} לצוות המשימה`, createdAt: now });
+          });
+          removed.forEach(id => {
+            const u = state.users.find(u => u.id === id);
+            if (u) activityComments.push({ id: uuidv4(), taskId: oldTask.id, userId: actor.id, type: 'activity',
+              text: `הסיר את ${u.name} מצוות המשימה`, createdAt: now });
+          });
+        }
+        if ('contactId' in action.payload) {
+          if (action.payload.contactId && action.payload.contactId !== oldTask.contactId) {
+            const contact = state.contacts.find(c => c.id === action.payload.contactId);
+            activityComments.push({ id: uuidv4(), taskId: oldTask.id, userId: actor.id, type: 'activity',
+              text: `שייך איש קשר חיצוני: ${contact?.name || action.payload.contactId} (${contact?.company || ''})`, createdAt: now });
+          } else if (!action.payload.contactId && oldTask.contactId) {
+            const contact = state.contacts.find(c => c.id === oldTask.contactId);
+            activityComments.push({ id: uuidv4(), taskId: oldTask.id, userId: actor.id, type: 'activity',
+              text: `הסיר את איש הקשר ${contact?.name || ''}`, createdAt: now });
+          }
+        }
+        if (action.payload.dueDate !== undefined && action.payload.dueDate !== oldTask.dueDate) {
+          const dateStr = action.payload.dueDate ? new Date(action.payload.dueDate).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric' }) : 'ללא תאריך';
+          activityComments.push({ id: uuidv4(), taskId: oldTask.id, userId: actor.id, type: 'activity',
+            text: `עדכן תאריך יעד ל-${dateStr}`, createdAt: now });
+        }
+        if (action.payload.title && action.payload.title !== oldTask.title) {
+          activityComments.push({ id: uuidv4(), taskId: oldTask.id, userId: actor.id, type: 'activity',
+            text: `שינה שם המשימה`, createdAt: now });
+        }
+        if (action.payload.timeTracked && action.payload.timeTracked !== oldTask.timeTracked) {
+          const added = action.payload.timeTracked - oldTask.timeTracked;
+          activityComments.push({ id: uuidv4(), taskId: oldTask.id, userId: actor.id, type: 'activity',
+            text: `רשם ${added} דקות עבודה`, createdAt: now });
+        }
+      }
+
+      const updatedTasks = state.tasks.map(t => {
+        if (t.id !== action.payload.id) return t;
+        const updatedComments = activityComments.length > 0 ? [...t.comments, ...activityComments] : t.comments;
+        return { ...t, ...action.payload, comments: updatedComments, updatedAt: now };
+      });
+
       let notifications = state.notifications;
       if (action.payload.assigneeIds) {
-        const oldTask = state.tasks.find(t => t.id === action.payload.id);
         const newAssignees = action.payload.assigneeIds.filter(id => !oldTask?.assigneeIds.includes(id));
         newAssignees.forEach(assigneeId => {
           const assignee = state.users.find(u => u.id === assigneeId);
           if (assignee && assigneeId !== state.currentUser.id) {
-            const task = state.tasks.find(t => t.id === action.payload.id);
-            notifications = [{ id: uuidv4(), userId: assigneeId, type: 'assigned', message: `${state.currentUser.name} assigned you to "${task?.title}"`, taskId: action.payload.id, projectId: task?.projectId || null, read: false, createdAt: now }, ...notifications];
+            notifications = [{ id: uuidv4(), userId: assigneeId, type: 'assigned', message: `${state.currentUser.name} assigned you to "${oldTask?.title}"`, taskId: action.payload.id, projectId: oldTask?.projectId || null, read: false, createdAt: now }, ...notifications];
           }
         });
       }
-      const updatedTaskMeta = state.tasks.find(t => t.id === action.payload.id);
-      return { ...state, tasks: updatedTasks, notifications, activityLogs: [makeLog(state.currentUser.id, 'updated_task', `עדכן משימה "${updatedTaskMeta?.title || ''}"`, action.payload.id, 'task'), ...state.activityLogs].slice(0, 500) };
+      return { ...state, tasks: updatedTasks, notifications, activityLogs: [makeLog(actor.id, 'updated_task', `עדכן משימה "${oldTask?.title || ''}"`, action.payload.id, 'task'), ...state.activityLogs].slice(0, 500) };
     }
 
     case 'DELETE_TASK': {
