@@ -121,9 +121,10 @@ export function Sidebar() {
   }
 
   const allNavItems: { section: AppSection; icon: string; label: string; adminOnly?: boolean }[] = [
-    { section: 'dashboard', icon: 'dashboard', label: 'תפעול' },
-    { section: 'crm', icon: 'payments', label: 'מכירות' },
+    { section: 'dashboard', icon: 'dashboard', label: 'דשבורד' },
+    { section: 'my-tasks', icon: 'task_alt', label: 'המשימות שלי' },
     { section: 'events', icon: 'event', label: 'אירועים' },
+    { section: 'crm', icon: 'payments', label: 'מכירות' },
     { section: 'speakers', icon: 'mic', label: 'דוברים' },
     { section: 'automations', icon: 'bolt', label: 'אוטומציות', adminOnly: true },
     { section: 'users', icon: 'group', label: 'משתמשים', adminOnly: true },

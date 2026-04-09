@@ -209,6 +209,9 @@ function reducer(state: AppState, action: Action): AppState {
         campaignId: null,
         attachments: [],
         notes: [],
+        recurring: false,
+        recurringInterval: null,
+        department: null,
         createdAt: now,
         updatedAt: now,
       };
@@ -406,6 +409,9 @@ function reducer(state: AppState, action: Action): AppState {
             campaignId: null,
             attachments: [],
             notes: [],
+            recurring: false,
+            recurringInterval: null,
+            department: 'operations',
             createdAt: now,
             updatedAt: now,
           });

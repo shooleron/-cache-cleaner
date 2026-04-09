@@ -3,7 +3,8 @@ export type UserStatus = 'active' | 'inactive' | 'pending';
 export type TaskStatus = 'todo' | 'in_progress' | 'stuck' | 'done' | 'backlog';
 export type TaskPriority = 'critical' | 'high' | 'medium' | 'low';
 export type BoardView = 'table' | 'kanban' | 'roadmap' | 'calendar';
-export type AppSection = 'events' | 'dashboard' | 'crm' | 'automations' | 'ai' | 'users' | 'speakers';
+export type AppSection = 'events' | 'dashboard' | 'crm' | 'automations' | 'ai' | 'users' | 'speakers' | 'my-tasks';
+export type Department = 'operations' | 'sales' | 'marketing' | 'design' | 'content' | 'management';
 export type SpeakerApprovalStatus = 'approved' | 'pending' | 'cancelled';
 export type SpeakerCVStatus = 'received' | 'pending';
 export type SpeakerPhotoStatus = 'uploaded' | 'missing';
@@ -28,6 +29,7 @@ export interface User {
   company?: string;
   companyAddress?: string;
   jobTitle?: string;
+  department?: Department;
 }
 
 export interface Comment {
@@ -58,6 +60,9 @@ export interface Task {
   campaignId: string | null;
   attachments: Attachment[];
   notes: TaskNote[];
+  recurring: boolean;
+  recurringInterval: 'daily' | 'weekly' | 'monthly' | null;
+  department: Department | null;
   createdAt: string;
   updatedAt: string;
 }

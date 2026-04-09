@@ -13,6 +13,8 @@ import { DealsView } from '@/components/crm/DealsView';
 import { AutomationsPanel } from '@/components/automations/AutomationsPanel';
 import { UsersView } from '@/components/views/UsersView';
 import { SpeakersView } from '@/components/views/SpeakersView';
+import { MyTasksView } from '@/components/views/MyTasksView';
+import { EventsView } from '@/components/views/EventsView';
 import { SpeakerModal } from '@/components/modals/SpeakerModal';
 import { AIAgentPanel } from '@/components/ai/AIAgentPanel';
 import { NotificationsPanel } from '@/components/panels/NotificationsPanel';
@@ -29,13 +31,24 @@ function AppContent() {
 
   const renderMainContent = () => {
     if (state.activeSection === 'dashboard') return <DashboardView />;
+    if (state.activeSection === 'my-tasks') return <MyTasksView />;
     if (state.activeSection === 'crm') {
       return state.activeCRMView === 'deals' ? <DealsView /> : <ContactsView />;
     }
     if (state.activeSection === 'automations') return <AutomationsPanel />;
     if (state.activeSection === 'users') return <UsersView />;
     if (state.activeSection === 'speakers') return <SpeakersView />;
-    // 'events' section — show project view when a project is selected
+    // 'events' section — show EventsView when no project selected, or board view when project is active
+    if (state.activeSection === 'events') {
+      if (!state.activeProjectId) return <EventsView />;
+      switch (state.activeView) {
+        case 'kanban': return <KanbanView />;
+        case 'roadmap': return <RoadmapView />;
+        case 'calendar': return <CalendarView />;
+        default: return <TableView />;
+      }
+    }
+    // fallback
     switch (state.activeView) {
       case 'kanban': return <KanbanView />;
       case 'roadmap': return <RoadmapView />;
