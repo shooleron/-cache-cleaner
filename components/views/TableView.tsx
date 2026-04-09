@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { Task, TaskStatus, TaskPriority } from '@/lib/types';
 
@@ -104,19 +104,92 @@ function PriorityCell({ priority, taskId }: { priority: TaskPriority; taskId: st
   );
 }
 
-function renderCell(colId: ColId, task: Task, dispatch: (a: any) => void) {
+function AssigneeCell({ task }: { task: Task }) {
+  const { state, dispatch } = useStore();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const toggleUser = (userId: string) => {
+    const ids = task.assigneeIds.includes(userId)
+      ? task.assigneeIds.filter(id => id !== userId)
+      : [...task.assigneeIds, userId];
+    dispatch({ type: 'UPDATE_TASK', payload: { id: task.id, assigneeIds: ids } });
+  };
+
+  const users = task.assigneeIds.map(id => state.users.find(u => u.id === id)).filter(Boolean);
+
+  return (
+    <div className="status-cell-wrapper" ref={ref}>
+      <div className="assignee-cell-trigger" onClick={() => setOpen(o => !o)}>
+        {users.length > 0
+          ? <div className="avatar-group">
+              {users.slice(0, 3).map(u => u && (
+                <div key={u.id} className="table-avatar" style={{ background: u.color }} title={u.name}>{u.avatar}</div>
+              ))}
+            </div>
+          : <span className="table-unassigned">+ הוסף</span>
+        }
+      </div>
+      {open && (
+        <div className="status-dropdown assignee-dropdown">
+          {state.users.map(u => (
+            <div key={u.id} className={`assignee-option ${task.assigneeIds.includes(u.id) ? 'selected' : ''}`}
+              onClick={() => toggleUser(u.id)}>
+              <div className="assignee-option-avatar" style={{ background: u.color }}>{u.avatar}</div>
+              <span className="assignee-option-name">{u.name}</span>
+              {task.assigneeIds.includes(u.id) && (
+                <span className="material-symbols-outlined" style={{ fontSize: 14, color: 'var(--primary)', marginRight: 'auto' }}>check</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DateCell({ value, taskId, field }: { value: string | null; taskId: string; field: 'dueDate' | 'startDate' }) {
+  const { dispatch } = useStore();
+  const [show, setShow] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleClick = () => {
+    setShow(true);
+    setTimeout(() => inputRef.current?.showPicker?.(), 50);
+  };
+
+  if (show || value) {
+    return (
+      <input
+        ref={inputRef}
+        type="date"
+        className="date-input"
+        value={value || ''}
+        onChange={e => dispatch({ type: 'UPDATE_TASK', payload: { id: taskId, [field]: e.target.value || null } })}
+        onBlur={() => { if (!value) setShow(false); }}
+        autoFocus={show && !value}
+      />
+    );
+  }
+  return (
+    <span className="table-unassigned date-add-btn" onClick={handleClick}>+ תאריך</span>
+  );
+}
+
+function renderCell(colId: ColId, task: Task, _dispatch?: unknown) {
   switch (colId) {
-    case 'assignee':    return <UserAvatarGroup userIds={task.assigneeIds} />;
+    case 'assignee':    return <AssigneeCell task={task} />;
     case 'status':      return <StatusCell status={task.status} taskId={task.id} />;
     case 'priority':    return <PriorityCell priority={task.priority} taskId={task.id} />;
-    case 'dueDate':     return task.dueDate
-      ? <input type="date" className="date-input" value={task.dueDate}
-          onChange={e => dispatch({ type: 'UPDATE_TASK', payload: { id: task.id, dueDate: e.target.value } })} />
-      : <span className="table-unassigned">—</span>;
-    case 'startDate':   return task.startDate
-      ? <input type="date" className="date-input" value={task.startDate}
-          onChange={e => dispatch({ type: 'UPDATE_TASK', payload: { id: task.id, startDate: e.target.value } })} />
-      : <span className="table-unassigned">—</span>;
+    case 'dueDate':     return <DateCell value={task.dueDate} taskId={task.id} field="dueDate" />;
+    case 'startDate':   return <DateCell value={task.startDate} taskId={task.id} field="startDate" />;
     case 'tags':        return task.tags.length
       ? <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           {task.tags.map(t => (
@@ -163,7 +236,7 @@ function TaskRow({ task, cols }: { task: Task; cols: ColDef[] }) {
                 </span>
               )}
             </div>
-          ) : renderCell(col.id, task, dispatch)}
+          ) : renderCell(col.id, task)}
         </td>
       ))}
       <td className="table-cell actions-cell" style={{ width: 40, minWidth: 40 }}>
@@ -182,6 +255,8 @@ function GroupSection({ groupId, projectId, cols }: { groupId: string; projectId
   const [collapsed, setCollapsed] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [editingName, setEditingName] = useState(false);
+  const [groupName, setGroupName] = useState('');
 
   const group = state.groups.find(g => g.id === groupId);
   const tasks = state.tasks.filter(t => t.groupId === groupId).sort((a, b) => a.order - b.order);
@@ -202,7 +277,26 @@ function GroupSection({ groupId, projectId, cols }: { groupId: string; projectId
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{collapsed ? 'chevron_left' : 'expand_more'}</span>
         </button>
         <span className="group-color-swatch" style={{ background: group.color }} />
-        <span className="group-name" style={{ color: group.color }}>{group.name}</span>
+        {editingName ? (
+          <input
+            className="group-name-input"
+            value={groupName}
+            onChange={e => setGroupName(e.target.value)}
+            onBlur={() => {
+              setEditingName(false);
+              if (groupName.trim() && groupName !== group.name)
+                dispatch({ type: 'UPDATE_GROUP', payload: { id: groupId, name: groupName.trim() } });
+            }}
+            onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); if (e.key === 'Escape') setEditingName(false); }}
+            style={{ color: group.color }}
+            autoFocus
+          />
+        ) : (
+          <span className="group-name" style={{ color: group.color }}
+            onDoubleClick={() => { setGroupName(group.name); setEditingName(true); }}>
+            {group.name}
+          </span>
+        )}
         <span className="group-task-count">{tasks.length} פריטים</span>
       </div>
 

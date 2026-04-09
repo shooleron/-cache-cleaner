@@ -4,7 +4,8 @@ import React, { createContext, useContext, useReducer, useEffect, useRef, ReactN
 import {
   AppState, Task, Project, User, Notification, Comment, Group, BoardView,
   AppSection, CRMView, Contact, Deal, DealActivity, AutomationRule, AIMessage,
-  DealStage, SubItem,
+  DealStage, SubItem, ActivityLog, ActivityVerb, Event, Campaign, EventStatus,
+  Attachment, AttachmentType, TaskNote, Speaker, Panel, SponsorshipProduct, DealLineItem,
 } from './types';
 import { INITIAL_STATE } from './mockData';
 import { v4 as uuidv4 } from 'uuid';
@@ -40,10 +41,16 @@ type Action =
   | { type: 'UPDATE_TASK'; payload: Partial<Task> & { id: string } }
   | { type: 'DELETE_TASK'; payload: string }
   | { type: 'MOVE_TASK'; payload: { taskId: string; newStatus: Task['status'] } }
-  | { type: 'ADD_COMMENT'; payload: { taskId: string; text: string } }
+  | { type: 'ADD_COMMENT'; payload: { taskId: string; text: string; commentType?: Comment['type'] } }
+  | { type: 'ADD_ATTACHMENT'; payload: { taskId: string; type: AttachmentType; name: string; url: string; size?: number; mimeType?: string } }
+  | { type: 'DELETE_ATTACHMENT'; payload: { taskId: string; attachmentId: string } }
+  | { type: 'ADD_NOTE'; payload: { taskId: string; content: string } }
+  | { type: 'UPDATE_NOTE'; payload: { taskId: string; noteId: string; content: string } }
+  | { type: 'DELETE_NOTE'; payload: { taskId: string; noteId: string } }
   | { type: 'ADD_SUB_ITEM'; payload: { taskId: string; title: string } }
   | { type: 'TOGGLE_SUB_ITEM'; payload: { taskId: string; subItemId: string } }
   | { type: 'CREATE_GROUP'; payload: { projectId: string; name: string } }
+  | { type: 'UPDATE_GROUP'; payload: { id: string; name: string } }
   | { type: 'INVITE_USER'; payload: { email: string; projectId: string } }
   | { type: 'MARK_NOTIFICATION_READ'; payload: string }
   | { type: 'MARK_ALL_NOTIFICATIONS_READ' }
@@ -52,6 +59,7 @@ type Action =
   | { type: 'DELETE_CONTACT'; payload: string }
   | { type: 'CREATE_DEAL'; payload: Omit<Deal, 'id' | 'createdAt' | 'updatedAt' | 'activities'> }
   | { type: 'UPDATE_DEAL'; payload: Partial<Deal> & { id: string } }
+  | { type: 'CLOSE_DEAL_WON'; payload: { dealId: string } }
   | { type: 'DELETE_DEAL'; payload: string }
   | { type: 'MOVE_DEAL_STAGE'; payload: { dealId: string; stage: DealStage } }
   | { type: 'ADD_DEAL_ACTIVITY'; payload: { dealId: string; type: DealActivity['type']; description: string } }
@@ -68,7 +76,28 @@ type Action =
   | { type: 'LOCK_APP' }
   | { type: 'OPEN_PROFILE_MODAL' }
   | { type: 'CLOSE_PROFILE_MODAL' }
-  | { type: 'UPDATE_PROFILE'; payload: { name?: string; jobTitle?: string; phone?: string; email?: string; company?: string; companyAddress?: string } };
+  | { type: 'UPDATE_PROFILE'; payload: { name?: string; jobTitle?: string; phone?: string; email?: string; company?: string; companyAddress?: string } }
+  | { type: 'OPEN_NEW_EVENT_MODAL' }
+  | { type: 'CLOSE_NEW_EVENT_MODAL' }
+  | { type: 'CREATE_EVENT'; payload: Omit<Event, 'id' | 'createdAt' | 'updatedAt'> }
+  | { type: 'UPDATE_EVENT'; payload: Partial<Event> & { id: string } }
+  | { type: 'UPDATE_PROJECT'; payload: Partial<Project> & { id: string } }
+  | { type: 'ARCHIVE_EVENT'; payload: string }
+  | { type: 'DUPLICATE_EVENT'; payload: { sourceEventId: string; newName: string; newDate: string } }
+  | { type: 'SET_ACTIVE_EVENT'; payload: string }
+  | { type: 'CREATE_CAMPAIGN'; payload: Omit<Campaign, 'id' | 'createdAt' | 'updatedAt'> }
+  | { type: 'UPDATE_CAMPAIGN'; payload: Partial<Campaign> & { id: string } }
+  | { type: 'DELETE_CAMPAIGN'; payload: string }
+  | { type: 'OPEN_SPEAKER_MODAL'; payload: string }
+  | { type: 'CLOSE_SPEAKER_MODAL' }
+  | { type: 'CREATE_SPEAKER'; payload: Omit<Speaker, 'id' | 'createdAt' | 'updatedAt'> }
+  | { type: 'UPDATE_SPEAKER'; payload: Partial<Speaker> & { id: string } }
+  | { type: 'DELETE_SPEAKER'; payload: string }
+  | { type: 'CREATE_PANEL'; payload: Omit<Panel, 'id' | 'createdAt' | 'updatedAt'> }
+  | { type: 'UPDATE_PANEL'; payload: Partial<Panel> & { id: string } }
+  | { type: 'DELETE_PANEL'; payload: string }
+  | { type: 'ADD_SPEAKER_TO_PANEL'; payload: { panelId: string; speakerId: string } }
+  | { type: 'REMOVE_SPEAKER_FROM_PANEL'; payload: { panelId: string; speakerId: string } };
 
 // Fields that should NOT be synced to Supabase (UI-only state)
 const UI_ONLY_FIELDS: (keyof AppState)[] = [
@@ -83,7 +112,14 @@ const UI_ONLY_FIELDS: (keyof AppState)[] = [
   'onboardingComplete',
   'appLocked',
   'profileModalOpen',
+  'activeEventId',
+  'newEventModalOpen',
+  'speakerModalId',
 ];
+
+function makeLog(userId: string, verb: ActivityVerb, label: string, entityId?: string, entityType?: ActivityLog['entityType']): ActivityLog {
+  return { id: uuidv4(), userId, verb, label, entityId, entityType, createdAt: new Date().toISOString() };
+}
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -91,7 +127,7 @@ function reducer(state: AppState, action: Action): AppState {
       return action.payload;
 
     case 'SET_ACTIVE_PROJECT':
-      return { ...state, activeProjectId: action.payload, taskModalId: null, activeSection: 'projects' };
+      return { ...state, activeProjectId: action.payload, taskModalId: null, activeSection: 'events' };
 
     case 'SET_ACTIVE_VIEW':
       return { ...state, activeView: action.payload };
@@ -120,6 +156,12 @@ function reducer(state: AppState, action: Action): AppState {
     case 'CLOSE_NEW_PROJECT_MODAL':
       return { ...state, newProjectModalOpen: false };
 
+    case 'OPEN_NEW_EVENT_MODAL':
+      return { ...state, newEventModalOpen: true };
+
+    case 'CLOSE_NEW_EVENT_MODAL':
+      return { ...state, newEventModalOpen: false };
+
     case 'OPEN_INVITE_MODAL':
       return { ...state, inviteModalOpen: true };
 
@@ -142,7 +184,7 @@ function reducer(state: AppState, action: Action): AppState {
         color: action.payload.color,
         order: 0,
       };
-      return { ...state, projects: [...state.projects, newProject], groups: [...state.groups, defaultGroup], activeProjectId: newProject.id, newProjectModalOpen: false, activeSection: 'projects' };
+      return { ...state, projects: [...state.projects, newProject], groups: [...state.groups, defaultGroup], activeProjectId: newProject.id, newProjectModalOpen: false, activeSection: 'events', activityLogs: [makeLog(state.currentUser.id, 'created_project', `יצר פרויקט "${newProject.name}"`, newProject.id, 'project'), ...state.activityLogs].slice(0, 500) };
     }
 
     case 'CREATE_TASK': {
@@ -164,10 +206,13 @@ function reducer(state: AppState, action: Action): AppState {
         subItems: [],
         tags: [],
         timeTracked: 0,
+        campaignId: null,
+        attachments: [],
+        notes: [],
         createdAt: now,
         updatedAt: now,
       };
-      return { ...state, tasks: [...state.tasks, newTask] };
+      return { ...state, tasks: [...state.tasks, newTask], activityLogs: [makeLog(state.currentUser.id, 'created_task', `יצר משימה "${newTask.title}"`, newTask.id, 'task'), ...state.activityLogs].slice(0, 500) };
     }
 
     case 'UPDATE_TASK': {
@@ -187,22 +232,53 @@ function reducer(state: AppState, action: Action): AppState {
           }
         });
       }
-      return { ...state, tasks: updatedTasks, notifications };
+      const updatedTaskMeta = state.tasks.find(t => t.id === action.payload.id);
+      return { ...state, tasks: updatedTasks, notifications, activityLogs: [makeLog(state.currentUser.id, 'updated_task', `עדכן משימה "${updatedTaskMeta?.title || ''}"`, action.payload.id, 'task'), ...state.activityLogs].slice(0, 500) };
     }
 
-    case 'DELETE_TASK':
-      return { ...state, tasks: state.tasks.filter(t => t.id !== action.payload) };
+    case 'DELETE_TASK': {
+      const deletedTask = state.tasks.find(t => t.id === action.payload);
+      return { ...state, tasks: state.tasks.filter(t => t.id !== action.payload), activityLogs: [makeLog(state.currentUser.id, 'deleted_task', `מחק משימה "${deletedTask?.title || ''}"`, action.payload, 'task'), ...state.activityLogs].slice(0, 500) };
+    }
 
     case 'MOVE_TASK': {
       const now = new Date().toISOString();
-      return { ...state, tasks: state.tasks.map(t => t.id === action.payload.taskId ? { ...t, status: action.payload.newStatus, updatedAt: now } : t) };
+      const movedTask = state.tasks.find(t => t.id === action.payload.taskId);
+      const moveLog = action.payload.newStatus === 'done'
+        ? makeLog(state.currentUser.id, 'completed_task', `סימן משימה "${movedTask?.title || ''}" כהושלמה`, action.payload.taskId, 'task')
+        : null;
+      return { ...state, tasks: state.tasks.map(t => t.id === action.payload.taskId ? { ...t, status: action.payload.newStatus, updatedAt: now } : t), activityLogs: moveLog ? [moveLog, ...state.activityLogs].slice(0, 500) : state.activityLogs };
     }
 
     case 'ADD_COMMENT': {
       const now = new Date().toISOString();
-      const comment: Comment = { id: uuidv4(), taskId: action.payload.taskId, userId: state.currentUser.id, text: action.payload.text, createdAt: now };
-      return { ...state, tasks: state.tasks.map(t => t.id === action.payload.taskId ? { ...t, comments: [...t.comments, comment], updatedAt: now } : t) };
+      const comment: Comment = { id: uuidv4(), taskId: action.payload.taskId, userId: state.currentUser.id, text: action.payload.text, type: action.payload.commentType || 'comment', createdAt: now };
+      const commentTask = state.tasks.find(t => t.id === action.payload.taskId);
+      return { ...state, tasks: state.tasks.map(t => t.id === action.payload.taskId ? { ...t, comments: [...t.comments, comment], updatedAt: now } : t), activityLogs: [makeLog(state.currentUser.id, 'commented', `הגיב על משימה "${commentTask?.title || ''}"`, action.payload.taskId, 'task'), ...state.activityLogs].slice(0, 500) };
     }
+
+    case 'ADD_ATTACHMENT': {
+      const now = new Date().toISOString();
+      const attachment: Attachment = { id: uuidv4(), taskId: action.payload.taskId, type: action.payload.type, name: action.payload.name, url: action.payload.url, size: action.payload.size, mimeType: action.payload.mimeType, uploadedBy: state.currentUser.id, createdAt: now };
+      return { ...state, tasks: state.tasks.map(t => t.id === action.payload.taskId ? { ...t, attachments: [...(t.attachments || []), attachment], updatedAt: now } : t) };
+    }
+
+    case 'DELETE_ATTACHMENT':
+      return { ...state, tasks: state.tasks.map(t => t.id === action.payload.taskId ? { ...t, attachments: (t.attachments || []).filter(a => a.id !== action.payload.attachmentId) } : t) };
+
+    case 'ADD_NOTE': {
+      const now = new Date().toISOString();
+      const note: TaskNote = { id: uuidv4(), taskId: action.payload.taskId, userId: state.currentUser.id, content: action.payload.content, createdAt: now, updatedAt: now };
+      return { ...state, tasks: state.tasks.map(t => t.id === action.payload.taskId ? { ...t, notes: [...(t.notes || []), note], updatedAt: now } : t) };
+    }
+
+    case 'UPDATE_NOTE': {
+      const now = new Date().toISOString();
+      return { ...state, tasks: state.tasks.map(t => t.id === action.payload.taskId ? { ...t, notes: (t.notes || []).map(n => n.id === action.payload.noteId ? { ...n, content: action.payload.content, updatedAt: now } : n) } : t) };
+    }
+
+    case 'DELETE_NOTE':
+      return { ...state, tasks: state.tasks.map(t => t.id === action.payload.taskId ? { ...t, notes: (t.notes || []).filter(n => n.id !== action.payload.noteId) } : t) };
 
     case 'ADD_SUB_ITEM': {
       const sub: SubItem = { id: uuidv4(), taskId: action.payload.taskId, title: action.payload.title, done: false };
@@ -230,18 +306,21 @@ function reducer(state: AppState, action: Action): AppState {
         color: '#' + ['0073ea', 'e2445c', 'fdab3d', '00c875', '9c27b0', 'f44336'][Math.floor(Math.random() * 6)],
         order: state.groups.filter(g => g.projectId === action.payload.projectId).length,
       };
-      return { ...state, groups: [...state.groups, newGroup] };
+      return { ...state, groups: [...state.groups, newGroup], activityLogs: [makeLog(state.currentUser.id, 'created_group', `יצר קבוצה "${newGroup.name}"`, newGroup.id, 'project'), ...state.activityLogs].slice(0, 500) };
     }
+
+    case 'UPDATE_GROUP':
+      return { ...state, groups: state.groups.map(g => g.id === action.payload.id ? { ...g, name: action.payload.name } : g) };
 
     case 'INVITE_USER': {
       const existingUser = state.users.find(u => u.email === action.payload.email);
       if (existingUser) {
         const updatedProjects = state.projects.map(p => p.id === action.payload.projectId && !p.memberIds.includes(existingUser.id) ? { ...p, memberIds: [...p.memberIds, existingUser.id] } : p);
-        return { ...state, projects: updatedProjects, inviteModalOpen: false };
+        return { ...state, projects: updatedProjects, inviteModalOpen: false, activityLogs: [makeLog(state.currentUser.id, 'invited_user', `הזמין ${existingUser.name} לפרויקט`, existingUser.id, 'user'), ...state.activityLogs].slice(0, 500) };
       }
       const newUser: User = { id: uuidv4(), name: action.payload.email.split('@')[0], email: action.payload.email, avatar: action.payload.email.substring(0, 2).toUpperCase(), color: '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0'), role: 'member', status: 'pending' };
       const updatedProjects = state.projects.map(p => p.id === action.payload.projectId ? { ...p, memberIds: [...p.memberIds, newUser.id] } : p);
-      return { ...state, users: [...state.users, newUser], projects: updatedProjects, inviteModalOpen: false };
+      return { ...state, users: [...state.users, newUser], projects: updatedProjects, inviteModalOpen: false, activityLogs: [makeLog(state.currentUser.id, 'invited_user', `הזמין ${newUser.name} לפרויקט`, newUser.id, 'user'), ...state.activityLogs].slice(0, 500) };
     }
 
     case 'MARK_NOTIFICATION_READ':
@@ -262,37 +341,129 @@ function reducer(state: AppState, action: Action): AppState {
         updatedAt: now,
         lastActivityAt: now,
       };
-      return { ...state, contacts: [...state.contacts, newContact] };
+      return { ...state, contacts: [...state.contacts, newContact], activityLogs: [makeLog(state.currentUser.id, 'created_contact', `יצר איש קשר "${newContact.name}"`, newContact.id, 'contact'), ...state.activityLogs].slice(0, 500) };
     }
 
     case 'UPDATE_CONTACT': {
       const now = new Date().toISOString();
-      return { ...state, contacts: state.contacts.map(c => c.id === action.payload.id ? { ...c, ...action.payload, updatedAt: now, lastActivityAt: now } : c) };
+      const updContact = state.contacts.find(c => c.id === action.payload.id);
+      return { ...state, contacts: state.contacts.map(c => c.id === action.payload.id ? { ...c, ...action.payload, updatedAt: now, lastActivityAt: now } : c), activityLogs: [makeLog(state.currentUser.id, 'updated_contact', `עדכן איש קשר "${action.payload.name || updContact?.name || ''}"`, action.payload.id, 'contact'), ...state.activityLogs].slice(0, 500) };
     }
 
-    case 'DELETE_CONTACT':
-      return { ...state, contacts: state.contacts.filter(c => c.id !== action.payload) };
+    case 'DELETE_CONTACT': {
+      const delContact = state.contacts.find(c => c.id === action.payload);
+      return { ...state, contacts: state.contacts.filter(c => c.id !== action.payload), activityLogs: [makeLog(state.currentUser.id, 'deleted_contact', `מחק איש קשר "${delContact?.name || ''}"`, action.payload, 'contact'), ...state.activityLogs].slice(0, 500) };
+    }
 
     case 'CREATE_DEAL': {
       const now = new Date().toISOString();
-      const newDeal: Deal = { ...action.payload, id: uuidv4(), activities: [], createdAt: now, updatedAt: now };
+      const newDeal: Deal = { ...action.payload, id: uuidv4(), activities: [], lineItems: action.payload.lineItems || [], eventId: action.payload.eventId || null, operationsProjectId: null, createdAt: now, updatedAt: now };
       let contacts = state.contacts;
       if (newDeal.contactId) {
         contacts = contacts.map(c => c.id === newDeal.contactId ? { ...c, linkedDealIds: [...c.linkedDealIds, newDeal.id] } : c);
       }
-      return { ...state, deals: [...state.deals, newDeal], contacts };
+      return { ...state, deals: [...state.deals, newDeal], contacts, activityLogs: [makeLog(state.currentUser.id, 'created_deal', `יצר עסקה "${newDeal.title}"`, newDeal.id, 'deal'), ...state.activityLogs].slice(0, 500) };
     }
 
     case 'UPDATE_DEAL': {
       const now = new Date().toISOString();
-      return { ...state, deals: state.deals.map(d => d.id === action.payload.id ? { ...d, ...action.payload, updatedAt: now } : d) };
+      const updDeal = state.deals.find(d => d.id === action.payload.id);
+      return { ...state, deals: state.deals.map(d => d.id === action.payload.id ? { ...d, ...action.payload, updatedAt: now } : d), activityLogs: [makeLog(state.currentUser.id, 'updated_deal', `עדכן עסקה "${action.payload.title || updDeal?.title || ''}"`, action.payload.id, 'deal'), ...state.activityLogs].slice(0, 500) };
     }
 
-    case 'DELETE_DEAL':
-      return { ...state, deals: state.deals.filter(d => d.id !== action.payload) };
+    case 'CLOSE_DEAL_WON': {
+      const now = new Date().toISOString();
+      const deal = state.deals.find(d => d.id === action.payload.dealId);
+      if (!deal || deal.operationsProjectId) return state; // already has a project
+
+      const contact = state.contacts.find(c => c.id === deal.contactId);
+      const projectId = uuidv4();
+      const groupId = uuidv4();
+
+      // Build task list from each line item's product templates
+      const tasks: Task[] = [];
+      let taskOrder = 0;
+      deal.lineItems.forEach(item => {
+        const product = state.products.find(p => p.id === item.productId);
+        if (!product) return;
+        product.taskTemplates.forEach(tmpl => {
+          tasks.push({
+            id: uuidv4(),
+            projectId,
+            groupId,
+            title: `[${item.productName}] ${tmpl}`,
+            description: '',
+            status: 'todo',
+            priority: 'medium',
+            assigneeIds: [deal.ownerId],
+            startDate: null,
+            dueDate: deal.expectedCloseDate,
+            order: taskOrder++,
+            comments: [],
+            subItems: [],
+            tags: [item.productName],
+            timeTracked: 0,
+            campaignId: null,
+            attachments: [],
+            notes: [],
+            createdAt: now,
+            updatedAt: now,
+          });
+        });
+      });
+
+      const newGroup: Group = {
+        id: groupId,
+        projectId,
+        name: 'משימות תפעול',
+        color: '#0073ea',
+        order: 0,
+      };
+
+      const newProject: Project = {
+        id: projectId,
+        name: `תפעול — ${contact?.name || deal.title}`,
+        description: `פרויקט תפעול שנוצר אוטומטית מעסקה: ${deal.title}`,
+        color: '#00c875',
+        icon: '⚙️',
+        memberIds: [deal.ownerId, state.currentUser.id],
+        defaultView: 'table',
+        eventId: deal.eventId,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      const updatedDeal: Deal = {
+        ...deal,
+        stage: 'closed_won',
+        operationsProjectId: projectId,
+        updatedAt: now,
+        activities: [...deal.activities, {
+          id: uuidv4(), dealId: deal.id,
+          type: 'stage_changed' as const,
+          description: `✅ עסקה נסגרה! פרויקט תפעול נוצר אוטומטית עם ${tasks.length} משימות.`,
+          userId: state.currentUser.id, createdAt: now,
+        }],
+      };
+
+      return {
+        ...state,
+        deals: state.deals.map(d => d.id === deal.id ? updatedDeal : d),
+        projects: [...state.projects, newProject],
+        groups: [...state.groups, newGroup],
+        tasks: [...state.tasks, ...tasks],
+        activityLogs: [makeLog(state.currentUser.id, 'moved_deal', `סגר עסקה "${deal.title}" — נוצר פרויקט תפעול עם ${tasks.length} משימות`, deal.id, 'deal'), ...state.activityLogs].slice(0, 500),
+      };
+    }
+
+    case 'DELETE_DEAL': {
+      const delDeal = state.deals.find(d => d.id === action.payload);
+      return { ...state, deals: state.deals.filter(d => d.id !== action.payload), activityLogs: [makeLog(state.currentUser.id, 'deleted_deal', `מחק עסקה "${delDeal?.title || ''}"`, action.payload, 'deal'), ...state.activityLogs].slice(0, 500) };
+    }
 
     case 'MOVE_DEAL_STAGE': {
       const now = new Date().toISOString();
+      const movedDeal = state.deals.find(d => d.id === action.payload.dealId);
       return {
         ...state,
         deals: state.deals.map(d =>
@@ -300,6 +471,7 @@ function reducer(state: AppState, action: Action): AppState {
             ? { ...d, stage: action.payload.stage, updatedAt: now, activities: [...d.activities, { id: uuidv4(), dealId: d.id, type: 'stage_changed' as const, description: `Stage changed to ${action.payload.stage}`, userId: state.currentUser.id, createdAt: now }] }
             : d
         ),
+        activityLogs: [makeLog(state.currentUser.id, 'moved_deal', `הזיז עסקה "${movedDeal?.title || ''}" לשלב ${action.payload.stage}`, action.payload.dealId, 'deal'), ...state.activityLogs].slice(0, 500),
       };
     }
 
@@ -311,7 +483,7 @@ function reducer(state: AppState, action: Action): AppState {
 
     case 'CREATE_AUTOMATION': {
       const newRule: AutomationRule = { ...action.payload, id: uuidv4(), timesTriggered: 0, createdAt: new Date().toISOString() };
-      return { ...state, automations: [...state.automations, newRule] };
+      return { ...state, automations: [...state.automations, newRule], activityLogs: [makeLog(state.currentUser.id, 'created_automation', `יצר אוטומציה "${newRule.name}"`, newRule.id, 'automation'), ...state.activityLogs].slice(0, 500) };
     }
 
     case 'UPDATE_AUTOMATION':
@@ -320,8 +492,11 @@ function reducer(state: AppState, action: Action): AppState {
     case 'DELETE_AUTOMATION':
       return { ...state, automations: state.automations.filter(a => a.id !== action.payload) };
 
-    case 'TOGGLE_AUTOMATION':
-      return { ...state, automations: state.automations.map(a => a.id === action.payload ? { ...a, enabled: !a.enabled } : a) };
+    case 'TOGGLE_AUTOMATION': {
+      const toggledAuto = state.automations.find(a => a.id === action.payload);
+      const willBeEnabled = !toggledAuto?.enabled;
+      return { ...state, automations: state.automations.map(a => a.id === action.payload ? { ...a, enabled: !a.enabled } : a), activityLogs: [makeLog(state.currentUser.id, 'toggled_automation', `${willBeEnabled ? 'הפעיל' : 'השבית'} אוטומציה "${toggledAuto?.name || ''}"`, action.payload, 'automation'), ...state.activityLogs].slice(0, 500) };
+    }
 
     case 'ADD_AI_MESSAGE':
       return { ...state, aiMessages: [...state.aiMessages, action.payload] };
@@ -349,22 +524,28 @@ function reducer(state: AppState, action: Action): AppState {
         users: state.users.map(u => u.id === state.currentUser.id ? updatedUser : u),
         workspaceName: action.payload.company || state.workspaceName,
         onboardingComplete: true,
-        appLocked: false, // unlocked right after first setup
+        appLocked: false,
+        activityLogs: [makeLog(updatedUser.id, 'completed_onboarding', 'השלים הגדרת פרופיל ראשונית', updatedUser.id, 'user'), ...state.activityLogs].slice(0, 500),
       };
     }
 
     case 'SET_USER_ROLE': {
+      const roleTarget = state.users.find(u => u.id === action.payload.userId);
       const updatedUsers = state.users.map(u =>
         u.id === action.payload.userId ? { ...u, role: action.payload.role } : u
       );
-      return { ...state, users: updatedUsers };
+      return { ...state, users: updatedUsers, activityLogs: [makeLog(state.currentUser.id, 'changed_role', `שינה הרשאות של ${roleTarget?.name || ''} ל-${action.payload.role}`, action.payload.userId, 'user'), ...state.activityLogs].slice(0, 500) };
     }
 
     case 'UNLOCK_APP':
       return { ...state, appLocked: false };
 
-    case 'LOCK_APP':
+    case 'LOCK_APP': {
+      if (typeof window !== 'undefined') {
+        import('./password').then(({ clearSession }) => clearSession());
+      }
       return { ...state, appLocked: true };
+    }
 
     case 'OPEN_PROFILE_MODAL':
       return { ...state, profileModalOpen: true };
@@ -381,6 +562,232 @@ function reducer(state: AppState, action: Action): AppState {
         currentUser: updatedUser,
         users: state.users.map(u => u.id === state.currentUser.id ? updatedUser : u),
         profileModalOpen: false,
+        activityLogs: [makeLog(state.currentUser.id, 'updated_profile', 'עדכן פרטי פרופיל', state.currentUser.id, 'user'), ...state.activityLogs].slice(0, 500),
+      };
+    }
+
+    case 'SET_ACTIVE_EVENT':
+      return { ...state, activeEventId: action.payload, activeSection: 'events' };
+
+    case 'CREATE_EVENT': {
+      const now = new Date().toISOString();
+      const newEvent: Event = { ...action.payload, id: uuidv4(), createdAt: now, updatedAt: now };
+      return {
+        ...state,
+        events: [...state.events, newEvent],
+        activeEventId: newEvent.id,
+        activityLogs: [makeLog(state.currentUser.id, 'created_event', `יצר אירוע "${newEvent.name}"`, newEvent.id, 'event'), ...state.activityLogs].slice(0, 500)
+      };
+    }
+
+    case 'UPDATE_EVENT': {
+      const now = new Date().toISOString();
+      return {
+        ...state,
+        events: state.events.map(e => e.id === action.payload.id ? { ...e, ...action.payload, updatedAt: now } : e),
+        activityLogs: [makeLog(state.currentUser.id, 'updated_event', `עדכן אירוע "${action.payload.name || ''}"`, action.payload.id, 'event'), ...state.activityLogs].slice(0, 500)
+      };
+    }
+
+    case 'UPDATE_PROJECT': {
+      const now = new Date().toISOString();
+      return { ...state, projects: state.projects.map(p => p.id === action.payload.id ? { ...p, ...action.payload, updatedAt: now } : p) };
+    }
+
+    case 'ARCHIVE_EVENT': {
+      return {
+        ...state,
+        events: state.events.map(e => e.id === action.payload ? { ...e, status: 'archived' as EventStatus } : e),
+        activityLogs: [makeLog(state.currentUser.id, 'archived_event', `העביר אירוע לארכיון`, action.payload, 'event'), ...state.activityLogs].slice(0, 500)
+      };
+    }
+
+    case 'DUPLICATE_EVENT': {
+      const now = new Date().toISOString();
+      const source = state.events.find(e => e.id === action.payload.sourceEventId);
+      if (!source) return state;
+      const newEventId = uuidv4();
+      const sourceProjects = state.projects.filter(p => p.eventId === source.id);
+      const projectIdMap: Record<string, string> = {};
+      const newProjects = sourceProjects.map(p => {
+        const newId = uuidv4();
+        projectIdMap[p.id] = newId;
+        return { ...p, id: newId, eventId: newEventId, createdAt: now, updatedAt: now };
+      });
+      const sourceCampaigns = state.campaigns.filter(c => sourceProjects.some(p => p.id === c.projectId));
+      const newCampaigns = sourceCampaigns.map(c => ({
+        ...c,
+        id: uuidv4(),
+        projectId: projectIdMap[c.projectId] || c.projectId,
+        createdAt: now,
+        updatedAt: now,
+      }));
+      const newGroups = newProjects.map(p => ({
+        id: uuidv4(),
+        projectId: p.id,
+        name: 'משימות',
+        color: p.color,
+        order: 0,
+      }));
+      const newEvent: Event = {
+        ...source,
+        id: newEventId,
+        name: action.payload.newName,
+        date: action.payload.newDate,
+        endDate: null,
+        status: 'draft',
+        parentEventId: source.id,
+        createdAt: now,
+        updatedAt: now,
+      };
+      return {
+        ...state,
+        events: [...state.events, newEvent],
+        projects: [...state.projects, ...newProjects],
+        campaigns: [...state.campaigns, ...newCampaigns],
+        groups: [...state.groups, ...newGroups],
+        activeEventId: newEventId,
+        activityLogs: [makeLog(state.currentUser.id, 'created_event', `שכפל אירוע "${newEvent.name}"`, newEventId, 'event'), ...state.activityLogs].slice(0, 500),
+      };
+    }
+
+    case 'CREATE_CAMPAIGN': {
+      const now = new Date().toISOString();
+      const newCampaign: Campaign = { ...action.payload, id: uuidv4(), createdAt: now, updatedAt: now };
+      return {
+        ...state,
+        campaigns: [...state.campaigns, newCampaign],
+        activityLogs: [makeLog(state.currentUser.id, 'created_campaign', `יצר קמפיין "${newCampaign.name}"`, newCampaign.id, 'campaign'), ...state.activityLogs].slice(0, 500)
+      };
+    }
+
+    case 'UPDATE_CAMPAIGN': {
+      const now = new Date().toISOString();
+      return { ...state, campaigns: state.campaigns.map(c => c.id === action.payload.id ? { ...c, ...action.payload, updatedAt: now } : c) };
+    }
+
+    case 'DELETE_CAMPAIGN': {
+      const delCampaign = state.campaigns.find(c => c.id === action.payload);
+      return {
+        ...state,
+        campaigns: state.campaigns.filter(c => c.id !== action.payload),
+        tasks: state.tasks.map(t => t.campaignId === action.payload ? { ...t, campaignId: null } : t),
+        activityLogs: [makeLog(state.currentUser.id, 'deleted_campaign', `מחק קמפיין "${delCampaign?.name || ''}"`, action.payload, 'campaign'), ...state.activityLogs].slice(0, 500)
+      };
+    }
+
+    // ── Speakers ──
+    case 'OPEN_SPEAKER_MODAL':
+      return { ...state, speakerModalId: action.payload };
+    case 'CLOSE_SPEAKER_MODAL':
+      return { ...state, speakerModalId: null };
+
+    case 'CREATE_SPEAKER': {
+      const newSpeaker: Speaker = {
+        ...action.payload,
+        id: uuidv4(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      return {
+        ...state,
+        speakers: [...state.speakers, newSpeaker],
+        speakerModalId: newSpeaker.id,
+      };
+    }
+
+    case 'UPDATE_SPEAKER': {
+      return {
+        ...state,
+        speakers: state.speakers.map(s =>
+          s.id === action.payload.id
+            ? { ...s, ...action.payload, updatedAt: new Date().toISOString() }
+            : s
+        ),
+      };
+    }
+
+    case 'DELETE_SPEAKER': {
+      return {
+        ...state,
+        speakerModalId: state.speakerModalId === action.payload ? null : state.speakerModalId,
+        speakers: state.speakers.filter(s => s.id !== action.payload),
+        panels: state.panels.map(p => ({
+          ...p,
+          speakerIds: p.speakerIds.filter(id => id !== action.payload),
+          moderatorId: p.moderatorId === action.payload ? null : p.moderatorId,
+        })),
+      };
+    }
+
+    // ── Panels ──
+    case 'CREATE_PANEL': {
+      const newPanel: Panel = {
+        ...action.payload,
+        id: uuidv4(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      // update speaker.panelIds
+      const updatedSpeakersForPanel = state.speakers.map(s =>
+        action.payload.speakerIds.includes(s.id)
+          ? { ...s, panelIds: [...new Set([...s.panelIds, newPanel.id])] }
+          : s
+      );
+      return { ...state, panels: [...state.panels, newPanel], speakers: updatedSpeakersForPanel };
+    }
+
+    case 'UPDATE_PANEL': {
+      return {
+        ...state,
+        panels: state.panels.map(p =>
+          p.id === action.payload.id
+            ? { ...p, ...action.payload, updatedAt: new Date().toISOString() }
+            : p
+        ),
+      };
+    }
+
+    case 'DELETE_PANEL': {
+      return {
+        ...state,
+        panels: state.panels.filter(p => p.id !== action.payload),
+        speakers: state.speakers.map(s => ({
+          ...s,
+          panelIds: s.panelIds.filter(id => id !== action.payload),
+        })),
+      };
+    }
+
+    case 'ADD_SPEAKER_TO_PANEL': {
+      const { panelId, speakerId } = action.payload;
+      return {
+        ...state,
+        panels: state.panels.map(p =>
+          p.id === panelId && !p.speakerIds.includes(speakerId)
+            ? { ...p, speakerIds: [...p.speakerIds, speakerId], updatedAt: new Date().toISOString() }
+            : p
+        ),
+        speakers: state.speakers.map(s =>
+          s.id === speakerId && !s.panelIds.includes(panelId)
+            ? { ...s, panelIds: [...s.panelIds, panelId] }
+            : s
+        ),
+      };
+    }
+
+    case 'REMOVE_SPEAKER_FROM_PANEL': {
+      const { panelId: pId, speakerId: sId } = action.payload;
+      return {
+        ...state,
+        panels: state.panels.map(p =>
+          p.id === pId
+            ? { ...p, speakerIds: p.speakerIds.filter(id => id !== sId), moderatorId: p.moderatorId === sId ? null : p.moderatorId, updatedAt: new Date().toISOString() }
+            : p
+        ),
+        speakers: state.speakers.map(s =>
+          s.id === sId ? { ...s, panelIds: s.panelIds.filter(id => id !== pId) } : s
+        ),
       };
     }
 
@@ -402,9 +809,10 @@ function isSyncAction(action: Action): boolean {
     'TOGGLE_NOTIFICATIONS_PANEL', 'TOGGLE_AI_PANEL',
     'OPEN_TASK_MODAL', 'CLOSE_TASK_MODAL',
     'OPEN_NEW_PROJECT_MODAL', 'CLOSE_NEW_PROJECT_MODAL',
+    'OPEN_NEW_EVENT_MODAL', 'CLOSE_NEW_EVENT_MODAL',
     'OPEN_INVITE_MODAL', 'CLOSE_INVITE_MODAL',
     'SET_ACTIVE_VIEW', 'SET_ACTIVE_SECTION', 'SET_CRM_VIEW',
-    'SET_ACTIVE_PROJECT', 'ADD_AI_MESSAGE', 'CLEAR_AI_MESSAGES',
+    'SET_ACTIVE_PROJECT', 'SET_ACTIVE_EVENT', 'ADD_AI_MESSAGE', 'CLEAR_AI_MESSAGES',
     'LOAD_STATE',
   ];
   return !uiOnlyActions.includes(action.type);
@@ -412,7 +820,7 @@ function isSyncAction(action: Action): boolean {
 
 const StoreContext = createContext<{ state: AppState; dispatch: React.Dispatch<Action> } | null>(null);
 
-import { getStoredPasswordHash } from './password';
+import { getStoredPasswordHash, isSessionValid } from './password';
 
 function loadOnboardingFromStorage(): Partial<AppState> {
   if (typeof window === 'undefined') return {};
@@ -420,9 +828,10 @@ function loadOnboardingFromStorage(): Partial<AppState> {
     const raw = localStorage.getItem('atelier_onboarding');
     if (!raw) return {};
     const saved = JSON.parse(raw);
-    // If a password has been set, lock the app on load
     const hasPassword = !!getStoredPasswordHash();
-    return { ...saved, appLocked: hasPassword };
+    // If password set but session still valid — stay unlocked
+    const appLocked = hasPassword && !isSessionValid();
+    return { ...saved, appLocked };
   } catch { return {}; }
 }
 
@@ -536,7 +945,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return () => {
       if (pendingSyncRef.current) clearTimeout(pendingSyncRef.current);
     };
-  }, [state.projects, state.tasks, state.groups, state.contacts, state.deals, state.automations, state.notifications, state.users]);
+  }, [state.projects, state.tasks, state.groups, state.contacts, state.deals, state.automations, state.notifications, state.users, state.activityLogs, state.events, state.campaigns, state.speakers, state.panels]);
 
   return (
     <StoreContext.Provider value={{ state, dispatch }}>

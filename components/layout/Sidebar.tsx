@@ -1,28 +1,137 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useStore } from '@/lib/store';
 import { AppSection } from '@/lib/types';
-import { isAdmin, canManageAutomations } from '@/lib/permissions';
+import { isAdmin } from '@/lib/permissions';
+
+const EVENT_STATUS_COLOR: Record<string, string> = {
+  draft: '#fdab3d',
+  active: '#00c875',
+  completed: '#c4c4c4',
+  archived: '#c4c4c4',
+};
+
+function formatEventDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function SidebarEventRow({ event, isExpanded, onToggle, isActive, dispatch }: {
+  event: import('@/lib/types').Event; isExpanded: boolean; onToggle: () => void; isActive: boolean; dispatch: (a: any) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(event.name);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const save = () => {
+    setEditing(false);
+    if (name.trim() && name !== event.name)
+      dispatch({ type: 'UPDATE_EVENT', payload: { id: event.id, name: name.trim() } });
+  };
+
+  return (
+    <div className={`sidebar-event-item ${isActive ? 'active' : ''}`} onClick={onToggle}>
+      <span className="material-symbols-outlined sidebar-chevron"
+        style={{ fontSize: 14, transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+        chevron_left
+      </span>
+      <span className="sidebar-event-dot" style={{ background: EVENT_STATUS_COLOR[event.status] }} />
+      {editing ? (
+        <input
+          ref={inputRef}
+          className="sidebar-inline-input"
+          value={name}
+          onClick={e => e.stopPropagation()}
+          onChange={e => setName(e.target.value)}
+          onBlur={save}
+          onKeyDown={e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false); }}
+          autoFocus
+        />
+      ) : (
+        <span className="sidebar-event-name" onDoubleClick={e => { e.stopPropagation(); setName(event.name); setEditing(true); }}>
+          {event.name}
+        </span>
+      )}
+      <span className="sidebar-event-date">{formatEventDate(event.date)}</span>
+    </div>
+  );
+}
+
+function SidebarProjectRow({ project, isActive, onSelect, dispatch }: {
+  project: import('@/lib/types').Project; isActive: boolean; onSelect: () => void; dispatch: (a: any) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(project.name);
+
+  const save = () => {
+    setEditing(false);
+    if (name.trim() && name !== project.name)
+      dispatch({ type: 'UPDATE_PROJECT', payload: { id: project.id, name: name.trim() } });
+  };
+
+  return (
+    <div className={`sidebar-project-item ${isActive ? 'active' : ''}`} onClick={onSelect}>
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: project.color, flexShrink: 0 }} />
+      {editing ? (
+        <input
+          className="sidebar-inline-input"
+          value={name}
+          onClick={e => e.stopPropagation()}
+          onChange={e => setName(e.target.value)}
+          onBlur={save}
+          onKeyDown={e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false); }}
+          autoFocus
+        />
+      ) : (
+        <span style={{ flex: 1, textAlign: 'right' }}
+          onDoubleClick={e => { e.stopPropagation(); setName(project.name); setEditing(true); }}>
+          {project.name}
+        </span>
+      )}
+    </div>
+  );
+}
 
 export function Sidebar() {
   const { state, dispatch } = useStore();
-  const [projectsOpen, setProjectsOpen] = useState(true);
+  const [expandedEvents, setExpandedEvents] = useState<Set<string>>(
+    new Set(state.events.filter(e => e.status !== 'archived').map(e => e.id).slice(0, 2))
+  );
+  const [archiveOpen, setArchiveOpen] = useState(false);
+  const admin = isAdmin(state.currentUser);
 
   function setSection(section: AppSection) {
     dispatch({ type: 'SET_ACTIVE_SECTION', payload: section });
   }
 
-  const admin = isAdmin(state.currentUser);
+  function toggleEvent(eventId: string) {
+    setExpandedEvents(prev => {
+      const next = new Set(prev);
+      if (next.has(eventId)) next.delete(eventId);
+      else next.add(eventId);
+      return next;
+    });
+  }
+
+  function selectProject(projectId: string, eventId: string) {
+    dispatch({ type: 'SET_ACTIVE_PROJECT', payload: projectId });
+    dispatch({ type: 'SET_ACTIVE_EVENT', payload: eventId });
+    dispatch({ type: 'SET_ACTIVE_SECTION', payload: 'events' });
+  }
 
   const allNavItems: { section: AppSection; icon: string; label: string; adminOnly?: boolean }[] = [
     { section: 'dashboard', icon: 'dashboard', label: 'תפעול' },
     { section: 'crm', icon: 'payments', label: 'מכירות' },
-    { section: 'projects', icon: 'event', label: 'ניהול פרויקטים' },
+    { section: 'events', icon: 'event', label: 'אירועים' },
+    { section: 'speakers', icon: 'mic', label: 'דוברים' },
     { section: 'automations', icon: 'bolt', label: 'אוטומציות', adminOnly: true },
     { section: 'users', icon: 'group', label: 'משתמשים', adminOnly: true },
   ];
   const navItems = allNavItems.filter(item => !item.adminOnly || admin);
+
+  const activeEvents = state.events.filter(e => e.status !== 'archived');
+  const archivedEvents = state.events.filter(e => e.status === 'archived');
 
   return (
     <aside className="sidebar">
@@ -48,28 +157,63 @@ export function Sidebar() {
           </div>
         ))}
 
-        {/* Projects sub-list */}
-        {state.activeSection === 'projects' && projectsOpen && state.projects.map(project => (
-          <div
-            key={project.id}
-            className={`sidebar-item ${state.activeProjectId === project.id ? 'active' : ''}`}
-            style={{ paddingRight: '32px', fontSize: '13px' }}
-            onClick={() => dispatch({ type: 'SET_ACTIVE_PROJECT', payload: project.id })}
-          >
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: project.color, flexShrink: 0 }} />
-            <span>{project.name}</span>
+        {/* Events sub-list */}
+        {state.activeSection === 'events' && (
+          <div className="sidebar-events-list">
+            {activeEvents.map(event => {
+              const eventProjects = state.projects.filter(p => p.eventId === event.id);
+              const isExpanded = expandedEvents.has(event.id);
+              return (
+                <div key={event.id} className="sidebar-event-group">
+                  <SidebarEventRow event={event} isExpanded={isExpanded} onToggle={() => { toggleEvent(event.id); dispatch({ type: 'SET_ACTIVE_EVENT', payload: event.id }); }} isActive={state.activeEventId === event.id} dispatch={dispatch} />
+                  {isExpanded && eventProjects.map(project => (
+                    <SidebarProjectRow key={project.id} project={project} isActive={state.activeProjectId === project.id} onSelect={() => selectProject(project.id, event.id)} dispatch={dispatch} />
+                  ))}
+                </div>
+              );
+            })}
+
+            {/* Archive */}
+            {archivedEvents.length > 0 && (
+              <div className="sidebar-archive-section">
+                <div className="sidebar-archive-toggle" onClick={() => setArchiveOpen(o => !o)}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
+                    {archiveOpen ? 'expand_less' : 'expand_more'}
+                  </span>
+                  <span>ארכיון ({archivedEvents.length})</span>
+                </div>
+                {archiveOpen && archivedEvents.map(event => (
+                  <div key={event.id} className="sidebar-event-item archived">
+                    <span className="sidebar-event-dot" style={{ background: '#c4c4c4' }} />
+                    <span className="sidebar-event-name" style={{ color: 'var(--on-surface-variant)' }}>{event.name}</span>
+                    <span className="sidebar-event-date">{new Date(event.date).getFullYear()}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        ))}
+        )}
       </nav>
 
-      {/* Add project button — admin only */}
-      {admin && (
+      {/* Add event button — admin only */}
+      {admin && state.activeSection === 'events' && (
         <button
           className="sidebar-add-btn"
-          onClick={() => dispatch({ type: 'OPEN_NEW_PROJECT_MODAL' })}
+          onClick={() => dispatch({ type: 'OPEN_NEW_EVENT_MODAL' })}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
-          הוסף פרויקט
+          הוסף אירוע
+        </button>
+      )}
+
+      {/* Invite button — admin only, subtle */}
+      {admin && (
+        <button
+          className="sidebar-invite-btn"
+          onClick={() => dispatch({ type: 'OPEN_INVITE_MODAL' })}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 15 }}>person_add</span>
+          הזמן משתתפים
         </button>
       )}
 
@@ -91,8 +235,6 @@ export function Sidebar() {
           <span className="material-symbols-outlined sidebar-item-icon">contact_support</span>
           <span>עזרה</span>
         </div>
-
-        {/* User */}
         <div
           className="sidebar-user"
           onClick={() => dispatch({ type: 'OPEN_PROFILE_MODAL' })}

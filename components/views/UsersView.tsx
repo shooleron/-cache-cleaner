@@ -5,6 +5,63 @@ import { useStore } from '@/lib/store';
 import { User, UserRole, UserStatus } from '@/lib/types';
 import { isAdmin, canManageRoles, canInviteUsers } from '@/lib/permissions';
 
+const VERB_LABELS: Record<string, string> = {
+  created_task: 'יצר משימה',
+  updated_task: 'עדכן משימה',
+  deleted_task: 'מחק משימה',
+  completed_task: 'השלים משימה',
+  commented: 'הגיב',
+  created_project: 'יצר פרויקט',
+  created_group: 'יצר קבוצה',
+  invited_user: 'הזמין משתמש',
+  changed_role: 'שינה הרשאה',
+  created_contact: 'יצר איש קשר',
+  updated_contact: 'עדכן איש קשר',
+  deleted_contact: 'מחק איש קשר',
+  created_deal: 'יצר עסקה',
+  updated_deal: 'עדכן עסקה',
+  deleted_deal: 'מחק עסקה',
+  moved_deal: 'הזיז עסקה',
+  created_automation: 'יצר אוטומציה',
+  toggled_automation: 'שינה אוטומציה',
+  updated_profile: 'עדכן פרופיל',
+  completed_onboarding: 'הצטרף למערכת',
+};
+
+const VERB_ICON: Record<string, string> = {
+  created_task: 'add_task',
+  updated_task: 'edit',
+  deleted_task: 'delete',
+  completed_task: 'task_alt',
+  commented: 'chat',
+  created_project: 'folder',
+  created_group: 'folder_open',
+  invited_user: 'person_add',
+  changed_role: 'manage_accounts',
+  created_contact: 'person',
+  updated_contact: 'person',
+  deleted_contact: 'person_off',
+  created_deal: 'monetization_on',
+  updated_deal: 'monetization_on',
+  deleted_deal: 'money_off',
+  moved_deal: 'swap_horiz',
+  created_automation: 'bolt',
+  toggled_automation: 'bolt',
+  updated_profile: 'badge',
+  completed_onboarding: 'celebration',
+};
+
+function formatLogTime(iso: string): string {
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = Math.floor((now.getTime() - d.getTime()) / 1000);
+  if (diff < 60) return 'עכשיו';
+  if (diff < 3600) return `לפני ${Math.floor(diff / 60)} דק׳`;
+  if (diff < 86400) return `לפני ${Math.floor(diff / 3600)} ש׳`;
+  if (diff < 604800) return `לפני ${Math.floor(diff / 86400)} ימים`;
+  return d.toLocaleDateString('he-IL');
+}
+
 const ROLE_LABELS: Record<UserRole, { label: string; bg: string; color: string }> = {
   owner:  { label: 'בעלים',  bg: '#ede9fe', color: '#7c3aed' },
   member: { label: 'חבר',    bg: '#e0f2fe', color: '#0369a1' },
@@ -24,9 +81,11 @@ const AVATAR_COLORS = [
 
 function UserModal({ user, onClose }: { user: User | null; onClose: () => void }) {
   const { state, dispatch } = useStore();
+  const [activeTab, setActiveTab] = useState<'info' | 'history'>('info');
   if (!user) return null;
 
   const currentIsAdmin = isAdmin(state.currentUser);
+  const userLogs = state.activityLogs.filter(l => l.userId === user.id);
   const userTasks = state.tasks.filter(t => t.assigneeIds.includes(user.id));
   const doneTasks = userTasks.filter(t => t.status === 'done').length;
   const activeTasks = userTasks.filter(t => t.status === 'in_progress').length;
@@ -70,7 +129,39 @@ function UserModal({ user, onClose }: { user: User | null; onClose: () => void }
           </button>
         </div>
 
+        {/* Tabs */}
+        <div className="user-modal-tabs">
+          <button className={`user-modal-tab ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')}>פרופיל</button>
+          <button className={`user-modal-tab ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>
+            היסטוריה
+            {userLogs.length > 0 && <span className="user-log-count">{userLogs.length}</span>}
+          </button>
+        </div>
+
         <div className="user-modal-body">
+          {activeTab === 'history' && (
+            <div className="user-activity-log">
+              {userLogs.length === 0 ? (
+                <div className="user-log-empty">
+                  <span className="material-symbols-outlined" style={{ fontSize: 36, color: 'var(--outline)' }}>history</span>
+                  <p>אין פעולות עדיין</p>
+                </div>
+              ) : (
+                userLogs.map(log => (
+                  <div key={log.id} className="user-log-item">
+                    <div className="user-log-icon">
+                      <span className="material-symbols-outlined">{VERB_ICON[log.verb] || 'circle'}</span>
+                    </div>
+                    <div className="user-log-content">
+                      <p className="user-log-label">{log.label}</p>
+                      <span className="user-log-time">{formatLogTime(log.createdAt)}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+          {activeTab === 'info' && (<>
           {/* Contact info */}
           {(user.companyAddress || user.phone || user.email) && (
             <div className="user-contact-section">
@@ -169,6 +260,7 @@ function UserModal({ user, onClose }: { user: User | null; onClose: () => void }
               </div>
             </div>
           )}
+          </>)}
         </div>
       </div>
     </div>

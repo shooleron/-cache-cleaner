@@ -7,12 +7,13 @@ import { BoardView, CRMView } from '@/lib/types';
 export function TopBar() {
   const { state, dispatch } = useStore();
   const activeProject = state.projects.find(p => p.id === state.activeProjectId);
+  const activeEvent = state.events?.find(e => e.id === state.activeEventId);
 
   const sectionTitles: Record<string, string> = {
     dashboard: 'תפעול פנימי',
     crm: 'מכירות ו-CRM',
     automations: 'אוטומציות',
-    projects: activeProject?.name || 'פרויקטים',
+    events: activeProject?.name || 'אירועים',
     users: 'משתמשים',
     ai: 'AI אסיסטנט',
   };
@@ -35,7 +36,15 @@ export function TopBar() {
       <div className="topbar-right">
         <h1 className="topbar-title">{sectionTitles[state.activeSection]}</h1>
 
-        {state.activeSection === 'projects' && (
+        {state.activeSection === 'events' && activeEvent && activeProject && (
+          <div className="topbar-breadcrumb">
+            <span className="topbar-breadcrumb-event">{activeEvent.name}</span>
+            <span className="topbar-breadcrumb-sep">›</span>
+            <span className="topbar-breadcrumb-project">{activeProject.name}</span>
+          </div>
+        )}
+
+        {state.activeSection === 'events' && (
           <nav className="topbar-nav">
             {views.map(v => (
               <span

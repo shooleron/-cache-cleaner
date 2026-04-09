@@ -23,7 +23,7 @@ export function NewProjectModal() {
     if (!name.trim()) return;
     dispatch({
       type: 'CREATE_PROJECT',
-      payload: { name: name.trim(), description: description.trim(), color, icon, defaultView: 'table' },
+      payload: { name: name.trim(), description: description.trim(), color, icon, defaultView: 'table', eventId: state.activeEventId },
     });
     setName('');
     setDescription('');

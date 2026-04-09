@@ -12,10 +12,13 @@ import { ContactsView } from '@/components/crm/ContactsView';
 import { DealsView } from '@/components/crm/DealsView';
 import { AutomationsPanel } from '@/components/automations/AutomationsPanel';
 import { UsersView } from '@/components/views/UsersView';
+import { SpeakersView } from '@/components/views/SpeakersView';
+import { SpeakerModal } from '@/components/modals/SpeakerModal';
 import { AIAgentPanel } from '@/components/ai/AIAgentPanel';
 import { NotificationsPanel } from '@/components/panels/NotificationsPanel';
 import { TaskModal } from '@/components/modals/TaskModal';
 import { NewProjectModal } from '@/components/modals/NewProjectModal';
+import { NewEventModal } from '@/components/modals/NewEventModal';
 import { InviteModal } from '@/components/modals/InviteModal';
 import { OnboardingModal } from '@/components/modals/OnboardingModal';
 import { ProfileModal } from '@/components/modals/ProfileModal';
@@ -31,6 +34,8 @@ function AppContent() {
     }
     if (state.activeSection === 'automations') return <AutomationsPanel />;
     if (state.activeSection === 'users') return <UsersView />;
+    if (state.activeSection === 'speakers') return <SpeakersView />;
+    // 'events' section — show project view when a project is selected
     switch (state.activeView) {
       case 'kanban': return <KanbanView />;
       case 'roadmap': return <RoadmapView />;
@@ -52,10 +57,12 @@ function AppContent() {
       {state.notificationsPanelOpen && <NotificationsPanel />}
       {state.taskModalId && <TaskModal />}
       {state.newProjectModalOpen && <NewProjectModal />}
+      {state.newEventModalOpen && <NewEventModal />}
       {state.inviteModalOpen && <InviteModal />}
       {!state.onboardingComplete && <OnboardingModal />}
       {state.onboardingComplete && state.appLocked && <PasswordGate />}
       {state.profileModalOpen && <ProfileModal />}
+      {state.speakerModalId && <SpeakerModal />}
     </div>
   );
 }
