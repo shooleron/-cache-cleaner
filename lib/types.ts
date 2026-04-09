@@ -63,6 +63,7 @@ export interface Task {
   recurring: boolean;
   recurringInterval: 'daily' | 'weekly' | 'monthly' | null;
   department: Department | null;
+  contactId: string | null;
   createdAt: string;
   updatedAt: string;
 }

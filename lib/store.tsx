@@ -212,6 +212,7 @@ function reducer(state: AppState, action: Action): AppState {
         recurring: false,
         recurringInterval: null,
         department: null,
+        contactId: null,
         createdAt: now,
         updatedAt: now,
       };
@@ -412,6 +413,7 @@ function reducer(state: AppState, action: Action): AppState {
             recurring: false,
             recurringInterval: null,
             department: 'operations',
+            contactId: null,
             createdAt: now,
             updatedAt: now,
           });

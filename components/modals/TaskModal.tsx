@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { Task, TaskStatus, TaskPriority, AttachmentType } from '@/lib/types';
 
@@ -65,10 +65,85 @@ function getMimeIcon(mimeType?: string): string {
 
 type TabType = 'chat' | 'notes' | 'files' | 'subtasks';
 
+function formatDuration(totalSeconds: number): string {
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function TimerWidget({ task }: { task: Task }) {
+  const { dispatch } = useStore();
+  const [running, setRunning] = useState(false);
+  const [elapsed, setElapsed] = useState(0); // seconds in current session
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (running) {
+      intervalRef.current = setInterval(() => setElapsed(e => e + 1), 1000);
+    } else {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [running]);
+
+  const totalTrackedSec = (task.timeTracked || 0) * 60;
+
+  function stop() {
+    setRunning(false);
+    if (elapsed > 0) {
+      const addedMinutes = Math.ceil(elapsed / 60);
+      dispatch({ type: 'UPDATE_TASK', payload: { id: task.id, timeTracked: (task.timeTracked || 0) + addedMinutes } });
+      setElapsed(0);
+    }
+  }
+
+  function reset() {
+    setRunning(false);
+    setElapsed(0);
+  }
+
+  return (
+    <div className="timer-widget">
+      <div className="timer-display">
+        <span className="material-symbols-outlined" style={{ fontSize: 14, color: running ? '#10b981' : 'var(--on-surface-variant)' }}>
+          {running ? 'timer' : 'timer'}
+        </span>
+        <span className="timer-current" style={{ color: running ? '#10b981' : 'var(--on-surface)' }}>
+          {formatDuration(elapsed)}
+        </span>
+      </div>
+      <div className="timer-total">
+        סה״כ: {formatDuration(totalTrackedSec + elapsed)}
+      </div>
+      <div className="timer-btns">
+        {!running ? (
+          <button className="timer-btn start" onClick={() => setRunning(true)}>
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>play_arrow</span>
+            התחל
+          </button>
+        ) : (
+          <button className="timer-btn stop" onClick={stop}>
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>stop</span>
+            עצור ושמור
+          </button>
+        )}
+        {elapsed > 0 && !running && (
+          <button className="timer-btn reset" onClick={reset}>
+            <span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function TaskModal() {
   const { state, dispatch } = useStore();
   const [activeTab, setActiveTab] = useState<TabType>('chat');
   const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false);
+  const [showContactDropdown, setShowContactDropdown] = useState(false);
+  const [contactSearch, setContactSearch] = useState('');
 
   const task = state.tasks.find(t => t.id === state.taskModalId);
   if (!task) return null;
@@ -219,6 +294,71 @@ export function TaskModal() {
               <label>יעד</label>
               <input type="date" className="task-date-input" value={task.dueDate || ''}
                 onChange={e => updateTask({ dueDate: e.target.value || null })} />
+            </div>
+
+            {/* External Contact */}
+            <div className="task-meta-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 4 }}>
+              <label>איש קשר חיצוני</label>
+              {task.contactId ? (() => {
+                const contact = state.contacts.find(c => c.id === task.contactId);
+                return contact ? (
+                  <div className="task-contact-badge">
+                    <div className="task-contact-avatar">{contact.name.charAt(0)}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="task-contact-name">{contact.name}</div>
+                      <div className="task-contact-co">{contact.company}</div>
+                    </div>
+                    <button className="task-contact-remove" onClick={() => updateTask({ contactId: null })} title="הסר">
+                      <span className="material-symbols-outlined" style={{ fontSize: 14 }}>close</span>
+                    </button>
+                  </div>
+                ) : null;
+              })() : (
+                <div style={{ position: 'relative' }}>
+                  <button className="task-contact-add-btn" onClick={() => setShowContactDropdown(d => !d)}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>person_add</span>
+                    שייך איש קשר
+                  </button>
+                  {showContactDropdown && (
+                    <div className="task-contact-dropdown">
+                      <input
+                        className="task-contact-search"
+                        placeholder="חיפוש..."
+                        value={contactSearch}
+                        onChange={e => setContactSearch(e.target.value)}
+                        autoFocus
+                      />
+                      <div className="task-contact-options">
+                        {state.contacts
+                          .filter(c => !contactSearch || c.name.includes(contactSearch) || c.company.includes(contactSearch))
+                          .slice(0, 8)
+                          .map(c => (
+                            <div key={c.id} className="task-contact-option" onClick={() => {
+                              updateTask({ contactId: c.id });
+                              setShowContactDropdown(false);
+                              setContactSearch('');
+                            }}>
+                              <div className="task-contact-avatar" style={{ background: '#6366f1' }}>{c.name.charAt(0)}</div>
+                              <div>
+                                <div style={{ fontSize: 12, fontWeight: 600 }}>{c.name}</div>
+                                <div style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>{c.company}</div>
+                              </div>
+                            </div>
+                          ))}
+                        {state.contacts.length === 0 && (
+                          <div style={{ padding: 10, fontSize: 12, color: 'var(--on-surface-variant)', textAlign: 'center' }}>אין אנשי קשר</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Timer */}
+            <div className="task-meta-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 4 }}>
+              <label>מעקב זמן</label>
+              <TimerWidget task={task} />
             </div>
 
             {task.tags.length > 0 && (

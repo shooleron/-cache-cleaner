@@ -6222,3 +6222,70 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .deals-row-date { font-size: 12px; white-space: nowrap; }
 .deals-row-owner { display: flex; flex-direction: row-reverse; align-items: center; gap: 6px; }
 .deals-row-owner-name { font-size: 11px; color: var(--on-surface-variant); }
+
+/* ===================== TASK TIMER ===================== */
+.timer-widget {
+  background: var(--surface-variant); border-radius: 10px; padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.timer-display {
+  display: flex; flex-direction: row-reverse; align-items: center; gap: 6px;
+}
+.timer-current {
+  font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em; font-family: monospace;
+}
+.timer-total {
+  font-size: 10px; color: var(--on-surface-variant); text-align: right;
+}
+.timer-btns { display: flex; flex-direction: row-reverse; gap: 6px; }
+.timer-btn {
+  display: flex; flex-direction: row-reverse; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 8px;
+  border: none; cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+}
+.timer-btn:hover { opacity: 0.82; }
+.timer-btn.start { background: #dcfce7; color: #16a34a; }
+.timer-btn.stop  { background: #fee2e2; color: #dc2626; }
+.timer-btn.reset { background: var(--outline-variant); color: var(--on-surface-variant); padding: 5px 8px; }
+
+/* ===================== TASK CONTACT PICKER ===================== */
+.task-contact-badge {
+  display: flex; flex-direction: row-reverse; align-items: center; gap: 8px;
+  background: var(--surface-variant); border-radius: 8px; padding: 7px 10px;
+}
+.task-contact-avatar {
+  width: 28px; height: 28px; border-radius: 50%; background: #6366f1;
+  color: white; font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.task-contact-name { font-size: 12px; font-weight: 700; }
+.task-contact-co { font-size: 11px; color: var(--on-surface-variant); }
+.task-contact-remove {
+  background: none; border: none; cursor: pointer; color: var(--on-surface-variant);
+  display: flex; align-items: center; padding: 2px;
+}
+.task-contact-remove:hover { color: #ef4444; }
+.task-contact-add-btn {
+  display: flex; flex-direction: row-reverse; align-items: center; gap: 5px;
+  width: 100%; font-size: 12px; font-weight: 600; padding: 7px 10px; border-radius: 8px;
+  border: 1.5px dashed var(--outline-variant); background: transparent;
+  color: var(--on-surface-variant); cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.task-contact-add-btn:hover { border-color: var(--primary); color: var(--primary); }
+.task-contact-dropdown {
+  position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 200;
+  background: var(--surface); border: 1px solid var(--outline-variant);
+  border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); overflow: hidden;
+}
+.task-contact-search {
+  width: 100%; padding: 8px 12px; border: none; border-bottom: 1px solid var(--outline-variant);
+  font-size: 12px; background: var(--surface); color: var(--on-surface);
+  font-family: inherit; outline: none; box-sizing: border-box;
+}
+.task-contact-options { max-height: 200px; overflow-y: auto; }
+.task-contact-option {
+  display: flex; flex-direction: row-reverse; align-items: center; gap: 8px;
+  padding: 8px 12px; cursor: pointer; transition: background 0.12s;
+}
+.task-contact-option:hover { background: var(--surface-variant); }
