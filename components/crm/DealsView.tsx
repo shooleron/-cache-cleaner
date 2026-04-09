@@ -350,22 +350,28 @@ function DealModal({ dealId, onClose }: { dealId: string; onClose: () => void })
   );
 }
 
+type StageFilter = DealStage | 'all';
+
 export function DealsView() {
   const { state, dispatch } = useStore();
   const [localDealModalId, setLocalDealModalId] = useState<string | null>(null);
+  const [stageFilter, setStageFilter] = useState<StageFilter>('all');
 
-  const dealsByStage = STAGES.reduce((acc, stage) => {
-    acc[stage.key] = state.deals.filter(d => d.stage === stage.key);
-    return acc;
-  }, {} as Record<DealStage, Deal[]>);
+  const now = new Date();
 
   const totalPipeline = state.deals
     .filter(d => d.stage !== 'closed_lost')
     .reduce((sum, d) => sum + d.value, 0);
-
   const wonValue = state.deals
     .filter(d => d.stage === 'closed_won')
     .reduce((sum, d) => sum + d.value, 0);
+
+  const filtered = state.deals
+    .filter(d => stageFilter === 'all' || d.stage === stageFilter)
+    .sort((a, b) => {
+      const stageOrder: Record<DealStage, number> = { lead: 0, qualified: 1, proposal: 2, negotiation: 3, closed_won: 4, closed_lost: 5 };
+      return stageOrder[a.stage] - stageOrder[b.stage];
+    });
 
   return (
     <div className="crm-view">
@@ -381,137 +387,186 @@ export function DealsView() {
         </button>
       </div>
 
-      {/* Pipeline summary bar */}
-      <div className="pipeline-summary">
+      {/* Stage filter tabs */}
+      <div className="deals-stage-tabs">
+        <button
+          className={`deals-stage-tab ${stageFilter === 'all' ? 'active' : ''}`}
+          onClick={() => setStageFilter('all')}
+        >
+          הכל
+          <span className="deals-stage-tab-count">{state.deals.length}</span>
+        </button>
         {STAGES.map(stage => {
-          const deals = dealsByStage[stage.key];
-          const value = deals.reduce((s, d) => s + d.value, 0);
+          const count = state.deals.filter(d => d.stage === stage.key).length;
           return (
-            <div key={stage.key} className="pipeline-summary-col">
-              <div className="pipeline-summary-bar" style={{ background: stage.color }} />
-              <div className="pipeline-summary-label" style={{ color: stage.color }}>{stage.label}</div>
-              <div className="pipeline-summary-count">{deals.length}</div>
-              <div className="pipeline-summary-value">₪{(value / 1000).toFixed(0)}K</div>
-            </div>
+            <button
+              key={stage.key}
+              className={`deals-stage-tab ${stageFilter === stage.key ? 'active' : ''}`}
+              style={stageFilter === stage.key ? { borderBottomColor: stage.color, color: stage.color } : {}}
+              onClick={() => setStageFilter(stage.key)}
+            >
+              <span className="deals-stage-dot" style={{ background: stage.color }} />
+              {stage.label}
+              {count > 0 && <span className="deals-stage-tab-count">{count}</span>}
+            </button>
           );
         })}
       </div>
 
-      {/* Kanban Board */}
-      <div className="deals-kanban">
-        {STAGES.map(stage => {
-          const deals = dealsByStage[stage.key];
-          const stageValue = deals.reduce((s, d) => s + d.value, 0);
-          return (
-            <div key={stage.key} className="deals-column">
-              <div className="deals-column-header" style={{ borderTopColor: stage.color }}>
-                <div className="deals-column-title">
-                  <span className="deals-column-dot" style={{ background: stage.color }} />
-                  {stage.label}
-                </div>
-                <div className="deals-column-meta">
-                  <span className="deals-count">{deals.length}</span>
-                  <span className="deals-value">₪{(stageValue / 1000).toFixed(0)}K</span>
-                </div>
-              </div>
+      {/* Table */}
+      <div className="deals-table-wrap">
+        <table className="deals-table">
+          <thead>
+            <tr>
+              <th>עסקה</th>
+              <th>איש קשר</th>
+              <th>אירוע</th>
+              <th>מוצרים</th>
+              <th>שלב</th>
+              <th>סכום</th>
+              <th>הסתברות</th>
+              <th>תאריך סגירה</th>
+              <th>אחראי</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={10} className="deals-table-empty">אין עסקאות להצגה</td>
+              </tr>
+            )}
+            {filtered.map(deal => {
+              const contact = deal.contactId ? state.contacts.find(c => c.id === deal.contactId) : null;
+              const owner = state.users.find(u => u.id === deal.ownerId);
+              const event = deal.eventId ? state.events.find(e => e.id === deal.eventId) : null;
+              const stageObj = STAGES.find(s => s.key === deal.stage)!;
+              const nextStageObj = STAGES[STAGES.findIndex(s => s.key === deal.stage) + 1];
+              const isOverdue = deal.expectedCloseDate &&
+                new Date(deal.expectedCloseDate) < now &&
+                deal.stage !== 'closed_won' &&
+                deal.stage !== 'closed_lost';
 
-              <div className="deals-cards">
-                {deals.map(deal => {
-                  const contact = deal.contactId ? state.contacts.find(c => c.id === deal.contactId) : null;
-                  const owner = state.users.find(u => u.id === deal.ownerId);
-                  const event = deal.eventId ? state.events.find(e => e.id === deal.eventId) : null;
-                  const nextStageObj = STAGES[STAGES.findIndex(s => s.key === stage.key) + 1];
-                  return (
-                    <div key={deal.id} className="deal-card" onClick={() => setLocalDealModalId(deal.id)}>
-                      <div className="deal-card-title">{deal.title}</div>
+              return (
+                <tr
+                  key={deal.id}
+                  className="deals-table-row"
+                  onClick={() => setLocalDealModalId(deal.id)}
+                >
+                  {/* Title */}
+                  <td>
+                    <div className="deals-row-title">{deal.title}</div>
+                    {deal.operationsProjectId && (
+                      <span className="deals-row-ops-badge">
+                        <span className="material-symbols-outlined" style={{ fontSize: 10 }}>task_alt</span>
+                        תפעול
+                      </span>
+                    )}
+                  </td>
 
-                      {contact && (
-                        <div className="deal-card-contact">
-                          <span className="material-symbols-outlined" style={{ fontSize: 12 }}>person</span>
-                          {contact.name} · {contact.company}
-                        </div>
-                      )}
-
-                      {/* Line items summary */}
-                      {deal.lineItems?.length > 0 && (
-                        <div className="deal-card-products">
-                          {deal.lineItems.slice(0, 3).map((li, i) => {
-                            const prod = state.products.find(p => p.id === li.productId);
-                            return (
-                              <span key={i} className="deal-product-chip">
-                                <span className="material-symbols-outlined" style={{ fontSize: 11 }}>{prod?.icon || 'sell'}</span>
-                                {li.productName}
-                              </span>
-                            );
-                          })}
-                          {deal.lineItems.length > 3 && <span className="deal-product-chip">+{deal.lineItems.length - 3}</span>}
-                        </div>
-                      )}
-
-                      <div className="deal-card-value">
-                        <span className="material-symbols-outlined" style={{ fontSize: 14 }}>paid</span>
-                        <strong>₪{deal.value.toLocaleString()}</strong>
+                  {/* Contact */}
+                  <td>
+                    {contact ? (
+                      <div className="deals-row-contact">
+                        <div className="deals-row-contact-name">{contact.name}</div>
+                        <div className="deals-row-contact-co">{contact.company}</div>
                       </div>
+                    ) : <span className="deals-row-empty">—</span>}
+                  </td>
 
-                      {event && (
-                        <div className="deal-card-event">
-                          <span className="material-symbols-outlined" style={{ fontSize: 12 }}>event</span>
-                          {event.name.split(' ')[0]}
-                        </div>
+                  {/* Event */}
+                  <td>
+                    {event ? (
+                      <span className="deals-row-event-tag">{event.name}</span>
+                    ) : <span className="deals-row-empty">—</span>}
+                  </td>
+
+                  {/* Products */}
+                  <td>
+                    <div className="deals-row-products">
+                      {(deal.lineItems || []).slice(0, 2).map((li, i) => {
+                        const prod = state.products.find(p => p.id === li.productId);
+                        return (
+                          <span key={i} className="deal-product-chip">
+                            <span className="material-symbols-outlined" style={{ fontSize: 10 }}>{prod?.icon || 'sell'}</span>
+                            {li.productName}
+                          </span>
+                        );
+                      })}
+                      {(deal.lineItems || []).length > 2 && (
+                        <span className="deal-product-chip">+{deal.lineItems.length - 2}</span>
                       )}
-
-                      {deal.expectedCloseDate && (
-                        <div className={`deal-card-date ${new Date(deal.expectedCloseDate) < new Date() && stage.key !== 'closed_won' && stage.key !== 'closed_lost' ? 'overdue' : ''}`}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 12 }}>calendar_today</span>
-                          {new Date(deal.expectedCloseDate).toLocaleDateString('he-IL', { month: 'short', day: 'numeric' })}
-                        </div>
-                      )}
-
-                      <div className="deal-card-footer">
-                        <div className="probability-mini">
-                          <div className="probability-mini-fill" style={{ width: `${deal.probability}%`, background: deal.probability > 60 ? '#00c875' : deal.probability > 30 ? '#fdab3d' : '#e2445c' }} />
-                        </div>
-                        <span className="probability-mini-label">{deal.probability}%</span>
-                        {owner && <div className="deal-owner-avatar" style={{ background: owner.color }} title={owner.name}>{owner.avatar}</div>}
-                      </div>
-
-                      {/* Ops project indicator */}
-                      {deal.operationsProjectId && (
-                        <div className="deal-card-ops-badge">
-                          <span className="material-symbols-outlined" style={{ fontSize: 11 }}>task_alt</span>
-                          תפעול פעיל
-                        </div>
-                      )}
-
-                      {/* Quick actions */}
-                      <div className="deal-card-actions">
-                        {nextStageObj && stage.key !== 'closed_won' && stage.key !== 'closed_lost' && (
-                          <button className="deal-move-btn" onClick={e => {
-                            e.stopPropagation();
-                            if (nextStageObj.key === 'closed_won') {
-                              dispatch({ type: 'CLOSE_DEAL_WON', payload: { dealId: deal.id } });
-                            } else {
-                              dispatch({ type: 'MOVE_DEAL_STAGE', payload: { dealId: deal.id, stage: nextStageObj.key } });
-                            }
-                          }}>
-                            <span className="material-symbols-outlined" style={{ fontSize: 13 }}>arrow_back</span>
-                            {nextStageObj.key === 'closed_won' ? 'סגור עסקה' : 'שלב הבא'}
-                          </button>
-                        )}
-                      </div>
                     </div>
-                  );
-                })}
+                  </td>
 
-                {stage.key !== 'closed_won' && stage.key !== 'closed_lost' && (
-                  <button className="deals-add-btn" onClick={() => setLocalDealModalId('new')}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span> הוסף עסקה
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
+                  {/* Stage */}
+                  <td>
+                    <span className="deals-row-stage" style={{ background: stageObj.color + '22', color: stageObj.color }}>
+                      <span className="deals-stage-dot" style={{ background: stageObj.color }} />
+                      {stageObj.label}
+                    </span>
+                  </td>
+
+                  {/* Value */}
+                  <td>
+                    <span className="deals-row-value">₪{deal.value.toLocaleString()}</span>
+                  </td>
+
+                  {/* Probability */}
+                  <td>
+                    <div className="deals-row-prob">
+                      <div className="probability-mini" style={{ width: 50 }}>
+                        <div className="probability-mini-fill" style={{
+                          width: `${deal.probability}%`,
+                          background: deal.probability > 60 ? '#00c875' : deal.probability > 30 ? '#fdab3d' : '#e2445c'
+                        }} />
+                      </div>
+                      <span style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>{deal.probability}%</span>
+                    </div>
+                  </td>
+
+                  {/* Close date */}
+                  <td>
+                    {deal.expectedCloseDate ? (
+                      <span className="deals-row-date" style={{ color: isOverdue ? '#e2445c' : 'inherit', fontWeight: isOverdue ? 700 : 400 }}>
+                        {new Date(deal.expectedCloseDate).toLocaleDateString('he-IL', { day: 'numeric', month: 'short' })}
+                      </span>
+                    ) : <span className="deals-row-empty">—</span>}
+                  </td>
+
+                  {/* Owner */}
+                  <td>
+                    {owner && (
+                      <div className="deals-row-owner" title={owner.name}>
+                        <div className="deal-owner-avatar" style={{ background: owner.color }}>{owner.avatar}</div>
+                        <span className="deals-row-owner-name">{owner.name.split(' ')[0]}</span>
+                      </div>
+                    )}
+                  </td>
+
+                  {/* Actions */}
+                  <td onClick={e => e.stopPropagation()}>
+                    {nextStageObj && deal.stage !== 'closed_won' && deal.stage !== 'closed_lost' && (
+                      <button
+                        className="deal-move-btn"
+                        onClick={() => {
+                          if (nextStageObj.key === 'closed_won') {
+                            dispatch({ type: 'CLOSE_DEAL_WON', payload: { dealId: deal.id } });
+                          } else {
+                            dispatch({ type: 'MOVE_DEAL_STAGE', payload: { dealId: deal.id, stage: nextStageObj.key } });
+                          }
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: 13 }}>arrow_back</span>
+                        {nextStageObj.key === 'closed_won' ? 'סגור' : 'הבא'}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
       {localDealModalId && (
