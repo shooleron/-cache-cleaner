@@ -96,9 +96,10 @@ export const MOCK_GROUPS: Group[] = [
   { id: 'grp-7', projectId: 'proj-3', name: 'Execution', color: '#e2445c', order: 1 },
 ];
 
-const T = (t: Omit<Task, 'recurring' | 'recurringInterval' | 'department' | 'contactId' | 'attachments' | 'notes' | 'comments' | 'subItems'> & Partial<Pick<Task, 'recurring' | 'recurringInterval' | 'department' | 'contactId' | 'attachments' | 'notes' | 'comments' | 'subItems'>>): Task => ({
+const T = (t: Omit<Task, 'recurring' | 'recurringInterval' | 'department' | 'contactId' | 'checkboxValue' | 'linkUrl' | 'phoneValue' | 'locationValue' | 'attachments' | 'notes' | 'comments' | 'subItems'> & Partial<Pick<Task, 'recurring' | 'recurringInterval' | 'department' | 'contactId' | 'checkboxValue' | 'linkUrl' | 'phoneValue' | 'locationValue' | 'attachments' | 'notes' | 'comments' | 'subItems'>>): Task => ({
   attachments: [], notes: [], comments: [], subItems: [],
   recurring: false, recurringInterval: null, department: null, contactId: null,
+  checkboxValue: false, linkUrl: null, phoneValue: null, locationValue: null,
   ...t,
 });
 

@@ -213,6 +213,7 @@ function reducer(state: AppState, action: Action): AppState {
         recurringInterval: null,
         department: null,
         contactId: null,
+        checkboxValue: false, linkUrl: null, phoneValue: null, locationValue: null,
         createdAt: now,
         updatedAt: now,
       };
@@ -473,6 +474,7 @@ function reducer(state: AppState, action: Action): AppState {
             recurringInterval: null,
             department: 'operations',
             contactId: null,
+            checkboxValue: false, linkUrl: null, phoneValue: null, locationValue: null,
             createdAt: now,
             updatedAt: now,
           });

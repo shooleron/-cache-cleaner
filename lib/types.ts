@@ -64,6 +64,11 @@ export interface Task {
   recurringInterval: 'daily' | 'weekly' | 'monthly' | null;
   department: Department | null;
   contactId: string | null;
+  // custom columns
+  checkboxValue: boolean;
+  linkUrl: string | null;
+  phoneValue: string | null;
+  locationValue: string | null;
   createdAt: string;
   updatedAt: string;
 }
