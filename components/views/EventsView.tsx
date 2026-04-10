@@ -251,6 +251,20 @@ export function EventsView() {
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
   const [showArchive, setShowArchive] = useState(false);
 
+  // Inline new-brand creation
+  const [addingBrand, setAddingBrand] = useState(false);
+  const [newBrandName, setNewBrandName] = useState('');
+  const newBrandInputRef = React.useRef<HTMLInputElement>(null);
+
+  function handleAddBrand() {
+    const name = newBrandName.trim();
+    if (name) {
+      dispatch({ type: 'CREATE_BRAND', payload: { name, color: '#0073ea', icon: '🏢' } });
+    }
+    setNewBrandName('');
+    setAddingBrand(false);
+  }
+
   const activeEvents = state.events.filter(e => e.status !== 'archived');
   const archivedEvents = state.events.filter(e => e.status === 'archived');
 
@@ -293,7 +307,7 @@ export function EventsView() {
             onClick={() => selectBrand(null)}
           >
             <span className="brand-tab-icon">🌐</span>
-            <span>כל המותגים</span>
+            <span>הכל</span>
           </button>
           {state.brands.map(brand => (
             <button
@@ -307,13 +321,35 @@ export function EventsView() {
               <span className="brand-tab-count">{activeEvents.filter(e => e.brandId === brand.id).length}</span>
             </button>
           ))}
+
+          {/* Inline add-brand input */}
+          {addingBrand ? (
+            <div className="brand-tab-new-input-wrap">
+              <input
+                ref={newBrandInputRef}
+                className="brand-tab-new-input"
+                placeholder="שם המותג..."
+                value={newBrandName}
+                autoFocus
+                onChange={e => setNewBrandName(e.target.value)}
+                onBlur={handleAddBrand}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') handleAddBrand();
+                  if (e.key === 'Escape') { setAddingBrand(false); setNewBrandName(''); }
+                }}
+              />
+            </div>
+          ) : (
+            <button
+              className="brand-tab brand-tab-add"
+              onClick={() => setAddingBrand(true)}
+              title="הוסף מותג"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
+              <span>הוסף מותג</span>
+            </button>
+          )}
         </div>
-        {admin && (
-          <button className="brand-add-btn" onClick={() => {/* future: open brand modal */}}>
-            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>add</span>
-            מותג חדש
-          </button>
-        )}
       </div>
 
       {/* ── Event tabs (filtered by brand) ── */}

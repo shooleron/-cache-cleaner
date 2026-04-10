@@ -6694,3 +6694,36 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   border-right: 1px solid var(--card-border);
   min-width: 0;
 }
+
+/* Brand tab — add button variant */
+.brand-tab-add {
+  border: 1px dashed var(--outline-variant) !important;
+  border-bottom: 1px dashed var(--outline-variant) !important;
+  border-radius: var(--radius-md) !important;
+  margin: 6px 4px !important;
+  padding: 4px 12px !important;
+  color: var(--on-surface-variant) !important;
+  font-size: 12px !important;
+}
+.brand-tab-add:hover { border-color: var(--primary) !important; color: var(--primary) !important; background: var(--primary-fixed) !important; }
+
+/* Inline new-brand input inside tabs bar */
+.brand-tab-new-input-wrap {
+  display: flex;
+  align-items: center;
+  margin: 4px 6px;
+}
+.brand-tab-new-input {
+  height: 30px;
+  padding: 0 10px;
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius-md);
+  background: var(--surface-container-lowest);
+  font-size: 13px;
+  font-family: 'Manrope', sans-serif;
+  color: var(--on-surface);
+  outline: none;
+  text-align: right;
+  direction: rtl;
+  width: 140px;
+}
