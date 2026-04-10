@@ -30,23 +30,26 @@ interface ColOption {
   label: string;
   description: string;
   icon: string;
-  category: 'בסיסי' | 'מתקדם' | 'שיתוף';
   comingSoon?: boolean;
 }
 
 const COL_OPTIONS: ColOption[] = [
-  { id: 'checkbox',      label: 'תיבת סימון',    description: 'סמן פריטים וראה מה הושלם במבט',   icon: 'check_box',          category: 'בסיסי' },
-  { id: 'startDate',     label: 'תאריך התחלה',   description: 'תאריך תחילת עבודה על המשימה',      icon: 'calendar_today',     category: 'בסיסי' },
-  { id: 'tags',          label: 'תגיות',          description: 'קטגוריזציה חופשית עם תגיות',       icon: 'label',              category: 'בסיסי' },
-  { id: 'timeTracked',   label: 'מעקב זמן',      description: 'זמן עבודה שנרשם על המשימה',         icon: 'timer',              category: 'בסיסי' },
-  { id: 'phone',         label: 'טלפון',          description: 'הוסף מספר טלפון לחיוג ישיר',       icon: 'phone',              category: 'בסיסי' },
-  { id: 'link',          label: 'קישור',          description: 'קישור היפרטקסט לכל אתר',           icon: 'link',               category: 'בסיסי' },
-  { id: 'location',      label: 'מיקום',          description: 'שמור כתובת או מיקום גיאוגרפי',     icon: 'location_on',        category: 'בסיסי' },
-  { id: 'itemId',        label: 'מזהה פריט',      description: 'מספר מזהה ייחודי לכל פריט',        icon: 'tag',                category: 'בסיסי' },
-  { id: 'worldClock',    label: 'שעון עולמי',     description: 'עקוב אחרי הזמן בכל מקום בעולם',   icon: 'language',           category: 'מתקדם' },
-  { id: 'files',         label: 'קבצים',          description: 'הוסף קבצים ומסמכים לפריט',         icon: 'attach_file',        category: 'מתקדם' },
-  { id: 'connectBoards', label: 'חיבור לוחות',    description: 'חבר נתונים מלוחות אחרים',          icon: 'device_hub',         category: 'שיתוף', comingSoon: true },
-  { id: 'mirror',        label: 'שיקוף',          description: 'הצג וערוך נתונים מלוחות מחוברים', icon: 'content_copy',       category: 'שיתוף', comingSoon: true },
+  { id: 'assignee',      label: 'אחראי',          description: 'הצוות שאחראי על המשימה',            icon: 'person' },
+  { id: 'status',        label: 'סטטוס',           description: 'מצב נוכחי של המשימה',               icon: 'circle' },
+  { id: 'priority',      label: 'עדיפות',          description: 'רמת חשיבות המשימה',                 icon: 'flag' },
+  { id: 'dueDate',       label: 'תאריך יעד',       description: 'מתי צריך לסיים',                    icon: 'event' },
+  { id: 'startDate',     label: 'תאריך התחלה',     description: 'מתי מתחילים לעבוד',                 icon: 'calendar_today' },
+  { id: 'tags',          label: 'תגיות',            description: 'קטגוריזציה עם תגיות חופשיות',       icon: 'label' },
+  { id: 'timeTracked',   label: 'מעקב זמן',        description: 'זמן עבודה שנרשם על המשימה',         icon: 'timer' },
+  { id: 'checkbox',      label: 'תיבת סימון',       description: 'סמן פריטים ועקוב אחרי השלמה',      icon: 'check_box' },
+  { id: 'phone',         label: 'טלפון',            description: 'מספר טלפון לחיוג ישיר',             icon: 'phone' },
+  { id: 'link',          label: 'קישור',            description: 'קישור לכל אתר או מסמך',             icon: 'link' },
+  { id: 'location',      label: 'מיקום',            description: 'כתובת או מיקום גיאוגרפי',           icon: 'location_on' },
+  { id: 'itemId',        label: 'מזהה פריט',        description: 'מספר מזהה ייחודי אוטומטי',          icon: 'tag' },
+  { id: 'worldClock',    label: 'שעון עולמי',       description: 'שעון מקומי לפי אזור זמן',           icon: 'language' },
+  { id: 'files',         label: 'קבצים',            description: 'צרף קבצים ומסמכים',                 icon: 'attach_file' },
+  { id: 'connectBoards', label: 'חיבור לוחות',      description: 'חבר נתונים מלוחות אחרים',           icon: 'device_hub',   comingSoon: true },
+  { id: 'mirror',        label: 'שיקוף',            description: 'הצג נתונים מלוחות מחוברים',         icon: 'content_copy', comingSoon: true },
 ];
 
 // ── Labels ──────────────────────────────────────────────────────
@@ -65,71 +68,64 @@ const PRIORITY_LABELS: Record<TaskPriority, { label: string; bg: string; color: 
   low:      { label: 'נמוך',   bg: '#f0f0f0', color: '#737373' },
 };
 
-// ── Rich column picker ──────────────────────────────────────────
-function ColPicker({ visibleIds, onAdd, onClose }: {
+// ── Checkbox-based Column Picker ────────────────────────────────
+function ColPickerCheckbox({ visibleIds, onToggle, onClose }: {
   visibleIds: Set<ColId>;
-  onAdd: (id: ColId, label: string) => void;
+  onToggle: (id: ColId, label: string, checked: boolean) => void;
   onClose: () => void;
 }) {
   const [search, setSearch] = useState('');
-  const [activeCategory, setActiveCategory] = useState<string>('הכל');
-  const categories = ['הכל', 'בסיסי', 'מתקדם', 'שיתוף'];
 
-  const available = COL_OPTIONS.filter(c =>
-    !visibleIds.has(c.id) &&
-    (activeCategory === 'הכל' || c.category === activeCategory) &&
-    (!search || c.label.includes(search) || c.description.includes(search))
+  const filtered = COL_OPTIONS.filter(c =>
+    !search || c.label.includes(search) || c.description.includes(search)
   );
 
   return (
-    <div className="col-picker-panel" onClick={e => e.stopPropagation()}>
-      <div className="col-picker-header">
-        <span className="col-picker-title">הוסף עמודה</span>
-        <button className="col-picker-close" onClick={onClose}>
+    <div className="col-picker-cb-panel" dir="rtl" onClick={e => e.stopPropagation()}>
+      <div className="col-picker-cb-header">
+        <span className="col-picker-cb-title">הצג / הסתר עמודות</span>
+        <button className="col-picker-cb-close" onClick={onClose}>
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>close</span>
         </button>
       </div>
-      <input
-        className="col-picker-search"
-        placeholder="חיפוש עמודה..."
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        autoFocus
-      />
-      <div className="col-picker-cats">
-        {categories.map(cat => (
-          <button
-            key={cat}
-            className={`col-picker-cat ${activeCategory === cat ? 'active' : ''}`}
-            onClick={() => setActiveCategory(cat)}
-          >{cat}</button>
-        ))}
+      <div className="col-picker-cb-search-wrap">
+        <span className="material-symbols-outlined" style={{ fontSize: 14, color: 'var(--on-surface-variant)' }}>search</span>
+        <input
+          className="col-picker-cb-search"
+          placeholder="חיפוש..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          autoFocus
+        />
       </div>
-      <div className="col-picker-list">
-        {available.length === 0 && (
-          <div className="col-picker-empty">לא נמצאו עמודות</div>
-        )}
-        {available.map(opt => (
-          <div
-            key={opt.id}
-            className={`col-picker-item ${opt.comingSoon ? 'coming-soon' : ''}`}
-            onClick={() => { if (!opt.comingSoon) onAdd(opt.id, opt.label); }}
-          >
-            <div className="col-picker-item-icon">
-              <span className="material-symbols-outlined" style={{ fontSize: 20 }}>{opt.icon}</span>
-            </div>
-            <div className="col-picker-item-body">
-              <div className="col-picker-item-label">
-                {opt.label}
-                {opt.comingSoon && <span className="col-picker-soon-badge">בקרוב</span>}
+      <div className="col-picker-cb-list">
+        {filtered.map(opt => {
+          const isVisible = visibleIds.has(opt.id);
+          return (
+            <label
+              key={opt.id}
+              className={`col-picker-cb-item ${opt.comingSoon ? 'is-coming-soon' : ''}`}
+            >
+              <input
+                type="checkbox"
+                checked={isVisible}
+                disabled={opt.comingSoon}
+                onChange={e => !opt.comingSoon && onToggle(opt.id, opt.label, e.target.checked)}
+                className="col-picker-cb-checkbox"
+              />
+              <span className="col-picker-cb-icon">
+                <span className="material-symbols-outlined" style={{ fontSize: 17 }}>{opt.icon}</span>
+              </span>
+              <div className="col-picker-cb-info">
+                <span className="col-picker-cb-label">
+                  {opt.label}
+                  {opt.comingSoon && <span className="col-picker-soon-badge">בקרוב</span>}
+                </span>
+                <span className="col-picker-cb-desc">{opt.description}</span>
               </div>
-              <div className="col-picker-item-desc">{opt.description}</div>
-            </div>
-          </div>
-        ))}
-        {visibleIds.size - 1 < COL_OPTIONS.length && available.length > 0 && (
-          <div className="col-picker-all-added" style={{ display: available.length ? 'none' : 'block' }} />
-        )}
+            </label>
+          );
+        })}
       </div>
     </div>
   );
@@ -139,9 +135,18 @@ function ColPicker({ visibleIds, onAdd, onClose }: {
 function StatusCell({ status, taskId }: { status: TaskStatus; taskId: string }) {
   const { dispatch } = useStore();
   const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
   const s = STATUS_LABELS[status];
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
   return (
-    <div className="status-cell-wrapper">
+    <div className="status-cell-wrapper" ref={ref}>
       <button className="status-pill" style={{ background: s.bg, color: s.color }} onClick={() => setOpen(o => !o)}>
         {s.label}
       </button>
@@ -162,9 +167,18 @@ function StatusCell({ status, taskId }: { status: TaskStatus; taskId: string }) 
 function PriorityCell({ priority, taskId }: { priority: TaskPriority; taskId: string }) {
   const { dispatch } = useStore();
   const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
   const p = PRIORITY_LABELS[priority];
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
   return (
-    <div className="status-cell-wrapper">
+    <div className="status-cell-wrapper" ref={ref}>
       <button className="status-pill" style={{ background: p.bg, color: p.color }} onClick={() => setOpen(o => !o)}>
         {p.label}
       </button>
@@ -286,7 +300,9 @@ function InlineTextCell({ value, taskId, field, placeholder, icon }: {
 }
 
 function WorldClockCell() {
-  const [time, setTime] = useState(() => new Date().toLocaleTimeString('he-IL', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit' }));
+  const [time, setTime] = useState(() =>
+    new Date().toLocaleTimeString('he-IL', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit' })
+  );
   useEffect(() => {
     const interval = setInterval(() => {
       setTime(new Date().toLocaleTimeString('he-IL', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit' }));
@@ -298,6 +314,20 @@ function WorldClockCell() {
       <span className="material-symbols-outlined" style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>schedule</span>
       <span>{time}</span>
       <span style={{ fontSize: 9, color: 'var(--on-surface-variant)' }}>IL</span>
+    </div>
+  );
+}
+
+function CheckboxCell({ task }: { task: Task }) {
+  const { dispatch } = useStore();
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
+      <input
+        type="checkbox"
+        checked={task.checkboxValue || false}
+        onChange={e => dispatch({ type: 'UPDATE_TASK', payload: { id: task.id, checkboxValue: e.target.checked } })}
+        style={{ width: 16, height: 16, accentColor: 'var(--primary)', cursor: 'pointer' }}
+      />
     </div>
   );
 }
@@ -319,48 +349,31 @@ function renderCell(colId: ColId, task: Task) {
         {task.timeTracked ? `${Math.floor(task.timeTracked / 60)}h ${task.timeTracked % 60}m` : '—'}
       </span>
     );
-    case 'checkbox': {
-      const { dispatch } = (() => { /* handled below */ })() as never; // eslint-disable-line
-      return <CheckboxCell task={task} />;
-    }
-    case 'link':     return <InlineTextCell value={task.linkUrl}      taskId={task.id} field="linkUrl"       placeholder="https://..." icon="link" />;
-    case 'phone':    return <InlineTextCell value={task.phoneValue}   taskId={task.id} field="phoneValue"    placeholder="050-000-0000" icon="phone" />;
-    case 'location': return <InlineTextCell value={task.locationValue} taskId={task.id} field="locationValue" placeholder="כתובת..." icon="location_on" />;
-    case 'itemId':   return <span style={{ fontSize: 11, color: 'var(--on-surface-variant)', fontFamily: 'monospace' }}>{task.id.slice(0, 8).toUpperCase()}</span>;
-    case 'worldClock': return <WorldClockCell />;
-    case 'files':    return (
+    case 'checkbox':    return <CheckboxCell task={task} />;
+    case 'link':        return <InlineTextCell value={task.linkUrl}       taskId={task.id} field="linkUrl"       placeholder="https://..." icon="link" />;
+    case 'phone':       return <InlineTextCell value={task.phoneValue}    taskId={task.id} field="phoneValue"    placeholder="050-000-0000" icon="phone" />;
+    case 'location':    return <InlineTextCell value={task.locationValue} taskId={task.id} field="locationValue" placeholder="כתובת..." icon="location_on" />;
+    case 'itemId':      return <span style={{ fontSize: 11, color: 'var(--on-surface-variant)', fontFamily: 'monospace' }}>{task.id.slice(0, 8).toUpperCase()}</span>;
+    case 'worldClock':  return <WorldClockCell />;
+    case 'files':       return (
       <span style={{ fontSize: 11, color: 'var(--primary)', cursor: 'pointer' }}>
         {(task.attachments || []).length > 0 ? `${task.attachments.length} קבצים` : '+ קובץ'}
       </span>
     );
     case 'connectBoards':
-    case 'mirror':   return <span style={{ fontSize: 11, color: '#94a3b8' }}>בקרוב</span>;
-    default:         return null;
+    case 'mirror':      return <span style={{ fontSize: 11, color: '#94a3b8' }}>בקרוב</span>;
+    default:            return null;
   }
 }
 
-function CheckboxCell({ task }: { task: Task }) {
-  const { dispatch } = useStore();
-  return (
-    <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <input
-        type="checkbox"
-        checked={task.checkboxValue || false}
-        onChange={e => dispatch({ type: 'UPDATE_TASK', payload: { id: task.id, checkboxValue: e.target.checked } })}
-        style={{ width: 16, height: 16, accentColor: 'var(--primary)', cursor: 'pointer' }}
-      />
-    </div>
-  );
-}
-
 // ── TaskRow ─────────────────────────────────────────────────────
-function TaskRow({ task, cols }: { task: Task; cols: ColDef[] }) {
+function TaskRow({ task, cols, totalWidth }: { task: Task; cols: ColDef[]; totalWidth: number }) {
   const { dispatch } = useStore();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
 
   return (
-    <tr className="table-row">
+    <tr className="table-row" style={{ width: totalWidth }}>
       {cols.map(col => (
         <td key={col.id} className="table-cell" style={{ width: col.width, minWidth: col.width, maxWidth: col.width }}>
           {col.id === 'title' ? (
@@ -394,7 +407,9 @@ function TaskRow({ task, cols }: { task: Task; cols: ColDef[] }) {
 }
 
 // ── GroupSection ─────────────────────────────────────────────────
-function GroupSection({ groupId, projectId, cols }: { groupId: string; projectId: string; cols: ColDef[] }) {
+function GroupSection({ groupId, projectId, cols, totalWidth }: {
+  groupId: string; projectId: string; cols: ColDef[]; totalWidth: number;
+}) {
   const { state, dispatch } = useStore();
   const [collapsed, setCollapsed] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
@@ -416,9 +431,12 @@ function GroupSection({ groupId, projectId, cols }: { groupId: string; projectId
 
   return (
     <div className="table-group">
-      <div className="table-group-header">
+      {/* Group header — spans full width */}
+      <div className="table-group-header" style={{ minWidth: totalWidth }}>
         <button className="group-collapse-btn" onClick={() => setCollapsed(c => !c)}>
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{collapsed ? 'chevron_left' : 'expand_more'}</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
+            {collapsed ? 'chevron_right' : 'expand_more'}
+          </span>
         </button>
         <span className="group-color-swatch" style={{ background: group.color }} />
         {editingName ? (
@@ -442,13 +460,13 @@ function GroupSection({ groupId, projectId, cols }: { groupId: string; projectId
 
       {!collapsed && (
         <>
-          <table className="table-view">
+          <table className="table-view" style={{ width: totalWidth, tableLayout: 'fixed' }}>
             <colgroup>
               {cols.map(col => <col key={col.id} style={{ width: col.width }} />)}
               <col style={{ width: 40 }} />
             </colgroup>
             <tbody>
-              {tasks.map(task => <TaskRow key={task.id} task={task} cols={cols} />)}
+              {tasks.map(task => <TaskRow key={task.id} task={task} cols={cols} totalWidth={totalWidth} />)}
               {addingTask && (
                 <tr className="table-row">
                   <td className="table-cell task-name-cell" colSpan={cols.length + 1}>
@@ -461,7 +479,7 @@ function GroupSection({ groupId, projectId, cols }: { groupId: string; projectId
               )}
             </tbody>
           </table>
-          <button className="add-task-btn" onClick={() => setAddingTask(true)}>
+          <button className="add-task-btn" style={{ marginRight: 32 }} onClick={() => setAddingTask(true)}>
             <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span> הוסף פריט
           </button>
         </>
@@ -499,6 +517,7 @@ export function TableView() {
     .filter(g => g.projectId === state.activeProjectId)
     .sort((a, b) => a.order - b.order);
 
+  // RTL resize: dragging left = wider (handle is on left edge of column)
   const onResizeMouseDown = useCallback((e: React.MouseEvent, idx: number) => {
     e.preventDefault(); e.stopPropagation();
     resizingIdx.current = idx;
@@ -506,6 +525,7 @@ export function TableView() {
     resizeStartW.current = cols[idx].width;
     const onMove = (ev: MouseEvent) => {
       if (resizingIdx.current === null) return;
+      // In RTL: moving left = positive delta = wider
       const delta = resizeStartX.current - ev.clientX;
       const newW = Math.max(80, resizeStartW.current + delta);
       setCols(prev => prev.map((c, i) => i === resizingIdx.current ? { ...c, width: newW } : c));
@@ -538,13 +558,21 @@ export function TableView() {
   };
 
   const visibleIds = new Set(cols.map(c => c.id));
-  const addCol = (id: ColId, label: string) => {
-    const opt = COL_OPTIONS.find(o => o.id === id);
-    setCols(prev => [...prev, { id, label, width: id === 'checkbox' || id === 'worldClock' || id === 'itemId' ? 110 : 150 }]);
-    setShowColPicker(false);
-    void opt;
+
+  const handleColToggle = (id: ColId, label: string, checked: boolean) => {
+    if (checked) {
+      // Add column
+      const defaultWidths: Partial<Record<ColId, number>> = {
+        checkbox: 90, worldClock: 110, itemId: 110, phone: 140, files: 100,
+      };
+      setCols(prev => [...prev, { id, label, width: defaultWidths[id] ?? 150 }]);
+    } else {
+      // Remove column (cannot remove fixed)
+      setCols(prev => prev.filter(c => c.id !== id || c.fixed));
+    }
   };
-  const removeCol = (id: ColId) => setCols(prev => prev.filter(c => c.id !== id || c.fixed));
+
+  const totalWidth = cols.reduce((sum, c) => sum + c.width, 0) + 40 + 44; // +actions col +add-col btn
 
   const handleAddGroup = () => {
     if (newGroupName.trim() && state.activeProjectId) {
@@ -554,54 +582,79 @@ export function TableView() {
   };
 
   return (
-    <div className="table-view-container">
-      {/* Column header bar */}
-      <div className="table-col-header-row">
-        {cols.map((col, idx) => (
-          <div key={col.id}
-            className={`table-col-header${dragOver === idx ? ' col-drag-over' : ''}`}
-            style={{ width: col.width, minWidth: col.width, maxWidth: col.width }}
-            draggable={!col.fixed}
-            onDragStart={e => onDragStart(e, idx)}
-            onDragOver={e => onDragOver(e, idx)}
-            onDrop={e => onDrop(e, idx)}
-            onDragEnd={() => { setDragOver(null); dragColIdx.current = null; }}
-          >
-            {!col.fixed && <span className="col-drag-handle" title="גרור להזזה"><span className="material-symbols-outlined" style={{ fontSize: 14 }}>drag_indicator</span></span>}
-            <span className="col-header-label">{col.label}</span>
-            {!col.fixed && <button className="col-remove-btn" onClick={() => removeCol(col.id)} title="הסר עמודה">×</button>}
-            <div className="col-resize-handle" onMouseDown={e => onResizeMouseDown(e, idx)} title="גרור לשינוי רוחב" />
+    <div className="table-view-container" dir="rtl">
+      {/* Horizontally scrollable area */}
+      <div className="table-scroll-wrap">
+        {/* Column header bar */}
+        <div className="table-col-header-row" style={{ minWidth: totalWidth }}>
+          {/* Title col header — rightmost, fixed */}
+          {cols.map((col, idx) => (
+            <div key={col.id}
+              className={`table-col-header${dragOver === idx ? ' col-drag-over' : ''}`}
+              style={{ width: col.width, minWidth: col.width, maxWidth: col.width }}
+              draggable={!col.fixed}
+              onDragStart={e => onDragStart(e, idx)}
+              onDragOver={e => onDragOver(e, idx)}
+              onDrop={e => onDrop(e, idx)}
+              onDragEnd={() => { setDragOver(null); dragColIdx.current = null; }}
+            >
+              <span className="col-header-label">{col.label}</span>
+              {!col.fixed && (
+                <>
+                  <span className="col-drag-handle" title="גרור להזזה">
+                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>drag_indicator</span>
+                  </span>
+                  <button className="col-remove-btn" onClick={() => setCols(prev => prev.filter(c => c.id !== col.id))} title="הסר עמודה">×</button>
+                </>
+              )}
+              {/* Resize handle — left edge (RTL) */}
+              <div className="col-resize-handle" onMouseDown={e => onResizeMouseDown(e, idx)} />
+            </div>
+          ))}
+          {/* Actions col spacer */}
+          <div className="table-col-header" style={{ width: 40, minWidth: 40, flex: 'none' }} />
+          {/* Add column button — leftmost in RTL */}
+          <div className="table-col-header add-col-header" style={{ width: 44, minWidth: 44, flex: 'none', position: 'relative' }} ref={pickerRef}>
+            <button className="add-col-btn" onClick={() => setShowColPicker(o => !o)} title="הצג / הסתר עמודות">
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>view_column</span>
+            </button>
+            {showColPicker && (
+              <ColPickerCheckbox
+                visibleIds={visibleIds}
+                onToggle={handleColToggle}
+                onClose={() => setShowColPicker(false)}
+              />
+            )}
           </div>
-        ))}
-        <div className="table-col-header" style={{ width: 40, minWidth: 40, flex: 'none' }} />
-        {/* Add column */}
-        <div className="table-col-header add-col-header" style={{ width: 44, minWidth: 44, flex: 'none', position: 'relative' }} ref={pickerRef}>
-          <button className="add-col-btn" onClick={() => setShowColPicker(o => !o)} title="הוסף עמודה">
-            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
-          </button>
-          {showColPicker && (
-            <ColPicker visibleIds={visibleIds} onAdd={addCol} onClose={() => setShowColPicker(false)} />
-          )}
         </div>
+
+        {/* Group sections */}
+        {projectGroups.map(group => (
+          <GroupSection
+            key={group.id}
+            groupId={group.id}
+            projectId={state.activeProjectId!}
+            cols={cols}
+            totalWidth={totalWidth}
+          />
+        ))}
       </div>
 
-      {/* Groups */}
-      {projectGroups.map(group => (
-        <GroupSection key={group.id} groupId={group.id} projectId={state.activeProjectId!} cols={cols} />
-      ))}
-
-      {addingGroup ? (
-        <div className="add-group-row">
-          <input className="new-task-input" placeholder="שם קבוצה..." value={newGroupName}
-            onChange={e => setNewGroupName(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleAddGroup(); if (e.key === 'Escape') setAddingGroup(false); }}
-            onBlur={handleAddGroup} autoFocus />
-        </div>
-      ) : (
-        <button className="add-group-btn" onClick={() => setAddingGroup(true)}>
-          <span className="material-symbols-outlined" style={{ fontSize: 15 }}>add</span> הוסף קבוצה
-        </button>
-      )}
+      {/* Add group — outside scroll */}
+      <div className="table-add-group-area">
+        {addingGroup ? (
+          <div className="add-group-row">
+            <input className="new-task-input" placeholder="שם קבוצה..." value={newGroupName}
+              onChange={e => setNewGroupName(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleAddGroup(); if (e.key === 'Escape') setAddingGroup(false); }}
+              onBlur={handleAddGroup} autoFocus />
+          </div>
+        ) : (
+          <button className="add-group-btn" onClick={() => setAddingGroup(true)}>
+            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>add</span> הוסף קבוצה
+          </button>
+        )}
+      </div>
     </div>
   );
 }
