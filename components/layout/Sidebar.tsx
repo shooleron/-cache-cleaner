@@ -105,6 +105,7 @@ export function Sidebar() {
   const [mktOpen, setMktOpen] = useState(
     state.activeSection === 'marketing' || state.activeSection === 'promotion' || state.activeSection === 'social' || state.activeSection === 'design' || state.activeSection === 'bizdev'
   );
+  const [rdOpen, setRdOpen] = useState(state.activeSection === 'rd');
   const [expandedBrands, setExpandedBrands] = useState<Set<string>>(new Set(['brand-1']));
   const [showNewBrand, setShowNewBrand] = useState(false);
   const [newBrandName, setNewBrandName] = useState('');
@@ -314,6 +315,15 @@ export function Sidebar() {
             </div>
           </div>
         )}
+
+        {/* R&D — top-level section */}
+        <div
+          className={`sidebar-item sidebar-group-header ${state.activeSection === 'rd' ? 'active' : ''}`}
+          onClick={() => { setRdOpen(o => !o); setSection('rd'); }}
+        >
+          <span className="material-symbols-outlined sidebar-item-icon">science</span>
+          <span>R&amp;D</span>
+        </div>
       </nav>
 
       {/* Add event button — admin only */}
