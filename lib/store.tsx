@@ -5,7 +5,7 @@ import {
   AppState, Task, Project, User, Notification, Comment, Group, BoardView,
   AppSection, CRMView, Contact, Deal, DealActivity, AutomationRule, AIMessage,
   DealStage, SubItem, ActivityLog, ActivityVerb, Event, Campaign, EventStatus,
-  Attachment, AttachmentType, TaskNote, Speaker, Panel, SponsorshipProduct, DealLineItem,
+  Attachment, AttachmentType, TaskNote, Speaker, Panel, SponsorshipProduct, DealLineItem, Brand,
 } from './types';
 import { INITIAL_STATE } from './mockData';
 import { v4 as uuidv4 } from 'uuid';
@@ -97,7 +97,8 @@ type Action =
   | { type: 'UPDATE_PANEL'; payload: Partial<Panel> & { id: string } }
   | { type: 'DELETE_PANEL'; payload: string }
   | { type: 'ADD_SPEAKER_TO_PANEL'; payload: { panelId: string; speakerId: string } }
-  | { type: 'REMOVE_SPEAKER_FROM_PANEL'; payload: { panelId: string; speakerId: string } };
+  | { type: 'REMOVE_SPEAKER_FROM_PANEL'; payload: { panelId: string; speakerId: string } }
+  | { type: 'CREATE_BRAND'; payload: Omit<Brand, 'id' | 'createdAt' | 'updatedAt'> };
 
 // Fields that should NOT be synced to Supabase (UI-only state)
 const UI_ONLY_FIELDS: (keyof AppState)[] = [
@@ -858,6 +859,16 @@ function reducer(state: AppState, action: Action): AppState {
           s.id === sId ? { ...s, panelIds: s.panelIds.filter(id => id !== pId) } : s
         ),
       };
+    }
+
+    case 'CREATE_BRAND': {
+      const newBrand: Brand = {
+        id: uuidv4(),
+        ...action.payload,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      return { ...state, brands: [...state.brands, newBrand] };
     }
 
     default:

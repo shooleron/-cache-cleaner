@@ -103,8 +103,11 @@ export function Sidebar() {
     state.activeSection === 'crm' || state.activeSection === 'speakers'
   );
   const [mktOpen, setMktOpen] = useState(
-    state.activeSection === 'marketing' || state.activeSection === 'promotion'
+    state.activeSection === 'marketing' || state.activeSection === 'promotion' || state.activeSection === 'social' || state.activeSection === 'design'
   );
+  const [expandedBrands, setExpandedBrands] = useState<Set<string>>(new Set(['brand-1']));
+  const [showNewBrand, setShowNewBrand] = useState(false);
+  const [newBrandName, setNewBrandName] = useState('');
   const admin = isAdmin(state.currentUser);
 
   function setSection(section: AppSection) {
@@ -127,7 +130,7 @@ export function Sidebar() {
   }
 
   const mainNavItems: { section: AppSection; icon: string; label: string }[] = [
-    { section: 'dashboard', icon: 'dashboard', label: 'דשבורד' },
+    { section: 'dashboard', icon: 'dashboard', label: 'ראשי' },
     { section: 'events', icon: 'event', label: 'אירועים' },
   ];
 
@@ -137,9 +140,26 @@ export function Sidebar() {
   ];
 
   const isMgmtActive = state.activeSection === 'crm' || state.activeSection === 'speakers';
-  const isMktActive = state.activeSection === 'marketing' || state.activeSection === 'promotion';
+  const isMktActive = state.activeSection === 'marketing' || state.activeSection === 'promotion' || state.activeSection === 'social' || state.activeSection === 'design';
   const activeEvents = state.events.filter(e => e.status !== 'archived');
   const archivedEvents = state.events.filter(e => e.status === 'archived');
+
+  function toggleBrand(brandId: string) {
+    setExpandedBrands(prev => {
+      const next = new Set(prev);
+      if (next.has(brandId)) next.delete(brandId);
+      else next.add(brandId);
+      return next;
+    });
+  }
+
+  function handleAddBrand() {
+    const trimmed = newBrandName.trim();
+    if (!trimmed) return;
+    dispatch({ type: 'CREATE_BRAND', payload: { name: trimmed, color: '#0073ea', icon: '🏢' } });
+    setNewBrandName('');
+    setShowNewBrand(false);
+  }
 
   return (
     <aside className="sidebar">
@@ -155,31 +175,79 @@ export function Sidebar() {
       {/* Nav */}
       <nav className="sidebar-nav">
         {mainNavItems.map(item => (
-          <div
-            key={item.section}
-            className={`sidebar-item ${state.activeSection === item.section ? 'active' : ''}`}
-            onClick={() => setSection(item.section)}
-          >
-            <span className="material-symbols-outlined sidebar-item-icon">{item.icon}</span>
-            <span>{item.label}</span>
+          <div key={item.section}>
+            <div
+              className={`sidebar-item ${state.activeSection === item.section || (item.section === 'dashboard' && state.activeSection === 'my-tasks') ? 'active' : ''}`}
+              onClick={() => setSection(item.section)}
+            >
+              <span className="material-symbols-outlined sidebar-item-icon">{item.icon}</span>
+              <span>{item.label}</span>
+            </div>
+            {item.section === 'dashboard' && (state.activeSection === 'dashboard' || state.activeSection === 'my-tasks') && (
+              <div className="sidebar-group-items">
+                <div
+                  className={`sidebar-item sidebar-sub-item ${state.activeSection === 'my-tasks' ? 'active' : ''}`}
+                  onClick={() => setSection('my-tasks')}
+                >
+                  <span className="material-symbols-outlined sidebar-item-icon">task_alt</span>
+                  <span>המשימות שלי</span>
+                </div>
+              </div>
+            )}
           </div>
         ))}
 
-        {/* Events sub-list */}
+        {/* Events sub-list — grouped by brand */}
         {state.activeSection === 'events' && (
           <div className="sidebar-events-list">
-            {activeEvents.map(event => {
-              const eventProjects = state.projects.filter(p => p.eventId === event.id);
-              const isExpanded = expandedEvents.has(event.id);
+            {state.brands.map(brand => {
+              const brandEvents = activeEvents.filter(e => e.brandId === brand.id);
+              const isBrandExpanded = expandedBrands.has(brand.id);
               return (
-                <div key={event.id} className="sidebar-event-group">
-                  <SidebarEventRow event={event} isExpanded={isExpanded} onToggle={() => { toggleEvent(event.id); dispatch({ type: 'SET_ACTIVE_EVENT', payload: event.id }); }} isActive={state.activeEventId === event.id} dispatch={dispatch} />
-                  {isExpanded && eventProjects.map(project => (
-                    <SidebarProjectRow key={project.id} project={project} isActive={state.activeProjectId === project.id} onSelect={() => selectProject(project.id, event.id)} dispatch={dispatch} />
-                  ))}
+                <div key={brand.id}>
+                  <div
+                    className="sidebar-brand-row"
+                    onClick={() => toggleBrand(brand.id)}
+                  >
+                    <span className="material-symbols-outlined sidebar-brand-chevron"
+                      style={{ transform: isBrandExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                      chevron_left
+                    </span>
+                    <span className="sidebar-brand-name">{brand.name}</span>
+                    <span className="sidebar-brand-icon">{brand.icon}</span>
+                  </div>
+                  {isBrandExpanded && brandEvents.map(event => {
+                    const eventProjects = state.projects.filter(p => p.eventId === event.id);
+                    const isExpanded = expandedEvents.has(event.id);
+                    return (
+                      <div key={event.id} className="sidebar-event-group" style={{ paddingRight: 12 }}>
+                        <SidebarEventRow event={event} isExpanded={isExpanded} onToggle={() => { toggleEvent(event.id); dispatch({ type: 'SET_ACTIVE_EVENT', payload: event.id }); }} isActive={state.activeEventId === event.id} dispatch={dispatch} />
+                        {isExpanded && eventProjects.map(project => (
+                          <SidebarProjectRow key={project.id} project={project} isActive={state.activeProjectId === project.id} onSelect={() => selectProject(project.id, event.id)} dispatch={dispatch} />
+                        ))}
+                      </div>
+                    );
+                  })}
                 </div>
               );
             })}
+            {/* Add brand button */}
+            {showNewBrand ? (
+              <input
+                className="sidebar-new-brand-input"
+                value={newBrandName}
+                placeholder="שם המותג..."
+                autoFocus
+                onChange={e => setNewBrandName(e.target.value)}
+                onBlur={handleAddBrand}
+                onKeyDown={e => { if (e.key === 'Enter') handleAddBrand(); if (e.key === 'Escape') { setShowNewBrand(false); setNewBrandName(''); } }}
+              />
+            ) : (
+              <button className="sidebar-add-brand-btn" onClick={() => setShowNewBrand(true)}>
+                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span>
+                <span>הוסף מותג</span>
+              </button>
+            )}
             {archivedEvents.length > 0 && (
               <div className="sidebar-archive-section">
                 <div className="sidebar-archive-toggle" onClick={() => setArchiveOpen(o => !o)}>
@@ -252,6 +320,20 @@ export function Sidebar() {
             >
               <span className="material-symbols-outlined sidebar-item-icon">ads_click</span>
               <span>קידום</span>
+            </div>
+            <div
+              className={`sidebar-item sidebar-sub-item ${state.activeSection === 'social' ? 'active' : ''}`}
+              onClick={() => setSection('social')}
+            >
+              <span className="material-symbols-outlined sidebar-item-icon">groups</span>
+              <span>סושיאל</span>
+            </div>
+            <div
+              className={`sidebar-item sidebar-sub-item ${state.activeSection === 'design' ? 'active' : ''}`}
+              onClick={() => setSection('design')}
+            >
+              <span className="material-symbols-outlined sidebar-item-icon">brush</span>
+              <span>עיצוב</span>
             </div>
           </div>
         )}

@@ -1,4 +1,4 @@
-import { AppState, Task, Group, Project, User, Notification, Contact, Deal, AutomationRule, Event, Campaign, Speaker, Panel, SponsorshipProduct } from './types';
+import { AppState, Task, Group, Project, User, Notification, Contact, Deal, AutomationRule, Event, Campaign, Speaker, Panel, SponsorshipProduct, Brand } from './types';
 
 export const MOCK_USERS: User[] = [
   { id: 'user-1', name: 'יורי אלט', email: 'yuri@atelier.co.il', avatar: 'יא', color: '#0073ea', role: 'owner', status: 'active', jobTitle: 'מנכ"ל', department: 'management' },
@@ -8,6 +8,12 @@ export const MOCK_USERS: User[] = [
   { id: 'user-5', name: 'חגית פרידמן', email: 'hagit@atelier.co.il', avatar: 'חפ', color: '#ff9800', role: 'member', status: 'active', jobTitle: 'מנהלת תפעול', department: 'operations' },
   { id: 'user-6', name: 'רמי שלומי', email: 'rami@atelier.co.il', avatar: 'רש', color: '#00bcd4', role: 'member', status: 'active', jobTitle: 'סמנכ"ל פיתוח עסקי', department: 'sales' },
   { id: 'user-7', name: 'מיכל ברק', email: 'michal@atelier.co.il', avatar: 'מב', color: '#e91e63', role: 'member', status: 'active', jobTitle: 'מנהלת שיווק', department: 'marketing' },
+];
+
+export const MOCK_BRANDS: Brand[] = [
+  { id: 'brand-1', name: 'מרכז הנדל״ן', color: '#0073ea', icon: '🏗️', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'brand-2', name: 'בית ונוי', color: '#00c875', icon: '🏡', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'brand-3', name: 'מולטיפליי קפיטל', color: '#9c27b0', icon: '💼', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
 ];
 
 export const MOCK_EVENTS: Event[] = [
@@ -22,6 +28,7 @@ export const MOCK_EVENTS: Event[] = [
     color: '#0073ea',
     icon: '🏗️',
     parentEventId: 'event-archived-1',
+    brandId: 'brand-1',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -36,6 +43,7 @@ export const MOCK_EVENTS: Event[] = [
     color: '#9c27b0',
     icon: '💻',
     parentEventId: null,
+    brandId: 'brand-3',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -50,6 +58,7 @@ export const MOCK_EVENTS: Event[] = [
     color: '#0073ea',
     icon: '🏗️',
     parentEventId: null,
+    brandId: 'brand-1',
     createdAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
   },
@@ -408,6 +417,7 @@ export const MOCK_AUTOMATIONS: AutomationRule[] = [
 export const INITIAL_STATE: AppState = {
   currentUser: MOCK_USERS[0],
   users: MOCK_USERS,
+  brands: MOCK_BRANDS,
   events: MOCK_EVENTS,
   campaigns: MOCK_CAMPAIGNS,
   speakers: MOCK_SPEAKERS,

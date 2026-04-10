@@ -3,7 +3,7 @@ export type UserStatus = 'active' | 'inactive' | 'pending';
 export type TaskStatus = 'todo' | 'in_progress' | 'stuck' | 'done' | 'backlog';
 export type TaskPriority = 'critical' | 'high' | 'medium' | 'low';
 export type BoardView = 'table' | 'kanban' | 'roadmap' | 'calendar';
-export type AppSection = 'events' | 'dashboard' | 'crm' | 'automations' | 'ai' | 'users' | 'speakers' | 'my-tasks' | 'marketing' | 'promotion';
+export type AppSection = 'events' | 'dashboard' | 'crm' | 'automations' | 'ai' | 'users' | 'speakers' | 'my-tasks' | 'marketing' | 'promotion' | 'social' | 'design';
 export type Department = 'operations' | 'sales' | 'marketing' | 'design' | 'content' | 'management';
 export type SpeakerApprovalStatus = 'approved' | 'pending' | 'cancelled';
 export type SpeakerCVStatus = 'received' | 'pending';
@@ -113,6 +113,15 @@ export interface Group {
   order: number;
 }
 
+export interface Brand {
+  id: string;
+  name: string;
+  color: string;
+  icon: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Event {
   id: string;
   name: string;
@@ -124,6 +133,7 @@ export interface Event {
   color: string;
   icon: string;
   parentEventId: string | null;
+  brandId: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -339,6 +349,7 @@ export interface Panel {
 export interface AppState {
   currentUser: User;
   users: User[];
+  brands: Brand[];
   events: Event[];
   campaigns: Campaign[];
   speakers: Speaker[];

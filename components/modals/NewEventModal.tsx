@@ -36,6 +36,7 @@ export function NewEventModal() {
         color,
         icon,
         parentEventId: null,
+        brandId: null,
       },
     });
     dispatch({ type: 'CLOSE_NEW_EVENT_MODAL' });
