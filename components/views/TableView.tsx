@@ -614,6 +614,8 @@ export function TableView() {
           {/* Actions col spacer */}
           <div className="table-col-header" style={{ width: 40, minWidth: 40, flex: 'none' }} />
           {/* Add column button — leftmost in RTL */}
+          {/* Filler to fill remaining space */}
+          <div className="table-filler-col" />
           <div className="table-col-header add-col-header" style={{ width: 44, minWidth: 44, flex: 'none', position: 'relative' }} ref={pickerRef}>
             <button className="add-col-btn" onClick={() => setShowColPicker(o => !o)} title="הצג / הסתר עמודות">
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>view_column</span>

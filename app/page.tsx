@@ -32,7 +32,7 @@ function AppContent() {
   const renderMainContent = () => {
     if (state.activeSection === 'dashboard') return <DashboardView />;
     if (state.activeSection === 'my-tasks') return <MyTasksView />;
-    if (state.activeSection === 'marketing' || state.activeSection === 'promotion' || state.activeSection === 'social' || state.activeSection === 'design') return <MyTasksView />;
+    if (state.activeSection === 'marketing' || state.activeSection === 'promotion' || state.activeSection === 'social' || state.activeSection === 'design' || state.activeSection === 'bizdev') return <MyTasksView />;
     if (state.activeSection === 'crm') {
       return state.activeCRMView === 'deals' ? <DealsView /> : <ContactsView />;
     }

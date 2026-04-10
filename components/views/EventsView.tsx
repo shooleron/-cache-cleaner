@@ -61,7 +61,7 @@ function EventDetail({ eventId }: { eventId: string }) {
       <div className="event-detail-banner" style={{ background: `linear-gradient(135deg, ${event.color}18 0%, ${event.color}08 100%)`, borderTop: `4px solid ${event.color}` }}>
         <div className="event-detail-banner-left">
           <div className="event-detail-banner-icon" style={{ background: event.color + '22' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 32, color: event.color }}>{event.icon || 'event'}</span>
+            <span style={{ fontSize: 32 }}>{event.icon || '📅'}</span>
           </div>
           <div>
             <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: 10 }}>
@@ -109,7 +109,7 @@ function EventDetail({ eventId }: { eventId: string }) {
         </div>
       </div>
 
-      {/* Category tabs — prominent */}
+      {/* Category tabs */}
       <div className="event-category-tabs">
         {categoryTabs.map(tab => (
           <button
@@ -246,30 +246,85 @@ function EventDetail({ eventId }: { eventId: string }) {
 export function EventsView() {
   const { state, dispatch } = useStore();
   const admin = isAdmin(state.currentUser);
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(
-    state.activeEventId || (state.events.find(e => e.status !== 'archived')?.id ?? null)
-  );
+
+  // Brand filter — null means "all brands"
+  const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
+  const [showArchive, setShowArchive] = useState(false);
 
   const activeEvents = state.events.filter(e => e.status !== 'archived');
   const archivedEvents = state.events.filter(e => e.status === 'archived');
-  const [showArchive, setShowArchive] = useState(false);
+
+  // Filter events by selected brand
+  const visibleEvents = selectedBrandId
+    ? activeEvents.filter(e => e.brandId === selectedBrandId)
+    : activeEvents;
+
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(
+    state.activeEventId || (visibleEvents[0]?.id ?? null)
+  );
+
+  // If selected event is not in visible set after brand switch, reset
+  const effectiveSelectedId = visibleEvents.find(e => e.id === selectedEventId)
+    ? selectedEventId
+    : (visibleEvents[0]?.id ?? null);
 
   function selectEvent(id: string) {
     setSelectedEventId(id);
     dispatch({ type: 'SET_ACTIVE_EVENT', payload: id });
   }
 
+  function selectBrand(id: string | null) {
+    setSelectedBrandId(id);
+    // Auto-select first event of new brand
+    const first = id
+      ? activeEvents.find(e => e.brandId === id)
+      : activeEvents[0];
+    if (first) selectEvent(first.id);
+    else setSelectedEventId(null);
+  }
+
   return (
     <div className="events-view-v2">
-      {/* Horizontal event tabs at top */}
+      {/* ── Brand tabs ── */}
+      <div className="brand-tabs-bar">
+        <div className="brand-tabs-scroll">
+          <button
+            className={`brand-tab ${!selectedBrandId ? 'active' : ''}`}
+            onClick={() => selectBrand(null)}
+          >
+            <span className="brand-tab-icon">🌐</span>
+            <span>כל המותגים</span>
+          </button>
+          {state.brands.map(brand => (
+            <button
+              key={brand.id}
+              className={`brand-tab ${selectedBrandId === brand.id ? 'active' : ''}`}
+              style={selectedBrandId === brand.id ? { borderBottomColor: brand.color, color: brand.color } : {}}
+              onClick={() => selectBrand(brand.id)}
+            >
+              <span className="brand-tab-icon">{brand.icon}</span>
+              <span className="brand-tab-name">{brand.name}</span>
+              <span className="brand-tab-count">{activeEvents.filter(e => e.brandId === brand.id).length}</span>
+            </button>
+          ))}
+        </div>
+        {admin && (
+          <button className="brand-add-btn" onClick={() => {/* future: open brand modal */}}>
+            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>add</span>
+            מותג חדש
+          </button>
+        )}
+      </div>
+
+      {/* ── Event tabs (filtered by brand) ── */}
       <div className="events-topbar">
         <div className="events-tabs-scroll">
-          {activeEvents.map(event => {
+          {visibleEvents.map(event => {
             const projects = state.projects.filter(p => p.eventId === event.id);
             const tasks = state.tasks.filter(t => projects.some(p => p.id === t.projectId));
             const done = tasks.filter(t => t.status === 'done').length;
             const pct = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0;
-            const isSelected = selectedEventId === event.id;
+            const isSelected = effectiveSelectedId === event.id;
             return (
               <button
                 key={event.id}
@@ -278,9 +333,6 @@ export function EventsView() {
                 onClick={() => selectEvent(event.id)}
               >
                 <span className="events-tab-dot" style={{ background: STATUS_COLORS[event.status] }} title={STATUS_LABELS[event.status]} />
-                <div className="events-tab-icon" style={{ background: event.color + '20' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 15, color: event.color }}>{event.icon || 'event'}</span>
-                </div>
                 <div className="events-tab-info">
                   <span className="events-tab-name">{event.name}</span>
                   <span className="events-tab-date">{new Date(event.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'short' })}</span>
@@ -310,11 +362,11 @@ export function EventsView() {
         )}
       </div>
 
-      {/* Archive list (collapsed) */}
+      {/* Archive list */}
       {showArchive && (
         <div className="events-archive-bar">
           {archivedEvents.map(event => (
-            <button key={event.id} className={`events-tab ${selectedEventId === event.id ? 'active' : ''}`}
+            <button key={event.id} className={`events-tab ${effectiveSelectedId === event.id ? 'active' : ''}`}
               style={{ opacity: 0.6 }} onClick={() => selectEvent(event.id)}>
               <span className="events-tab-name">{event.name}</span>
               <span className="events-tab-date">{new Date(event.date).getFullYear()}</span>
@@ -325,12 +377,12 @@ export function EventsView() {
 
       {/* Event detail */}
       <div className="events-detail-area">
-        {selectedEventId ? (
-          <EventDetail eventId={selectedEventId} />
+        {effectiveSelectedId ? (
+          <EventDetail eventId={effectiveSelectedId} />
         ) : (
-          <div className="events-empty" style={{ height: '60vh' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 48, color: '#c4c4c4' }}>event_note</span>
-            <p>בחר אירוע למעלה</p>
+          <div className="events-empty" style={{ height: '50vh' }}>
+            <span style={{ fontSize: 48 }}>📅</span>
+            <p>{selectedBrandId ? 'אין אירועים למותג זה' : 'בחר אירוע למעלה'}</p>
             {admin && <button className="events-add-btn" onClick={() => dispatch({ type: 'OPEN_NEW_EVENT_MODAL' })}>צור אירוע ראשון</button>}
           </div>
         )}

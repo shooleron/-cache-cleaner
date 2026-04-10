@@ -146,6 +146,56 @@ function ManagerDashboard() {
         </div>
       </div>
 
+      {/* All Events */}
+      <div className="mgr-panel" style={{ marginBottom: 20 }}>
+        <div className="mgr-panel-header">
+          <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--primary)' }}>event</span>
+          <h3 className="mgr-panel-title">כל האירועים</h3>
+          <button className="emp-see-all-btn" onClick={() => dispatch({ type: 'SET_ACTIVE_SECTION', payload: 'events' })}>
+            לכל האירועים <span className="material-symbols-outlined" style={{ fontSize: 14 }}>chevron_left</span>
+          </button>
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, padding: '4px 0' }}>
+          {state.events.filter(e => e.status !== 'archived').map(event => {
+            const brand = state.brands.find(b => b.id === event.brandId);
+            const eventProjects = state.projects.filter(p => p.eventId === event.id);
+            const eventTasks = state.tasks.filter(t => eventProjects.some(p => p.id === t.projectId));
+            const done = eventTasks.filter(t => t.status === 'done').length;
+            const pct = eventTasks.length > 0 ? Math.round((done / eventTasks.length) * 100) : 0;
+            return (
+              <div key={event.id} className="dash-event-card"
+                style={{ borderTop: `3px solid ${event.color}` }}
+                onClick={() => { dispatch({ type: 'SET_ACTIVE_EVENT', payload: event.id }); dispatch({ type: 'SET_ACTIVE_SECTION', payload: 'events' }); }}>
+                <div className="dash-event-card-top">
+                  <span style={{ fontSize: 20 }}>{event.icon || '📅'}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="dash-event-name">{event.name}</div>
+                    {brand && <div className="dash-event-brand" style={{ color: brand.color }}>{brand.icon} {brand.name}</div>}
+                  </div>
+                </div>
+                <div className="dash-event-meta">
+                  <span><span className="material-symbols-outlined" style={{ fontSize: 12, verticalAlign: 'middle' }}>calendar_today</span> {new Date(event.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'short' })}</span>
+                  {event.location && <span style={{ color: 'var(--on-surface-variant)', fontSize: 11 }}>{event.location}</span>}
+                </div>
+                {eventTasks.length > 0 && (
+                  <div style={{ marginTop: 6 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--on-surface-variant)', marginBottom: 3 }}>
+                      <span>{pct}%</span><span>{done}/{eventTasks.length}</span>
+                    </div>
+                    <div className="mgr-progress-track" style={{ height: 4 }}>
+                      <div className="mgr-progress-fill" style={{ width: `${pct}%`, background: event.color }} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {state.events.filter(e => e.status !== 'archived').length === 0 && (
+            <div className="mgr-empty">אין אירועים פעילים</div>
+          )}
+        </div>
+      </div>
+
       <div className="mgr-grid">
         {/* Project Progress */}
         <div className="mgr-panel">
