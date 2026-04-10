@@ -100,7 +100,11 @@ export function Sidebar() {
   );
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [mgmtOpen, setMgmtOpen] = useState(
-    state.activeSection === 'crm' || state.activeSection === 'speakers'
+    state.activeSection === 'crm' || state.activeSection === 'speakers' ||
+    state.activeSection === 'marketing' || state.activeSection === 'promotion'
+  );
+  const [mktOpen, setMktOpen] = useState(
+    state.activeSection === 'marketing' || state.activeSection === 'promotion'
   );
   const admin = isAdmin(state.currentUser);
 
@@ -125,7 +129,6 @@ export function Sidebar() {
 
   const mainNavItems: { section: AppSection; icon: string; label: string }[] = [
     { section: 'dashboard', icon: 'dashboard', label: 'דשבורד' },
-    { section: 'my-tasks', icon: 'task_alt', label: 'המשימות שלי' },
     { section: 'events', icon: 'event', label: 'אירועים' },
   ];
 
@@ -134,7 +137,8 @@ export function Sidebar() {
     { section: 'speakers', icon: 'mic', label: 'דוברים' },
   ];
 
-  const isMgmtActive = state.activeSection === 'crm' || state.activeSection === 'speakers';
+  const isMgmtActive = state.activeSection === 'crm' || state.activeSection === 'speakers' ||
+    state.activeSection === 'marketing' || state.activeSection === 'promotion';
   const activeEvents = state.events.filter(e => e.status !== 'archived');
   const archivedEvents = state.events.filter(e => e.status === 'archived');
 
@@ -220,6 +224,34 @@ export function Sidebar() {
                 <span>{item.label}</span>
               </div>
             ))}
+
+            {/* שיווק sub-group */}
+            <div
+              className={`sidebar-item sidebar-sub-item sidebar-group-header ${isMgmtActive && (state.activeSection === 'marketing' || state.activeSection === 'promotion') ? 'active' : ''}`}
+              onClick={() => setMktOpen(o => !o)}
+            >
+              <span className="material-symbols-outlined sidebar-item-icon">campaign</span>
+              <span style={{ flex: 1 }}>שיווק</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 14, transition: 'transform 0.2s', transform: mktOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>chevron_left</span>
+            </div>
+            {mktOpen && (
+              <div className="sidebar-group-items">
+                <div
+                  className={`sidebar-item sidebar-sub-item sidebar-sub-sub-item ${state.activeSection === 'promotion' ? 'active' : ''}`}
+                  onClick={() => setSection('promotion')}
+                >
+                  <span className="material-symbols-outlined sidebar-item-icon">ads_click</span>
+                  <span>קידום</span>
+                </div>
+                <div
+                  className={`sidebar-item sidebar-sub-item sidebar-sub-sub-item ${state.activeSection === 'marketing' ? 'active' : ''}`}
+                  onClick={() => setSection('marketing')}
+                >
+                  <span className="material-symbols-outlined sidebar-item-icon">trending_up</span>
+                  <span>שיווק</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </nav>

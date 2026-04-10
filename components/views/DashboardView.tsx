@@ -289,6 +289,7 @@ function ManagerDashboard() {
 
 function EmployeeDashboard() {
   const { state, dispatch } = useStore();
+  const [tab, setTab] = React.useState<'overview' | 'tasks'>('overview');
   const me = state.currentUser;
   const now = new Date();
 
@@ -321,103 +322,136 @@ function EmployeeDashboard() {
         </div>
       </div>
 
-      {/* Personal KPIs */}
-      <div className="mgr-kpi-strip">
-        <div className="mgr-kpi-card">
-          <span className="material-symbols-outlined mgr-kpi-icon" style={{ color: '#3b82f6' }}>pending_actions</span>
-          <div>
-            <div className="mgr-kpi-value">{openTasks.length}</div>
-            <div className="mgr-kpi-label">משימות פתוחות</div>
-          </div>
-        </div>
-        <div className="mgr-kpi-card">
-          <span className="material-symbols-outlined mgr-kpi-icon" style={{ color: '#10b981' }}>check_circle</span>
-          <div>
-            <div className="mgr-kpi-value">{doneTasks.length}</div>
-            <div className="mgr-kpi-label">הושלמו</div>
-          </div>
-        </div>
-        {overdue.length > 0 && (
-          <div className="mgr-kpi-card" style={{ borderColor: '#fca5a5' }}>
-            <span className="material-symbols-outlined mgr-kpi-icon" style={{ color: '#ef4444' }}>alarm</span>
-            <div>
-              <div className="mgr-kpi-value" style={{ color: '#ef4444' }}>{overdue.length}</div>
-              <div className="mgr-kpi-label">באיחור</div>
+      {/* Tab switcher */}
+      <div className="emp-dash-tabs">
+        <button className={`emp-dash-tab ${tab === 'overview' ? 'active' : ''}`} onClick={() => setTab('overview')}>
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>dashboard</span>
+          סקירה
+        </button>
+        <button className={`emp-dash-tab ${tab === 'tasks' ? 'active' : ''}`} onClick={() => setTab('tasks')}>
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>task_alt</span>
+          המשימות שלי
+          {openTasks.length > 0 && <span className="emp-dash-tab-count">{openTasks.length}</span>}
+        </button>
+      </div>
+
+      {tab === 'overview' && (
+        <>
+          {/* Personal KPIs */}
+          <div className="mgr-kpi-strip">
+            <div className="mgr-kpi-card">
+              <span className="material-symbols-outlined mgr-kpi-icon" style={{ color: '#3b82f6' }}>pending_actions</span>
+              <div>
+                <div className="mgr-kpi-value">{openTasks.length}</div>
+                <div className="mgr-kpi-label">משימות פתוחות</div>
+              </div>
             </div>
-          </div>
-        )}
-        <div className="mgr-kpi-card">
-          <span className="material-symbols-outlined mgr-kpi-icon" style={{ color: '#8b5cf6' }}>donut_large</span>
-          <div>
-            <div className="mgr-kpi-value">{pct}%</div>
-            <div className="mgr-kpi-label">השלמה כללית</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Progress bar */}
-      <div className="emp-overall-progress">
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-          <span style={{ fontSize: 13, fontWeight: 600 }}>התקדמות כוללת</span>
-          <span style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>{doneTasks.length} מתוך {myTasks.length} משימות</span>
-        </div>
-        <div className="mgr-progress-track" style={{ height: 10 }}>
-          <div className="mgr-progress-fill" style={{ width: `${pct}%`, background: 'var(--primary)', borderRadius: 5 }} />
-        </div>
-      </div>
-
-      {/* Task list */}
-      <div className="emp-tasks-section">
-        <div className="mgr-panel-header">
-          <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--primary)' }}>checklist</span>
-          <h3 className="mgr-panel-title">המשימות שלי לפי עדיפות</h3>
-        </div>
-        {openTasks.length === 0 && (
-          <div className="mgr-empty" style={{ padding: 32 }}>🎉 כל המשימות הושלמו!</div>
-        )}
-        {openTasks.map(task => {
-          const project = state.projects.find(p => p.id === task.projectId);
-          const isOverdue = task.dueDate && new Date(task.dueDate) < now;
-          const isDueSoon = task.dueDate && !isOverdue && (new Date(task.dueDate).getTime() - now.getTime()) < 3 * 24 * 60 * 60 * 1000;
-          return (
-            <div
-              key={task.id}
-              className="emp-task-row"
-              onClick={() => dispatch({ type: 'OPEN_TASK_MODAL', payload: task.id })}
-            >
-              <div className="emp-task-status-dot" style={{ background: STATUS_COLORS[task.status] }} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="emp-task-title">{task.title}</div>
-                <div className="emp-task-meta">
-                  {project && <span className="emp-task-project">{project.name}</span>}
-                  {task.department && (
-                    <span className="emp-task-dept" style={{ color: DEPT_COLORS[task.department] }}>
-                      {DEPT_LABELS[task.department]}
-                    </span>
-                  )}
-                  {task.recurring && (
-                    <span className="emp-task-recurring">
-                      <span className="material-symbols-outlined" style={{ fontSize: 11 }}>repeat</span>
-                      {task.recurringInterval === 'weekly' ? 'שבועי' : task.recurringInterval === 'monthly' ? 'חודשי' : 'יומי'}
-                    </span>
-                  )}
+            <div className="mgr-kpi-card">
+              <span className="material-symbols-outlined mgr-kpi-icon" style={{ color: '#10b981' }}>check_circle</span>
+              <div>
+                <div className="mgr-kpi-value">{doneTasks.length}</div>
+                <div className="mgr-kpi-label">הושלמו</div>
+              </div>
+            </div>
+            {overdue.length > 0 && (
+              <div className="mgr-kpi-card" style={{ borderColor: '#fca5a5' }}>
+                <span className="material-symbols-outlined mgr-kpi-icon" style={{ color: '#ef4444' }}>alarm</span>
+                <div>
+                  <div className="mgr-kpi-value" style={{ color: '#ef4444' }}>{overdue.length}</div>
+                  <div className="mgr-kpi-label">באיחור</div>
                 </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-                <span className="emp-task-status-badge" style={{ background: STATUS_COLORS[task.status] + '22', color: STATUS_COLORS[task.status] }}>
-                  {STATUS_LABELS[task.status]}
-                </span>
-                {task.dueDate && (
-                  <span className="emp-task-due" style={{ color: isOverdue ? '#ef4444' : isDueSoon ? '#f59e0b' : 'var(--on-surface-variant)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 11 }}>schedule</span>
-                    {new Date(task.dueDate).toLocaleDateString('he-IL', { day: 'numeric', month: 'short' })}
-                  </span>
-                )}
+            )}
+            <div className="mgr-kpi-card">
+              <span className="material-symbols-outlined mgr-kpi-icon" style={{ color: '#8b5cf6' }}>donut_large</span>
+              <div>
+                <div className="mgr-kpi-value">{pct}%</div>
+                <div className="mgr-kpi-label">השלמה כללית</div>
               </div>
             </div>
-          );
-        })}
-      </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="emp-overall-progress">
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>התקדמות כוללת</span>
+              <span style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>{doneTasks.length} מתוך {myTasks.length} משימות</span>
+            </div>
+            <div className="mgr-progress-track" style={{ height: 10 }}>
+              <div className="mgr-progress-fill" style={{ width: `${pct}%`, background: 'var(--primary)', borderRadius: 5 }} />
+            </div>
+          </div>
+
+          {/* Upcoming tasks preview */}
+          <div className="emp-tasks-section">
+            <div className="mgr-panel-header" style={{ marginBottom: 0 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--primary)' }}>upcoming</span>
+              <h3 className="mgr-panel-title">הקרובות ביותר</h3>
+              <button className="emp-see-all-btn" onClick={() => setTab('tasks')}>
+                הצג הכל
+                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>chevron_left</span>
+              </button>
+            </div>
+            {openTasks.slice(0, 5).map(task => {
+              const project = state.projects.find(p => p.id === task.projectId);
+              const isOverdue = task.dueDate && new Date(task.dueDate) < now;
+              const isDueSoon = task.dueDate && !isOverdue && (new Date(task.dueDate).getTime() - now.getTime()) < 3 * 24 * 60 * 60 * 1000;
+              return (
+                <div key={task.id} className="emp-task-row" onClick={() => dispatch({ type: 'OPEN_TASK_MODAL', payload: task.id })}>
+                  <div className="emp-task-status-dot" style={{ background: STATUS_COLORS[task.status] }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="emp-task-title">{task.title}</div>
+                    <div className="emp-task-meta">
+                      {project && <span className="emp-task-project">{project.name}</span>}
+                      {task.department && <span className="emp-task-dept" style={{ color: DEPT_COLORS[task.department] }}>{DEPT_LABELS[task.department]}</span>}
+                      {task.recurring && <span className="emp-task-recurring"><span className="material-symbols-outlined" style={{ fontSize: 11 }}>repeat</span>{task.recurringInterval === 'weekly' ? 'שבועי' : task.recurringInterval === 'monthly' ? 'חודשי' : 'יומי'}</span>}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+                    <span className="emp-task-status-badge" style={{ background: STATUS_COLORS[task.status] + '22', color: STATUS_COLORS[task.status] }}>{STATUS_LABELS[task.status]}</span>
+                    {task.dueDate && <span className="emp-task-due" style={{ color: isOverdue ? '#ef4444' : isDueSoon ? '#f59e0b' : 'var(--on-surface-variant)' }}><span className="material-symbols-outlined" style={{ fontSize: 11 }}>schedule</span>{new Date(task.dueDate).toLocaleDateString('he-IL', { day: 'numeric', month: 'short' })}</span>}
+                  </div>
+                </div>
+              );
+            })}
+            {openTasks.length === 0 && <div className="mgr-empty" style={{ padding: 32 }}>🎉 כל המשימות הושלמו!</div>}
+          </div>
+        </>
+      )}
+
+      {tab === 'tasks' && (
+        <div className="emp-tasks-section">
+          <div className="mgr-panel-header" style={{ marginBottom: 0 }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--primary)' }}>checklist</span>
+            <h3 className="mgr-panel-title">כל המשימות שלי</h3>
+            <span style={{ fontSize: 12, color: 'var(--on-surface-variant)', marginRight: 'auto' }}>{openTasks.length} פתוחות · {doneTasks.length} הושלמו</span>
+          </div>
+          {myTasks.length === 0 && <div className="mgr-empty" style={{ padding: 32 }}>אין משימות מוקצות אליך</div>}
+          {myTasks.map(task => {
+            const project = state.projects.find(p => p.id === task.projectId);
+            const isOverdue = task.dueDate && new Date(task.dueDate) < now && task.status !== 'done';
+            const isDueSoon = task.dueDate && !isOverdue && task.status !== 'done' && (new Date(task.dueDate).getTime() - now.getTime()) < 3 * 24 * 60 * 60 * 1000;
+            return (
+              <div key={task.id} className="emp-task-row" onClick={() => dispatch({ type: 'OPEN_TASK_MODAL', payload: task.id })}
+                style={{ opacity: task.status === 'done' ? 0.55 : 1 }}>
+                <div className="emp-task-status-dot" style={{ background: STATUS_COLORS[task.status] }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="emp-task-title" style={{ textDecoration: task.status === 'done' ? 'line-through' : 'none' }}>{task.title}</div>
+                  <div className="emp-task-meta">
+                    {project && <span className="emp-task-project">{project.name}</span>}
+                    {task.department && <span className="emp-task-dept" style={{ color: DEPT_COLORS[task.department] }}>{DEPT_LABELS[task.department]}</span>}
+                    {task.recurring && <span className="emp-task-recurring"><span className="material-symbols-outlined" style={{ fontSize: 11 }}>repeat</span>{task.recurringInterval === 'weekly' ? 'שבועי' : 'חודשי'}</span>}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+                  <span className="emp-task-status-badge" style={{ background: STATUS_COLORS[task.status] + '22', color: STATUS_COLORS[task.status] }}>{STATUS_LABELS[task.status]}</span>
+                  {task.dueDate && <span className="emp-task-due" style={{ color: isOverdue ? '#ef4444' : isDueSoon ? '#f59e0b' : 'var(--on-surface-variant)' }}><span className="material-symbols-outlined" style={{ fontSize: 11 }}>schedule</span>{new Date(task.dueDate).toLocaleDateString('he-IL', { day: 'numeric', month: 'short' })}</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

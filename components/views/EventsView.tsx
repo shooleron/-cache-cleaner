@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { isAdmin } from '@/lib/permissions';
-import { Event } from '@/lib/types';
 
 const STATUS_LABELS: Record<string, string> = {
   draft: 'טיוטה',
@@ -15,89 +14,13 @@ const STATUS_LABELS: Record<string, string> = {
 const STATUS_COLORS: Record<string, string> = {
   draft: '#fdab3d',
   active: '#00c875',
-  completed: '#c4c4c4',
-  archived: '#c4c4c4',
+  completed: '#6366f1',
+  archived: '#94a3b8',
 };
 
 const PANEL_FORMAT_LABELS: Record<string, string> = {
-  panel: 'פאנל',
-  lecture: 'הרצאה',
-  interview: 'ראיון',
-  video: 'וידאו',
-  discussion: 'דיון',
+  panel: 'פאנל', lecture: 'הרצאה', interview: 'ראיון', video: 'וידאו', discussion: 'דיון',
 };
-
-function EventCard({ event, onSelect, isSelected }: { event: Event; onSelect: () => void; isSelected: boolean }) {
-  const { state } = useStore();
-  const projects = state.projects.filter(p => p.eventId === event.id);
-  const eventTasks = state.tasks.filter(t => projects.some(p => p.id === t.projectId));
-  const done = eventTasks.filter(t => t.status === 'done').length;
-  const pct = eventTasks.length > 0 ? Math.round((done / eventTasks.length) * 100) : 0;
-  const panels = state.panels.filter(p => p.eventId === event.id);
-  const speakers = state.speakers.filter(s => s.eventIds.includes(event.id));
-  const deals = state.deals.filter(d => d.eventId === event.id && d.stage === 'closed_won');
-  const revenue = deals.reduce((sum, d) => sum + d.value, 0);
-
-  return (
-    <div
-      className={`event-card ${isSelected ? 'selected' : ''}`}
-      onClick={onSelect}
-    >
-      <div className="event-card-top">
-        <div className="event-card-icon-wrap" style={{ background: event.color + '22' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 22, color: event.color }}>{event.icon || 'event'}</span>
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="event-card-name">{event.name}</div>
-          <div className="event-card-date">
-            <span className="material-symbols-outlined" style={{ fontSize: 13 }}>calendar_today</span>
-            {new Date(event.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' })}
-          </div>
-        </div>
-        <span className="event-card-status-dot" style={{ background: STATUS_COLORS[event.status] }} title={STATUS_LABELS[event.status]} />
-      </div>
-
-      {event.description && (
-        <p className="event-card-desc">{event.description}</p>
-      )}
-
-      {/* Stats */}
-      <div className="event-card-stats">
-        <div className="event-stat">
-          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>folder</span>
-          <span>{projects.length} פרויקטים</span>
-        </div>
-        <div className="event-stat">
-          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>mic</span>
-          <span>{speakers.length} דוברים</span>
-        </div>
-        <div className="event-stat">
-          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>groups</span>
-          <span>{panels.length} פאנלים</span>
-        </div>
-        {revenue > 0 && (
-          <div className="event-stat" style={{ color: '#10b981' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>payments</span>
-            <span>₪{(revenue / 1000).toFixed(0)}K</span>
-          </div>
-        )}
-      </div>
-
-      {/* Progress */}
-      {eventTasks.length > 0 && (
-        <div style={{ marginTop: 10 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>התקדמות</span>
-            <span style={{ fontSize: 11, fontWeight: 600 }}>{pct}%</span>
-          </div>
-          <div style={{ height: 4, background: '#e2e8f0', borderRadius: 2, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${pct}%`, background: event.color, borderRadius: 2 }} />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 function EventDetail({ eventId }: { eventId: string }) {
   const { state, dispatch } = useStore();
@@ -109,91 +32,122 @@ function EventDetail({ eventId }: { eventId: string }) {
   const speakers = state.speakers.filter(s => s.eventIds.includes(eventId));
   const deals = state.deals.filter(d => d.eventId === eventId && d.stage === 'closed_won');
 
-  // Products sold (from deal line items)
   const soldProducts: { productId: string; productName: string; quantity: number; unitPrice: number }[] = [];
   deals.forEach(deal => {
     deal.lineItems?.forEach(li => {
-      const existing = soldProducts.find(p => p.productId === li.productId);
-      if (existing) {
-        existing.quantity += li.quantity;
-      } else {
-        soldProducts.push({ ...li });
-      }
+      const ex = soldProducts.find(p => p.productId === li.productId);
+      if (ex) ex.quantity += li.quantity;
+      else soldProducts.push({ ...li });
     });
   });
 
+  const eventTasks = state.tasks.filter(t => projects.some(p => p.id === t.projectId));
+  const doneTasks = eventTasks.filter(t => t.status === 'done').length;
+  const pct = eventTasks.length > 0 ? Math.round((doneTasks / eventTasks.length) * 100) : 0;
+  const revenue = deals.reduce((s, d) => s + d.value, 0);
+
   const [activeTab, setActiveTab] = useState<'projects' | 'products' | 'panels' | 'speakers'>('projects');
 
+  const categoryTabs = [
+    { id: 'projects',  label: 'פרויקטים',       icon: 'folder',   count: projects.length },
+    { id: 'products',  label: 'מופעים ומכירות',  icon: 'sell',     count: soldProducts.length },
+    { id: 'panels',    label: 'פאנלים',          icon: 'groups',   count: panels.length },
+    { id: 'speakers',  label: 'דוברים',          icon: 'mic',      count: speakers.length },
+  ] as const;
+
   return (
-    <div className="event-detail">
-      {/* Header */}
-      <div className="event-detail-header">
-        <div className="event-detail-icon" style={{ background: event.color + '22' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 28, color: event.color }}>{event.icon || 'event'}</span>
-        </div>
-        <div style={{ flex: 1 }}>
-          <h2 className="event-detail-name">{event.name}</h2>
-          <div className="event-detail-meta">
-            <span className="event-detail-status" style={{ background: STATUS_COLORS[event.status] + '22', color: STATUS_COLORS[event.status] }}>
-              {STATUS_LABELS[event.status]}
-            </span>
-            <span>
-              <span className="material-symbols-outlined" style={{ fontSize: 13, verticalAlign: 'middle' }}>calendar_today</span>
-              {' '}{new Date(event.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' })}
-            </span>
-            {event.location && (
-              <span>
-                <span className="material-symbols-outlined" style={{ fontSize: 13, verticalAlign: 'middle' }}>location_on</span>
-                {' '}{event.location}
-              </span>
-            )}
+    <div className="event-detail-full">
+      {/* Prominent event header */}
+      <div className="event-detail-banner" style={{ background: `linear-gradient(135deg, ${event.color}18 0%, ${event.color}08 100%)`, borderTop: `4px solid ${event.color}` }}>
+        <div className="event-detail-banner-left">
+          <div className="event-detail-banner-icon" style={{ background: event.color + '22' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 32, color: event.color }}>{event.icon || 'event'}</span>
           </div>
+          <div>
+            <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: 10 }}>
+              <h2 className="event-detail-banner-name">{event.name}</h2>
+              <span className="event-detail-banner-status" style={{ background: STATUS_COLORS[event.status], color: '#fff' }}>
+                {STATUS_LABELS[event.status]}
+              </span>
+            </div>
+            <div className="event-detail-banner-meta">
+              <span><span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: 'middle' }}>calendar_today</span> {new Date(event.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+              {event.location && <span><span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: 'middle' }}>location_on</span> {event.location}</span>}
+            </div>
+          </div>
+        </div>
+
+        {/* Quick stats */}
+        <div className="event-detail-banner-stats">
+          <div className="event-banner-stat">
+            <span className="event-banner-stat-val">{projects.length}</span>
+            <span className="event-banner-stat-label">פרויקטים</span>
+          </div>
+          <div className="event-banner-stat">
+            <span className="event-banner-stat-val">{speakers.length}</span>
+            <span className="event-banner-stat-label">דוברים</span>
+          </div>
+          <div className="event-banner-stat">
+            <span className="event-banner-stat-val">{panels.length}</span>
+            <span className="event-banner-stat-label">פאנלים</span>
+          </div>
+          {revenue > 0 && (
+            <div className="event-banner-stat" style={{ color: '#10b981' }}>
+              <span className="event-banner-stat-val">₪{(revenue / 1000).toFixed(0)}K</span>
+              <span className="event-banner-stat-label">הכנסות</span>
+            </div>
+          )}
+          {eventTasks.length > 0 && (
+            <div className="event-banner-stat">
+              <span className="event-banner-stat-val">{pct}%</span>
+              <span className="event-banner-stat-label">ביצוע</span>
+              <div style={{ height: 3, background: '#e2e8f0', borderRadius: 2, marginTop: 3, overflow: 'hidden', width: 50 }}>
+                <div style={{ height: '100%', width: `${pct}%`, background: event.color }} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="event-detail-tabs">
-        {[
-          { id: 'projects', label: 'פרויקטים', icon: 'folder', count: projects.length },
-          { id: 'products', label: 'מופעים ומכירות', icon: 'sell', count: soldProducts.length },
-          { id: 'panels', label: 'פאנלים', icon: 'groups', count: panels.length },
-          { id: 'speakers', label: 'דוברים', icon: 'mic', count: speakers.length },
-        ].map(tab => (
+      {/* Category tabs — prominent */}
+      <div className="event-category-tabs">
+        {categoryTabs.map(tab => (
           <button
             key={tab.id}
-            className={`event-detail-tab ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id as typeof activeTab)}
+            className={`event-category-tab ${activeTab === tab.id ? 'active' : ''}`}
+            style={activeTab === tab.id ? { borderBottomColor: event.color, color: event.color } : {}}
+            onClick={() => setActiveTab(tab.id)}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>{tab.icon}</span>
-            {tab.label}
-            {tab.count > 0 && <span className="event-detail-tab-count">{tab.count}</span>}
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{tab.icon}</span>
+            <span>{tab.label}</span>
+            {tab.count > 0 && (
+              <span className="event-category-tab-count" style={activeTab === tab.id ? { background: event.color, color: '#fff' } : {}}>
+                {tab.count}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       {/* Tab content */}
-      <div className="event-detail-content">
+      <div className="event-tab-body">
         {activeTab === 'projects' && (
           <div>
             {projects.length === 0 && <div className="event-detail-empty">אין פרויקטים לאירוע זה</div>}
             {projects.map(project => {
               const tasks = state.tasks.filter(t => t.projectId === project.id);
               const done = tasks.filter(t => t.status === 'done').length;
-              const pct = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0;
+              const p = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0;
               return (
-                <div
-                  key={project.id}
-                  className="event-project-row"
-                  onClick={() => {
-                    dispatch({ type: 'SET_ACTIVE_PROJECT', payload: project.id });
-                    dispatch({ type: 'SET_ACTIVE_SECTION', payload: 'events' });
-                  }}
-                >
+                <div key={project.id} className="event-project-row" onClick={() => {
+                  dispatch({ type: 'SET_ACTIVE_PROJECT', payload: project.id });
+                  dispatch({ type: 'SET_ACTIVE_SECTION', payload: 'events' });
+                }}>
                   <span style={{ width: 10, height: 10, borderRadius: '50%', background: project.color, flexShrink: 0 }} />
                   <div style={{ flex: 1 }}>
                     <div className="event-project-name">{project.name}</div>
                     <div style={{ height: 4, background: '#e2e8f0', borderRadius: 2, marginTop: 4, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${pct}%`, background: project.color, borderRadius: 2 }} />
+                      <div style={{ height: '100%', width: `${p}%`, background: project.color, borderRadius: 2 }} />
                     </div>
                   </div>
                   <span style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>{done}/{tasks.length} משימות</span>
@@ -201,43 +155,32 @@ function EventDetail({ eventId }: { eventId: string }) {
                 </div>
               );
             })}
-            <button
-              className="event-add-btn"
-              onClick={() => dispatch({ type: 'OPEN_NEW_PROJECT_MODAL' })}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 15 }}>add</span>
-              הוסף פרויקט לאירוע
+            <button className="event-add-btn" onClick={() => dispatch({ type: 'OPEN_NEW_PROJECT_MODAL' })}>
+              <span className="material-symbols-outlined" style={{ fontSize: 15 }}>add</span>הוסף פרויקט
             </button>
           </div>
         )}
 
         {activeTab === 'products' && (
           <div>
-            {soldProducts.length === 0 && (
+            {soldProducts.length === 0 ? (
               <div className="event-detail-empty">
                 <p>אין מוצרים שנמכרו לאירוע זה</p>
-                <p style={{ fontSize: 12, color: 'var(--on-surface-variant)', marginTop: 4 }}>סגור עסקות בסטטוס &quot;closed_won&quot; ושייך אותן לאירוע</p>
+                <p style={{ fontSize: 12, color: 'var(--on-surface-variant)', marginTop: 4 }}>סגור עסקות בסטטוס &quot;closed won&quot; ושייך אותן לאירוע</p>
               </div>
-            )}
-            {soldProducts.length > 0 && (
+            ) : (
               <>
-                <div className="event-products-total">
-                  סה&quot;כ הכנסות: <strong>₪{deals.reduce((s, d) => s + d.value, 0).toLocaleString('he-IL')}</strong>
-                </div>
+                <div className="event-products-total">סה&quot;כ הכנסות: <strong>₪{revenue.toLocaleString('he-IL')}</strong></div>
                 {soldProducts.map((p, i) => {
                   const product = state.products.find(pr => pr.id === p.productId);
                   return (
                     <div key={i} className="event-product-row">
-                      <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--primary)' }}>
-                        {product?.icon || 'sell'}
-                      </span>
+                      <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--primary)' }}>{product?.icon || 'sell'}</span>
                       <div style={{ flex: 1 }}>
                         <div className="event-product-name">{p.productName}</div>
                         <div className="event-product-meta">כמות: {p.quantity}</div>
                       </div>
-                      <div className="event-product-price">
-                        ₪{(p.unitPrice * p.quantity).toLocaleString('he-IL')}
-                      </div>
+                      <div className="event-product-price">₪{(p.unitPrice * p.quantity).toLocaleString('he-IL')}</div>
                     </div>
                   );
                 })}
@@ -258,13 +201,7 @@ function EventDetail({ eventId }: { eventId: string }) {
                     <span className="event-panel-name">{panel.name}</span>
                     <span className="event-panel-duration">{panel.duration} דקות</span>
                   </div>
-                  {panel.hall && (
-                    <div className="event-panel-meta">
-                      <span className="material-symbols-outlined" style={{ fontSize: 13 }}>location_on</span>
-                      {panel.hall}
-                      {panel.startTime && <span> · {panel.startTime}</span>}
-                    </div>
-                  )}
+                  {panel.hall && <div className="event-panel-meta"><span className="material-symbols-outlined" style={{ fontSize: 13 }}>location_on</span>{panel.hall}{panel.startTime && ` · ${panel.startTime}`}</div>}
                   {panelSpeakers.length > 0 && (
                     <div className="event-panel-speakers">
                       {panelSpeakers.map(s => (
@@ -285,11 +222,7 @@ function EventDetail({ eventId }: { eventId: string }) {
           <div>
             {speakers.length === 0 && <div className="event-detail-empty">אין דוברים לאירוע זה</div>}
             {speakers.map(speaker => (
-              <div
-                key={speaker.id}
-                className="event-speaker-row"
-                onClick={() => dispatch({ type: 'OPEN_SPEAKER_MODAL', payload: speaker.id })}
-              >
+              <div key={speaker.id} className="event-speaker-row" onClick={() => dispatch({ type: 'OPEN_SPEAKER_MODAL', payload: speaker.id })}>
                 <div className="event-speaker-avatar" style={{ background: '#6366f1' }}>{speaker.avatar}</div>
                 <div style={{ flex: 1 }}>
                   <div className="event-speaker-name">{speaker.name}</div>
@@ -314,11 +247,12 @@ export function EventsView() {
   const { state, dispatch } = useStore();
   const admin = isAdmin(state.currentUser);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(
-    state.activeEventId || (state.events[0]?.id ?? null)
+    state.activeEventId || (state.events.find(e => e.status !== 'archived')?.id ?? null)
   );
 
   const activeEvents = state.events.filter(e => e.status !== 'archived');
   const archivedEvents = state.events.filter(e => e.status === 'archived');
+  const [showArchive, setShowArchive] = useState(false);
 
   function selectEvent(id: string) {
     setSelectedEventId(id);
@@ -326,63 +260,78 @@ export function EventsView() {
   }
 
   return (
-    <div className="events-view">
-      {/* Left column: event cards */}
-      <div className="events-list-col">
-        <div className="events-list-header">
-          <h2 className="events-list-title">אירועים</h2>
-          {admin && (
-            <button className="events-add-btn" onClick={() => dispatch({ type: 'OPEN_NEW_EVENT_MODAL' })}>
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
-              חדש
+    <div className="events-view-v2">
+      {/* Horizontal event tabs at top */}
+      <div className="events-topbar">
+        <div className="events-tabs-scroll">
+          {activeEvents.map(event => {
+            const projects = state.projects.filter(p => p.eventId === event.id);
+            const tasks = state.tasks.filter(t => projects.some(p => p.id === t.projectId));
+            const done = tasks.filter(t => t.status === 'done').length;
+            const pct = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0;
+            const isSelected = selectedEventId === event.id;
+            return (
+              <button
+                key={event.id}
+                className={`events-tab ${isSelected ? 'active' : ''}`}
+                style={isSelected ? { borderBottomColor: event.color, color: event.color } : {}}
+                onClick={() => selectEvent(event.id)}
+              >
+                <span className="events-tab-dot" style={{ background: STATUS_COLORS[event.status] }} title={STATUS_LABELS[event.status]} />
+                <div className="events-tab-icon" style={{ background: event.color + '20' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 15, color: event.color }}>{event.icon || 'event'}</span>
+                </div>
+                <div className="events-tab-info">
+                  <span className="events-tab-name">{event.name}</span>
+                  <span className="events-tab-date">{new Date(event.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'short' })}</span>
+                </div>
+                {pct > 0 && (
+                  <div className="events-tab-progress">
+                    <div style={{ height: '100%', width: `${pct}%`, background: event.color, borderRadius: 2 }} />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+
+          {archivedEvents.length > 0 && (
+            <button className="events-tab events-tab-archive" onClick={() => setShowArchive(o => !o)}>
+              <span className="material-symbols-outlined" style={{ fontSize: 15 }}>archive</span>
+              ארכיון ({archivedEvents.length})
             </button>
           )}
         </div>
 
-        {activeEvents.map(event => (
-          <EventCard
-            key={event.id}
-            event={event}
-            isSelected={selectedEventId === event.id}
-            onSelect={() => selectEvent(event.id)}
-          />
-        ))}
-
-        {archivedEvents.length > 0 && (
-          <div className="events-archive-section">
-            <div className="events-archive-label">ארכיון ({archivedEvents.length})</div>
-            {archivedEvents.map(event => (
-              <EventCard
-                key={event.id}
-                event={event}
-                isSelected={selectedEventId === event.id}
-                onSelect={() => selectEvent(event.id)}
-              />
-            ))}
-          </div>
-        )}
-
-        {state.events.length === 0 && (
-          <div className="events-empty">
-            <span className="material-symbols-outlined" style={{ fontSize: 40, color: '#c4c4c4' }}>event</span>
-            <p>אין אירועים עדיין</p>
-            {admin && (
-              <button className="events-add-btn" onClick={() => dispatch({ type: 'OPEN_NEW_EVENT_MODAL' })}>
-                צור אירוע ראשון
-              </button>
-            )}
-          </div>
+        {admin && (
+          <button className="events-add-event-btn" onClick={() => dispatch({ type: 'OPEN_NEW_EVENT_MODAL' })}>
+            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>add</span>
+            אירוע חדש
+          </button>
         )}
       </div>
 
-      {/* Right column: event detail */}
-      <div className="events-detail-col">
+      {/* Archive list (collapsed) */}
+      {showArchive && (
+        <div className="events-archive-bar">
+          {archivedEvents.map(event => (
+            <button key={event.id} className={`events-tab ${selectedEventId === event.id ? 'active' : ''}`}
+              style={{ opacity: 0.6 }} onClick={() => selectEvent(event.id)}>
+              <span className="events-tab-name">{event.name}</span>
+              <span className="events-tab-date">{new Date(event.date).getFullYear()}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Event detail */}
+      <div className="events-detail-area">
         {selectedEventId ? (
           <EventDetail eventId={selectedEventId} />
         ) : (
-          <div className="events-empty" style={{ height: '100%' }}>
+          <div className="events-empty" style={{ height: '60vh' }}>
             <span className="material-symbols-outlined" style={{ fontSize: 48, color: '#c4c4c4' }}>event_note</span>
-            <p>בחר אירוע לצפייה בפרטים</p>
+            <p>בחר אירוע למעלה</p>
+            {admin && <button className="events-add-btn" onClick={() => dispatch({ type: 'OPEN_NEW_EVENT_MODAL' })}>צור אירוע ראשון</button>}
           </div>
         )}
       </div>
