@@ -3,6 +3,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { Task, TaskStatus, TaskPriority } from '@/lib/types';
+import { useConfirm } from '@/components/ui/ConfirmDialog';
 
 // ── Column definitions ──────────────────────────────────────────
 type ColId =
@@ -371,38 +372,46 @@ function TaskRow({ task, cols, totalWidth }: { task: Task; cols: ColDef[]; total
   const { dispatch } = useStore();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
+  const [confirm, confirmDialog] = useConfirm();
+
+  const handleDelete = async () => {
+    const ok = await confirm({ title: 'מחיקת משימה', message: `האם אתה בטוח שברצונך למחוק את המשימה "${task.title}"?`, confirmLabel: 'מחק', danger: true });
+    if (ok) dispatch({ type: 'DELETE_TASK', payload: task.id });
+  };
 
   return (
-    <tr className="table-row" style={{ width: totalWidth }}>
-      {cols.map(col => (
-        <td key={col.id} className="table-cell" style={{ width: col.width, minWidth: col.width, maxWidth: col.width }}>
-          {col.id === 'title' ? (
-            <div className="task-name-wrapper">
-              <input type="checkbox" className="task-checkbox" checked={task.status === 'done'}
-                onChange={e => dispatch({ type: 'UPDATE_TASK', payload: { id: task.id, status: e.target.checked ? 'done' : 'todo' } })} />
-              {editing ? (
-                <input className="task-title-input" value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  onBlur={() => { setEditing(false); if (title !== task.title) dispatch({ type: 'UPDATE_TASK', payload: { id: task.id, title } }); }}
-                  autoFocus />
-              ) : (
-                <span className="task-title"
-                  onClick={() => dispatch({ type: 'OPEN_TASK_MODAL', payload: task.id })}
-                  onDoubleClick={() => setEditing(true)}>
-                  {task.title}
-                </span>
-              )}
-            </div>
-          ) : renderCell(col.id, task)}
+    <>
+      {confirmDialog}
+      <tr className="table-row" style={{ width: totalWidth }}>
+        {cols.map(col => (
+          <td key={col.id} className="table-cell" style={{ width: col.width, minWidth: col.width, maxWidth: col.width }}>
+            {col.id === 'title' ? (
+              <div className="task-name-wrapper">
+                <input type="checkbox" className="task-checkbox" checked={task.status === 'done'}
+                  onChange={e => dispatch({ type: 'UPDATE_TASK', payload: { id: task.id, status: e.target.checked ? 'done' : 'todo' } })} />
+                {editing ? (
+                  <input className="task-title-input" value={title}
+                    onChange={e => setTitle(e.target.value)}
+                    onBlur={() => { setEditing(false); if (title !== task.title) dispatch({ type: 'UPDATE_TASK', payload: { id: task.id, title } }); }}
+                    autoFocus />
+                ) : (
+                  <span className="task-title"
+                    onClick={() => dispatch({ type: 'OPEN_TASK_MODAL', payload: task.id })}
+                    onDoubleClick={() => setEditing(true)}>
+                    {task.title}
+                  </span>
+                )}
+              </div>
+            ) : renderCell(col.id, task)}
+          </td>
+        ))}
+        <td className="table-cell actions-cell" style={{ width: 40, minWidth: 40 }}>
+          <button className="row-action-btn" title="מחק" onClick={handleDelete}>
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>delete</span>
+          </button>
         </td>
-      ))}
-      <td className="table-cell actions-cell" style={{ width: 40, minWidth: 40 }}>
-        <button className="row-action-btn" title="מחק"
-          onClick={() => dispatch({ type: 'DELETE_TASK', payload: task.id })}>
-          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>delete</span>
-        </button>
-      </td>
-    </tr>
+      </tr>
+    </>
   );
 }
 

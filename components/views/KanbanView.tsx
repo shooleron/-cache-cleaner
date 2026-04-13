@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { useStore } from '@/lib/store';
 import { Task, TaskStatus } from '@/lib/types';
+import { useConfirm } from '@/components/ui/ConfirmDialog';
 import {
   DndContext, DragEndEvent, DragOverlay, DragStartEvent,
   closestCenter, PointerSensor, useSensor, useSensors
@@ -29,6 +30,7 @@ function KanbanCard({ task, isDragging }: { task: Task; isDragging?: boolean }) 
   const { state, dispatch } = useStore();
   const [editingTitle, setEditingTitle] = useState(false);
   const [title, setTitle] = useState(task.title);
+  const [confirm, confirmDialog] = useConfirm();
   const assignees = task.assigneeIds.map(id => state.users.find(u => u.id === id)).filter(Boolean);
 
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: task.id });
@@ -45,6 +47,8 @@ function KanbanCard({ task, isDragging }: { task: Task; isDragging?: boolean }) 
   };
 
   return (
+    <>
+      {confirmDialog}
     <div
       ref={setNodeRef}
       style={style}
@@ -57,9 +61,10 @@ function KanbanCard({ task, isDragging }: { task: Task; isDragging?: boolean }) 
         <span className="priority-dot" style={{ background: PRIORITY_COLORS[task.priority] }} />
         <button
           className="card-delete-btn"
-          onClick={e => {
+          onClick={async e => {
             e.stopPropagation();
-            dispatch({ type: 'DELETE_TASK', payload: task.id });
+            const ok = await confirm({ title: 'מחיקת משימה', message: `האם אתה בטוח שברצונך למחוק את "${task.title}"?`, confirmLabel: 'מחק', danger: true });
+            if (ok) dispatch({ type: 'DELETE_TASK', payload: task.id });
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 14 }}>delete</span>
@@ -101,6 +106,7 @@ function KanbanCard({ task, isDragging }: { task: Task; isDragging?: boolean }) 
         )}
       </div>
     </div>
+    </>
   );
 }
 

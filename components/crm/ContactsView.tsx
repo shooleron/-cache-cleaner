@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { Contact, ContactStatus } from '@/lib/types';
+import { useConfirm } from '@/components/ui/ConfirmDialog';
 
 const STATUS_CONFIG: Record<ContactStatus, { label: string; bg: string; color: string }> = {
   prospect: { label: 'ליד', bg: '#fef3c7', color: '#92400e' },
@@ -133,6 +134,7 @@ function ContactModal({ contactId, onClose }: { contactId: string | null; onClos
 
 export function ContactsView() {
   const { state, dispatch } = useStore();
+  const [confirm, confirmDialog] = useConfirm();
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<ContactStatus | 'all'>('all');
   const [modalId, setModalId] = useState<string | null>(null);
@@ -145,6 +147,8 @@ export function ContactsView() {
   });
 
   return (
+    <>
+      {confirmDialog}
     <div style={{ maxWidth: 1200 }}>
       {/* Page header */}
       <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
@@ -271,7 +275,7 @@ export function ContactsView() {
               {/* Actions */}
               <div onClick={e => e.stopPropagation()}>
                 <button
-                  onClick={() => dispatch({ type: 'DELETE_CONTACT', payload: contact.id })}
+                  onClick={async () => { const ok = await confirm({ title: 'מחיקת איש קשר', message: `האם אתה בטוח שברצונך למחוק את "${contact.name}"?`, confirmLabel: 'מחק', danger: true }); if (ok) dispatch({ type: 'DELETE_CONTACT', payload: contact.id }); }}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--on-surface-variant)', borderRadius: 'var(--radius-full)', padding: 4, display: 'flex', alignItems: 'center', transition: 'all 0.15s' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--surface-container)'; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
@@ -296,5 +300,6 @@ export function ContactsView() {
 
       {modalId && <ContactModal contactId={modalId} onClose={() => setModalId(null)} />}
     </div>
+    </>
   );
 }

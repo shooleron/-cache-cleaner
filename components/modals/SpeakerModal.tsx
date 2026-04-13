@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/lib/store';
 import { Speaker, SpeakerApprovalStatus, SpeakerCVStatus, SpeakerPhotoStatus, Panel } from '@/lib/types';
+import { useConfirm } from '@/components/ui/ConfirmDialog';
 
 const FORMAT_LABELS: Record<string, string> = {
   panel: 'פאנל', lecture: 'הרצאה', interview: 'ראיון', video: 'סרטון', discussion: 'דיון',
@@ -15,6 +16,7 @@ const PANEL_STATUS_COLOR: Record<string, string> = {
 export function SpeakerModal() {
   const { state, dispatch } = useStore();
   const speaker = state.speakers.find(s => s.id === state.speakerModalId);
+  const [confirm, confirmDialog] = useConfirm();
 
   const [tab, setTab] = useState<'details' | 'panels'>('details');
   const [name, setName] = useState('');
@@ -119,6 +121,8 @@ export function SpeakerModal() {
   const mark = () => setDirty(true);
 
   return (
+    <>
+      {confirmDialog}
     <div className="modal-overlay" onClick={close}>
       <div className="speaker-modal" onClick={e => e.stopPropagation()}>
 
@@ -413,7 +417,7 @@ export function SpeakerModal() {
         <div className="speaker-modal-footer">
           <button
             className="btn-danger"
-            onClick={() => { if (confirm('למחוק את הדובר?')) dispatch({ type: 'DELETE_SPEAKER', payload: speaker.id }); }}
+            onClick={async () => { const ok = await confirm({ title: 'מחיקת דובר', message: `האם אתה בטוח שברצונך למחוק את "${speaker.name}"?`, confirmLabel: 'מחק', danger: true }); if (ok) { dispatch({ type: 'DELETE_SPEAKER', payload: speaker.id }); dispatch({ type: 'CLOSE_SPEAKER_MODAL' }); } }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
             מחק
@@ -430,5 +434,6 @@ export function SpeakerModal() {
         </div>
       </div>
     </div>
+    </>
   );
 }

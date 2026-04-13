@@ -3,6 +3,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { Task, TaskStatus, TaskPriority, AttachmentType } from '@/lib/types';
+import { useConfirm } from '@/components/ui/ConfirmDialog';
 
 const STATUS_OPTIONS: { value: TaskStatus; label: string; color: string; textDark?: boolean }[] = [
   { value: 'todo',        label: 'לביצוע',  color: '#e6e9ef', textDark: true },
@@ -141,6 +142,7 @@ function TimerWidget({ task }: { task: Task }) {
 export function TaskModal() {
   const { state, dispatch } = useStore();
   const [activeTab, setActiveTab] = useState<TabType>('chat');
+  const [confirm, confirmDialog] = useConfirm();
   const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false);
   const [showContactDropdown, setShowContactDropdown] = useState(false);
   const [contactSearch, setContactSearch] = useState('');
@@ -174,6 +176,8 @@ export function TaskModal() {
   ];
 
   return (
+    <>
+      {confirmDialog}
     <div className="modal-overlay" onClick={() => dispatch({ type: 'CLOSE_TASK_MODAL' })}>
       <div className="task-modal" onClick={e => e.stopPropagation()}>
 
@@ -185,11 +189,6 @@ export function TaskModal() {
             <span>פרטי משימה</span>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <button className="task-modal-delete-btn"
-              onClick={() => { dispatch({ type: 'DELETE_TASK', payload: task.id }); dispatch({ type: 'CLOSE_TASK_MODAL' }); }}
-              title="מחק משימה">
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>delete</span>
-            </button>
             <button className="modal-close-btn" onClick={() => dispatch({ type: 'CLOSE_TASK_MODAL' })}>
               <span className="material-symbols-outlined">close</span>
             </button>
@@ -376,8 +375,21 @@ export function TaskModal() {
             </div>
           </div>
         </div>
+
+        {/* Footer with delete */}
+        <div className="task-modal-footer">
+          <button className="task-modal-delete-btn-footer"
+            onClick={async () => {
+              const ok = await confirm({ title: 'מחיקת משימה', message: `האם אתה בטוח שברצונך למחוק את המשימה "${task.title}"?`, confirmLabel: 'מחק', danger: true });
+              if (ok) { dispatch({ type: 'DELETE_TASK', payload: task.id }); dispatch({ type: 'CLOSE_TASK_MODAL' }); }
+            }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
+            מחק משימה
+          </button>
+        </div>
       </div>
     </div>
+    </>
   );
 }
 
@@ -463,6 +475,7 @@ function ChatTab({ task }: { task: Task }) {
 // ── Notes Tab ────────────────────────────────────────────────────
 function NotesTab({ task }: { task: Task }) {
   const { state, dispatch } = useStore();
+  const [confirm, confirmDialog] = useConfirm();
   const [newNote, setNewNote] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
@@ -482,7 +495,9 @@ function NotesTab({ task }: { task: Task }) {
   };
 
   return (
-    <div className="notes-tab">
+    <>
+      {confirmDialog}
+      <div className="notes-tab">
       {/* Add note */}
       <div className="note-add-box">
         <textarea className="note-add-input" placeholder="הוסף הערה פנימית..." value={newNote}
@@ -522,7 +537,7 @@ function NotesTab({ task }: { task: Task }) {
                     <button className="note-action-btn" onClick={() => { setEditingId(note.id); setEditContent(note.content); }} title="ערוך">
                       <span className="material-symbols-outlined" style={{ fontSize: 14 }}>edit</span>
                     </button>
-                    <button className="note-action-btn danger" onClick={() => dispatch({ type: 'DELETE_NOTE', payload: { taskId: task.id, noteId: note.id } })} title="מחק">
+                    <button className="note-action-btn danger" onClick={async () => { const ok = await confirm({ title: 'מחיקת הערה', message: 'האם אתה בטוח שברצונך למחוק את ההערה?', confirmLabel: 'מחק', danger: true }); if (ok) dispatch({ type: 'DELETE_NOTE', payload: { taskId: task.id, noteId: note.id } }); }} title="מחק">
                       <span className="material-symbols-outlined" style={{ fontSize: 14 }}>delete</span>
                     </button>
                   </div>
@@ -545,12 +560,14 @@ function NotesTab({ task }: { task: Task }) {
         })}
       </div>
     </div>
+    </>
   );
 }
 
 // ── Files Tab ────────────────────────────────────────────────────
 function FilesTab({ task }: { task: Task }) {
   const { dispatch } = useStore();
+  const [confirm, confirmDialog] = useConfirm();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [linkMode, setLinkMode] = useState<AttachmentType | null>(null);
@@ -602,7 +619,9 @@ function FilesTab({ task }: { task: Task }) {
   ];
 
   return (
-    <div className="files-tab">
+    <>
+      {confirmDialog}
+      <div className="files-tab">
       {/* Drop zone */}
       <div
         className={`file-drop-zone ${dragging ? 'dragging' : ''}`}
@@ -685,7 +704,7 @@ function FilesTab({ task }: { task: Task }) {
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{att.type === 'file' ? 'download' : 'open_in_new'}</span>
               </a>
               <button className="attachment-action-btn danger"
-                onClick={() => dispatch({ type: 'DELETE_ATTACHMENT', payload: { taskId: att.taskId, attachmentId: att.id } })}
+                onClick={async () => { const ok = await confirm({ title: 'מחיקת קובץ', message: `האם אתה בטוח שברצונך למחוק את "${att.name}"?`, confirmLabel: 'מחק', danger: true }); if (ok) dispatch({ type: 'DELETE_ATTACHMENT', payload: { taskId: att.taskId, attachmentId: att.id } }); }}
                 title="הסר">
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
               </button>
@@ -694,6 +713,7 @@ function FilesTab({ task }: { task: Task }) {
         ))}
       </div>
     </div>
+    </>
   );
 }
 

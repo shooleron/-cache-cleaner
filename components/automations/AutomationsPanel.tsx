@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { AutomationRule, AutomationTrigger, AutomationActionType } from '@/lib/types';
+import { useConfirm } from '@/components/ui/ConfirmDialog';
 
 const TRIGGERS: { value: AutomationTrigger; label: string }[] = [
   { value: 'task_created', label: 'משימה נוצרה' },
@@ -129,6 +130,7 @@ function RuleModal({ rule, onClose }: { rule: Partial<AutomationRule> | null; on
 
 export function AutomationsPanel() {
   const { state, dispatch } = useStore();
+  const [confirm, confirmDialog] = useConfirm();
   const [showModal, setShowModal] = useState(false);
   const [editRule, setEditRule] = useState<Partial<AutomationRule> | null>(null);
 
@@ -139,6 +141,8 @@ export function AutomationsPanel() {
   const actionLabel = (v: AutomationActionType) => ACTIONS.find(a => a.value === v)?.label || v;
 
   return (
+    <>
+      {confirmDialog}
     <div style={{ maxWidth: 900 }}>
       {/* Header */}
       <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
@@ -233,7 +237,7 @@ export function AutomationsPanel() {
 
               {/* Delete */}
               <button
-                onClick={() => dispatch({ type: 'DELETE_AUTOMATION', payload: rule.id })}
+                onClick={async () => { const ok = await confirm({ title: 'מחיקת אוטומציה', message: `האם אתה בטוח שברצונך למחוק את "${rule.name}"?`, confirmLabel: 'מחק', danger: true }); if (ok) dispatch({ type: 'DELETE_AUTOMATION', payload: rule.id }); }}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--outline)', borderRadius: 'var(--radius-full)', padding: 6, display: 'flex', alignItems: 'center', transition: 'all 0.15s', flexShrink: 0 }}
                 onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#fef2f2'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--error)'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--outline)'; }}
@@ -249,5 +253,6 @@ export function AutomationsPanel() {
         <RuleModal rule={editRule} onClose={() => { setShowModal(false); setEditRule(null); }} />
       )}
     </div>
+    </>
   );
 }
