@@ -2,21 +2,47 @@
 
 import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
-import { Contact, ContactStatus } from '@/lib/types';
+import { Contact, ContactStatus, ContactType } from '@/lib/types';
 import { useConfirm } from '@/components/ui/ConfirmDialog';
 
+// ── Config ──────────────────────────────────────────────
+
 const STATUS_CONFIG: Record<ContactStatus, { label: string; bg: string; color: string }> = {
-  prospect: { label: 'ליד', bg: '#fef3c7', color: '#92400e' },
-  active:   { label: 'פעיל', bg: '#dbeafe', color: '#1e40af' },
-  customer: { label: 'לקוח', bg: '#d1fae5', color: '#065f46' },
-  inactive: { label: 'לא פעיל', bg: '#f3f4f6', color: '#6b7280' },
+  prospect: { label: 'ליד',      bg: '#fef3c7', color: '#92400e' },
+  active:   { label: 'פעיל',     bg: '#dbeafe', color: '#1e40af' },
+  customer: { label: 'לקוח',     bg: '#d1fae5', color: '#065f46' },
+  inactive: { label: 'לא פעיל',  bg: '#f3f4f6', color: '#6b7280' },
 };
 
-const AVATAR_COLORS = ['#5a45cb','#059669','#d97706','#dc2626','#7c3aed','#0284c7'];
+const TYPE_CONFIG: Record<ContactType, { label: string; icon: string; color: string; bg: string }> = {
+  developer:      { label: 'יזמים',      icon: 'domain',        color: '#1e40af', bg: '#dbeafe' },
+  lawyer:         { label: 'עורכי דין',  icon: 'balance',       color: '#7c3aed', bg: '#ede9fe' },
+  infrastructure: { label: 'תשתיות',     icon: 'construction',  color: '#92400e', bg: '#fef3c7' },
+  appraiser:      { label: 'שמאים',      icon: 'rate_review',   color: '#065f46', bg: '#d1fae5' },
+  other:          { label: 'אחר',        icon: 'category',      color: '#374151', bg: '#f3f4f6' },
+};
+
+const AVATAR_COLORS = ['#5a45cb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#0284c7', '#0891b2', '#be185d'];
+
+function avatarColor(name: string) {
+  return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
+}
 
 function getInitials(name: string) {
   return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
 }
+
+function formatDate(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return 'היום';
+  if (days === 1) return 'אתמול';
+  if (days < 7) return `לפני ${days} ימים`;
+  if (days < 30) return `לפני ${Math.floor(days / 7)} שבועות`;
+  return `לפני ${Math.floor(days / 30)} חודשים`;
+}
+
+// ── Contact Modal ────────────────────────────────────────
 
 function ContactModal({ contactId, onClose }: { contactId: string | null; onClose: () => void }) {
   const { state, dispatch } = useStore();
@@ -30,11 +56,17 @@ function ContactModal({ contactId, onClose }: { contactId: string | null; onClos
     company: existing?.company || '',
     position: existing?.position || '',
     status: existing?.status || 'prospect',
+    contactType: existing?.contactType || 'developer',
+    city: existing?.city || '',
+    website: existing?.website || '',
+    linkedin: existing?.linkedin || '',
+    budget: existing?.budget || '',
     notes: existing?.notes || '',
     tags: existing?.tags || [],
     ownerId: existing?.ownerId || state.currentUser.id,
   });
   const [tagInput, setTagInput] = useState('');
+  const [activeTab, setActiveTab] = useState<'details' | 'business' | 'notes'>('details');
 
   function save() {
     if (!form.name?.trim()) return;
@@ -54,74 +86,175 @@ function ContactModal({ contactId, onClose }: { contactId: string | null; onClos
 
   if (!contactId) return null;
 
+  const typeConf = TYPE_CONFIG[form.contactType as ContactType] || TYPE_CONFIG.other;
+
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-box" style={{ maxWidth: 580 }} onClick={e => e.stopPropagation()}>
+      <div className="modal-box contact-modal-box" onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-          <h2 className="modal-title" style={{ margin: 0 }}>{isNew ? 'איש קשר חדש' : 'עריכת איש קשר'}</h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--on-surface-variant)', padding: 4, borderRadius: 'var(--radius-full)' }}>
+        <div className="contact-modal-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexDirection: 'row-reverse' }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: avatarColor(form.name || 'א'), display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 16, fontWeight: 800, flexShrink: 0 }}>
+              {getInitials(form.name || 'א')}
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <h2 className="modal-title" style={{ margin: 0, fontSize: 18 }}>{isNew ? 'איש קשר חדש' : (form.name || 'עריכה')}</h2>
+              {!isNew && existing && (
+                <span style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>{existing.company}</span>
+              )}
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--on-surface-variant)', padding: 6, borderRadius: 'var(--radius-full)', display: 'flex', alignItems: 'center' }}>
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
-        {/* Two-column grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <div className="modal-field">
-            <label className="modal-label">שם מלא *</label>
-            <input className="modal-input" placeholder="ישראל ישראלי" value={form.name || ''} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-          </div>
-          <div className="modal-field">
-            <label className="modal-label">סטטוס</label>
-            <select className="modal-input" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as ContactStatus }))}>
-              {Object.entries(STATUS_CONFIG).map(([key, { label }]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </select>
-          </div>
-          <div className="modal-field">
-            <label className="modal-label">אימייל</label>
-            <input className="modal-input" type="email" placeholder="israel@company.com" value={form.email || ''} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
-          </div>
-          <div className="modal-field">
-            <label className="modal-label">טלפון</label>
-            <input className="modal-input" placeholder="050-0000000" value={form.phone || ''} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
-          </div>
-          <div className="modal-field">
-            <label className="modal-label">חברה</label>
-            <input className="modal-input" placeholder="שם החברה" value={form.company || ''} onChange={e => setForm(f => ({ ...f, company: e.target.value }))} />
-          </div>
-          <div className="modal-field">
-            <label className="modal-label">תפקיד</label>
-            <input className="modal-input" placeholder="מנכ״ל" value={form.position || ''} onChange={e => setForm(f => ({ ...f, position: e.target.value }))} />
-          </div>
+        {/* Tabs */}
+        <div className="contact-modal-tabs">
+          {[{ id: 'details', label: 'פרטים' }, { id: 'business', label: 'עסקי' }, { id: 'notes', label: 'הערות' }].map(t => (
+            <button key={t.id} className={`contact-modal-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id as typeof activeTab)}>
+              {t.label}
+            </button>
+          ))}
         </div>
 
-        {/* Tags */}
-        <div className="modal-field" style={{ marginTop: 8 }}>
-          <label className="modal-label">תגיות</label>
-          <div style={{ display: 'flex', flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 6, padding: '8px 12px', background: 'var(--surface-container-low)', borderRadius: 'var(--radius-full)', border: '1px solid var(--outline-variant)', alignItems: 'center' }}>
-            {form.tags?.map(tag => (
-              <span key={tag} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'var(--primary-fixed)', color: 'var(--primary)', padding: '3px 10px', borderRadius: 'var(--radius-full)', fontSize: 12, fontWeight: 600 }}>
-                {tag}
-                <button onClick={() => setForm(f => ({ ...f, tags: f.tags?.filter(t => t !== tag) }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', lineHeight: 1, padding: 0 }}>×</button>
-              </span>
-            ))}
-            <input
-              placeholder="הוסף תגית..."
-              value={tagInput}
-              onChange={e => setTagInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(); }}}
-              style={{ background: 'none', border: 'none', outline: 'none', fontSize: 13, color: 'var(--on-surface)', textAlign: 'right', flex: 1, minWidth: 100, fontFamily: 'Inter, sans-serif' }}
-            />
-          </div>
-        </div>
+        {/* Tab: Details */}
+        {activeTab === 'details' && (
+          <div className="contact-modal-body">
+            <div className="contact-modal-grid">
+              <div className="modal-field">
+                <label className="modal-label">שם מלא *</label>
+                <input className="modal-input" placeholder="ישראל ישראלי" value={form.name || ''} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div className="modal-field">
+                <label className="modal-label">סוג לקוח</label>
+                <select className="modal-input" value={form.contactType} onChange={e => setForm(f => ({ ...f, contactType: e.target.value as ContactType }))}>
+                  {Object.entries(TYPE_CONFIG).map(([key, { label }]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="modal-field">
+                <label className="modal-label">אימייל</label>
+                <input className="modal-input" type="email" placeholder="israel@company.com" value={form.email || ''} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+              </div>
+              <div className="modal-field">
+                <label className="modal-label">טלפון</label>
+                <input className="modal-input" placeholder="050-0000000" value={form.phone || ''} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+              </div>
+              <div className="modal-field">
+                <label className="modal-label">חברה / משרד</label>
+                <input className="modal-input" placeholder="שם החברה" value={form.company || ''} onChange={e => setForm(f => ({ ...f, company: e.target.value }))} />
+              </div>
+              <div className="modal-field">
+                <label className="modal-label">תפקיד</label>
+                <input className="modal-input" placeholder="מנכ״ל" value={form.position || ''} onChange={e => setForm(f => ({ ...f, position: e.target.value }))} />
+              </div>
+              <div className="modal-field">
+                <label className="modal-label">עיר</label>
+                <input className="modal-input" placeholder="תל אביב" value={form.city || ''} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} />
+              </div>
+              <div className="modal-field">
+                <label className="modal-label">סטטוס</label>
+                <select className="modal-input" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as ContactStatus }))}>
+                  {Object.entries(STATUS_CONFIG).map(([key, { label }]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
-        {/* Notes */}
-        <div className="modal-field">
-          <label className="modal-label">הערות</label>
-          <textarea className="modal-input" rows={3} placeholder="הערות פנימיות..." value={form.notes || ''} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} style={{ resize: 'none' }} />
-        </div>
+            {/* Tags */}
+            <div className="modal-field">
+              <label className="modal-label">תגיות</label>
+              <div className="tag-input-wrap">
+                {form.tags?.map(tag => (
+                  <span key={tag} className="tag-chip">
+                    {tag}
+                    <button onClick={() => setForm(f => ({ ...f, tags: f.tags?.filter(t => t !== tag) }))} className="tag-chip-remove">×</button>
+                  </span>
+                ))}
+                <input
+                  placeholder="הוסף תגית..."
+                  value={tagInput}
+                  onChange={e => setTagInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
+                  className="tag-input-field"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Business */}
+        {activeTab === 'business' && (
+          <div className="contact-modal-body">
+            <div className="contact-modal-grid">
+              <div className="modal-field">
+                <label className="modal-label">אתר אינטרנט</label>
+                <input className="modal-input" placeholder="www.company.co.il" value={form.website || ''} onChange={e => setForm(f => ({ ...f, website: e.target.value }))} />
+              </div>
+              <div className="modal-field">
+                <label className="modal-label">לינקדאין</label>
+                <input className="modal-input" placeholder="linkedin.com/in/..." value={form.linkedin || ''} onChange={e => setForm(f => ({ ...f, linkedin: e.target.value }))} />
+              </div>
+              <div className="modal-field" style={{ gridColumn: '1 / -1' }}>
+                <label className="modal-label">טווח תקציב</label>
+                <select className="modal-input" value={form.budget || ''} onChange={e => setForm(f => ({ ...f, budget: e.target.value }))}>
+                  <option value="">לא ידוע</option>
+                  <option value="עד 30K ₪">עד 30K ₪</option>
+                  <option value="30K–80K ₪">30K–80K ₪</option>
+                  <option value="80K–200K ₪">80K–200K ₪</option>
+                  <option value="200K–500K ₪">200K–500K ₪</option>
+                  <option value="500K+ ₪">500K+ ₪</option>
+                </select>
+              </div>
+              <div className="modal-field" style={{ gridColumn: '1 / -1' }}>
+                <label className="modal-label">אחראי</label>
+                <select className="modal-input" value={form.ownerId || ''} onChange={e => setForm(f => ({ ...f, ownerId: e.target.value }))}>
+                  {state.users.map(u => <option key={u.id} value={u.id}>{u.name} — {u.jobTitle}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Linked deals */}
+            {!isNew && existing && existing.linkedDealIds.length > 0 && (
+              <div className="modal-field">
+                <label className="modal-label">עסקאות מקושרות</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {existing.linkedDealIds.map(did => {
+                    const deal = state.deals.find(d => d.id === did);
+                    if (!deal) return null;
+                    return (
+                      <div key={did} style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: 10, padding: '8px 12px', background: 'var(--surface-container-low)', borderRadius: 8 }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--primary)' }}>payments</span>
+                        <span style={{ fontWeight: 600, fontSize: 13, flex: 1, textAlign: 'right' }}>{deal.title}</span>
+                        <span style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>₪{deal.value.toLocaleString()}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab: Notes */}
+        {activeTab === 'notes' && (
+          <div className="contact-modal-body">
+            <div className="modal-field" style={{ height: '100%' }}>
+              <label className="modal-label">הערות פנימיות</label>
+              <textarea
+                className="modal-input"
+                rows={8}
+                placeholder="כל מידע רלוונטי על הלקוח — היסטוריה, העדפות, נקודות כאב..."
+                value={form.notes || ''}
+                onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                style={{ resize: 'none', lineHeight: 1.6 }}
+              />
+            </div>
+          </div>
+        )}
 
         <div className="modal-actions">
           <button className="btn btn-primary" onClick={save}>{isNew ? 'צור איש קשר' : 'שמור שינויים'}</button>
@@ -132,174 +265,234 @@ function ContactModal({ contactId, onClose }: { contactId: string | null; onClos
   );
 }
 
+// ── Contact Card ─────────────────────────────────────────
+
+function ContactCard({ contact, onEdit, onDelete }: { contact: Contact; onEdit: () => void; onDelete: () => void }) {
+  const { state } = useStore();
+  const statusConf = STATUS_CONFIG[contact.status];
+  const typeConf = TYPE_CONFIG[contact.contactType] || TYPE_CONFIG.other;
+  const owner = state.users.find(u => u.id === contact.ownerId);
+  const color = avatarColor(contact.name);
+
+  return (
+    <div className="contact-card" onClick={onEdit}>
+      {/* Top: avatar + name + type badge */}
+      <div className="contact-card-top">
+        <div className="contact-card-avatar" style={{ background: color }}>
+          {getInitials(contact.name)}
+        </div>
+        <div className="contact-card-identity">
+          <span className="contact-card-name">{contact.name}</span>
+          <span className="contact-card-position">{contact.position}</span>
+        </div>
+        <span className="contact-type-badge" style={{ background: typeConf.bg, color: typeConf.color }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 12 }}>{typeConf.icon}</span>
+          {typeConf.label}
+        </span>
+      </div>
+
+      {/* Company + city */}
+      <div className="contact-card-company">
+        <span className="material-symbols-outlined" style={{ fontSize: 14, color: 'var(--outline)' }}>business</span>
+        <span>{contact.company}</span>
+        {contact.city && (
+          <>
+            <span style={{ color: 'var(--outline)' }}>·</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 14, color: 'var(--outline)' }}>location_on</span>
+            <span>{contact.city}</span>
+          </>
+        )}
+      </div>
+
+      {/* Contact info */}
+      <div className="contact-card-info">
+        {contact.phone && (
+          <a href={`tel:${contact.phone}`} className="contact-info-item" onClick={e => e.stopPropagation()}>
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>call</span>
+            {contact.phone}
+          </a>
+        )}
+        {contact.email && (
+          <a href={`mailto:${contact.email}`} className="contact-info-item" onClick={e => e.stopPropagation()}>
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>mail</span>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{contact.email}</span>
+          </a>
+        )}
+      </div>
+
+      {/* Budget + deals */}
+      <div className="contact-card-meta-row">
+        {contact.budget && (
+          <span className="contact-meta-chip">
+            <span className="material-symbols-outlined" style={{ fontSize: 12 }}>payments</span>
+            {contact.budget}
+          </span>
+        )}
+        {contact.linkedDealIds.length > 0 && (
+          <span className="contact-meta-chip">
+            <span className="material-symbols-outlined" style={{ fontSize: 12 }}>handshake</span>
+            {contact.linkedDealIds.length} עסקאות
+          </span>
+        )}
+      </div>
+
+      {/* Tags */}
+      {contact.tags.length > 0 && (
+        <div className="contact-card-tags">
+          {contact.tags.slice(0, 3).map(tag => (
+            <span key={tag} className="contact-tag">{tag}</span>
+          ))}
+          {contact.tags.length > 3 && <span className="contact-tag-more">+{contact.tags.length - 3}</span>}
+        </div>
+      )}
+
+      {/* Footer: status + owner + last activity */}
+      <div className="contact-card-footer">
+        <span className="contact-status-badge" style={{ background: statusConf.bg, color: statusConf.color }}>
+          {statusConf.label}
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexDirection: 'row-reverse' }}>
+          {owner && (
+            <div title={owner.name} style={{ width: 22, height: 22, borderRadius: '50%', background: owner.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 10, fontWeight: 700 }}>
+              {owner.avatar}
+            </div>
+          )}
+          <span style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>{formatDate(contact.lastActivityAt)}</span>
+        </div>
+        <button
+          className="contact-card-delete-btn"
+          title="מחק"
+          onClick={e => { e.stopPropagation(); onDelete(); }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main View ────────────────────────────────────────────
+
 export function ContactsView() {
   const { state, dispatch } = useStore();
   const [confirm, confirmDialog] = useConfirm();
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<ContactStatus | 'all'>('all');
+  const [filterType, setFilterType] = useState<ContactType | 'all'>('all');
   const [modalId, setModalId] = useState<string | null>(null);
 
   const filtered = state.contacts.filter(c => {
     const q = search.toLowerCase();
-    const matchSearch = !search || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.company.toLowerCase().includes(q);
+    const matchSearch = !search || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.company.toLowerCase().includes(q) || (c.city || '').toLowerCase().includes(q);
     const matchStatus = filterStatus === 'all' || c.status === filterStatus;
-    return matchSearch && matchStatus;
+    const matchType = filterType === 'all' || c.contactType === filterType;
+    return matchSearch && matchStatus && matchType;
   });
 
   return (
     <>
       {confirmDialog}
-    <div style={{ maxWidth: 1200 }}>
-      {/* Page header */}
-      <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
-        <div style={{ textAlign: 'right' }}>
-          <h1 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 24, fontWeight: 900, color: 'var(--on-surface)', lineHeight: 1.2 }}>אנשי קשר</h1>
-          <p style={{ fontSize: 13, color: 'var(--on-surface-variant)', marginTop: 4 }}>{state.contacts.length} אנשי קשר סה״כ</p>
-        </div>
-        <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6 }} onClick={() => setModalId('new')}>
-          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>add</span>
-          הוסף איש קשר
-        </button>
-      </div>
+      <div style={{ maxWidth: 1300 }}>
 
-      {/* Filter + Search bar */}
-      <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-        {/* Status pills */}
-        {[{ key: 'all', label: 'הכל', count: state.contacts.length }, ...Object.entries(STATUS_CONFIG).map(([key, { label }]) => ({ key, label, count: state.contacts.filter(c => c.status === key).length }))].map(({ key, label, count }) => (
-          <button
-            key={key}
-            onClick={() => setFilterStatus(key as ContactStatus | 'all')}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              padding: '6px 14px', borderRadius: 'var(--radius-full)', border: 'none',
-              fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
-              background: filterStatus === key ? 'var(--primary)' : 'var(--surface-container-lowest)',
-              color: filterStatus === key ? 'white' : 'var(--on-surface-variant)',
-              boxShadow: filterStatus === key ? '0 2px 8px rgba(90,69,203,0.25)' : 'var(--shadow-sm)',
-              fontFamily: 'Manrope, sans-serif',
-            }}
-          >
-            {label}
-            <span style={{ background: filterStatus === key ? 'rgba(255,255,255,0.25)' : 'var(--surface-container)', borderRadius: 'var(--radius-full)', padding: '1px 7px', fontSize: 11, fontWeight: 700 }}>{count}</span>
+        {/* Page header */}
+        <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+          <div style={{ textAlign: 'right' }}>
+            <h1 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 24, fontWeight: 900, color: 'var(--on-surface)', lineHeight: 1.2 }}>אנשי קשר</h1>
+            <p style={{ fontSize: 13, color: 'var(--on-surface-variant)', marginTop: 4 }}>{filtered.length} מתוך {state.contacts.length} אנשי קשר</p>
+          </div>
+          <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6 }} onClick={() => setModalId('new')}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>person_add</span>
+            הוסף איש קשר
           </button>
-        ))}
-
-        {/* Search */}
-        <div style={{ flex: 1, minWidth: 200, position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <span className="material-symbols-outlined" style={{ position: 'absolute', right: 12, fontSize: 18, color: 'var(--outline)', pointerEvents: 'none' }}>search</span>
-          <input
-            placeholder="חיפוש לפי שם, אימייל או חברה..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ width: '100%', paddingRight: 38, paddingLeft: 16, paddingTop: 9, paddingBottom: 9, borderRadius: 'var(--radius-full)', border: '1px solid var(--outline-variant)', background: 'var(--surface-container-lowest)', fontSize: 13, color: 'var(--on-surface)', outline: 'none', textAlign: 'right', fontFamily: 'Inter, sans-serif', boxShadow: 'var(--shadow-sm)' }}
-          />
-        </div>
-      </div>
-
-      {/* Contacts Table */}
-      <div style={{ background: 'var(--surface-container-lowest)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: 'var(--shadow)', border: '1px solid rgba(201,196,214,0.2)' }}>
-        {/* Table header */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.4fr 1.4fr 1fr 1fr 1fr 40px', padding: '12px 20px', background: 'var(--surface-container-low)', borderBottom: '1px solid var(--surface-container)', gap: 8 }}>
-          {['שם', 'חברה', 'אימייל', 'טלפון', 'סטטוס', 'אחראי', ''].map((h, i) => (
-            <div key={i} style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'right' }}>{h}</div>
-          ))}
         </div>
 
-        {/* Rows */}
-        {filtered.map((contact, idx) => {
-          const cfg = STATUS_CONFIG[contact.status];
-          const owner = state.users.find(u => u.id === contact.ownerId);
-          const avatarColor = AVATAR_COLORS[contact.name.charCodeAt(0) % AVATAR_COLORS.length];
+        {/* Type tabs */}
+        <div className="contact-type-tabs">
+          <button className={`contact-type-tab ${filterType === 'all' ? 'active' : ''}`} onClick={() => setFilterType('all')}>
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>people</span>
+            הכל
+            <span className="contact-type-tab-count">{state.contacts.length}</span>
+          </button>
+          {(Object.entries(TYPE_CONFIG) as [ContactType, typeof TYPE_CONFIG[ContactType]][]).map(([key, conf]) => {
+            const count = state.contacts.filter(c => c.contactType === key).length;
+            return (
+              <button
+                key={key}
+                className={`contact-type-tab ${filterType === key ? 'active' : ''}`}
+                style={filterType === key ? { borderColor: conf.color, color: conf.color, background: conf.bg } : {}}
+                onClick={() => setFilterType(key)}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{conf.icon}</span>
+                {conf.label}
+                <span className="contact-type-tab-count">{count}</span>
+              </button>
+            );
+          })}
+        </div>
 
-          return (
-            <div
-              key={contact.id}
-              onClick={() => setModalId(contact.id)}
+        {/* Status + search row */}
+        <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+          {[
+            { key: 'all', label: 'כל הסטטוסים', count: filtered.length },
+            ...Object.entries(STATUS_CONFIG).map(([key, { label }]) => ({
+              key, label, count: filtered.filter(c => c.status === key).length,
+            })),
+          ].map(({ key, label, count }) => (
+            <button
+              key={key}
+              onClick={() => setFilterStatus(key as ContactStatus | 'all')}
+              className="contact-status-filter-btn"
               style={{
-                display: 'grid', gridTemplateColumns: '2fr 1.4fr 1.4fr 1fr 1fr 1fr 40px',
-                padding: '14px 20px', gap: 8, alignItems: 'center',
-                borderBottom: idx < filtered.length - 1 ? '1px solid rgba(201,196,214,0.12)' : 'none',
-                cursor: 'pointer', transition: 'background 0.15s',
+                background: filterStatus === key ? 'var(--primary)' : 'var(--surface-container-lowest)',
+                color: filterStatus === key ? 'white' : 'var(--on-surface-variant)',
+                boxShadow: filterStatus === key ? '0 2px 8px rgba(90,69,203,0.25)' : 'var(--shadow-sm)',
               }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-container-low)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
-              {/* Name + avatar */}
-              <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: avatarColor, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
-                  {getInitials(contact.name)}
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--on-surface)', fontFamily: 'Manrope, sans-serif' }}>{contact.name}</div>
-                  {contact.position && <div style={{ fontSize: 11, color: 'var(--on-surface-variant)', marginTop: 1 }}>{contact.position}</div>}
-                </div>
-              </div>
+              {label}
+              <span className="contact-status-count"
+                style={{ background: filterStatus === key ? 'rgba(255,255,255,0.25)' : 'var(--surface-container)' }}>
+                {count}
+              </span>
+            </button>
+          ))}
 
-              {/* Company */}
-              <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 15, color: 'var(--outline)' }}>business</span>
-                <span style={{ textAlign: 'right' }}>{contact.company || '—'}</span>
-              </div>
+          <div style={{ flex: 1, minWidth: 220, position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <span className="material-symbols-outlined" style={{ position: 'absolute', right: 12, fontSize: 18, color: 'var(--outline)', pointerEvents: 'none' }}>search</span>
+            <input
+              placeholder="חיפוש לפי שם, חברה, עיר..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ width: '100%', paddingRight: 38, paddingLeft: 16, paddingTop: 9, paddingBottom: 9, borderRadius: 'var(--radius-full)', border: '1px solid var(--outline-variant)', background: 'var(--surface-container-lowest)', fontSize: 13, color: 'var(--on-surface)', outline: 'none', textAlign: 'right', fontFamily: 'Inter, sans-serif', boxShadow: 'var(--shadow-sm)' }}
+            />
+          </div>
+        </div>
 
-              {/* Email */}
-              <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--on-surface-variant)', overflow: 'hidden' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 15, color: 'var(--outline)', flexShrink: 0 }}>mail</span>
-                <span style={{ textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{contact.email || '—'}</span>
-              </div>
-
-              {/* Phone */}
-              <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 15, color: 'var(--outline)' }}>call</span>
-                <span>{contact.phone || '—'}</span>
-              </div>
-
-              {/* Status */}
-              <div>
-                <span style={{ display: 'inline-flex', padding: '4px 12px', borderRadius: 'var(--radius-full)', fontSize: 11, fontWeight: 700, background: cfg.bg, color: cfg.color, textAlign: 'right' }}>
-                  {cfg.label}
-                </span>
-              </div>
-
-              {/* Owner */}
-              <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: 6 }}>
-                {owner && (
-                  <>
-                    <div style={{ width: 26, height: 26, borderRadius: '50%', background: owner.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 11, fontWeight: 700 }}>
-                      {owner.avatar}
-                    </div>
-                    <span style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>{owner.name.split(' ')[0]}</span>
-                  </>
-                )}
-              </div>
-
-              {/* Actions */}
-              <div onClick={e => e.stopPropagation()}>
-                <button
-                  onClick={async () => { const ok = await confirm({ title: 'מחיקת איש קשר', message: `האם אתה בטוח שברצונך למחוק את "${contact.name}"?`, confirmLabel: 'מחק', danger: true }); if (ok) dispatch({ type: 'DELETE_CONTACT', payload: contact.id }); }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--on-surface-variant)', borderRadius: 'var(--radius-full)', padding: 4, display: 'flex', alignItems: 'center', transition: 'all 0.15s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--surface-container)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>more_vert</span>
-                </button>
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Empty state */}
-        {filtered.length === 0 && (
-          <div style={{ padding: 48, textAlign: 'center', color: 'var(--on-surface-variant)' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--outline-variant)', display: 'block', marginBottom: 12 }}>person_search</span>
-            <p style={{ fontSize: 15, fontWeight: 600, fontFamily: 'Manrope, sans-serif', marginBottom: 6 }}>לא נמצאו אנשי קשר</p>
-            <p style={{ fontSize: 13, marginBottom: 20 }}>נסה לשנות את הסינון או</p>
-            <button className="btn btn-primary" onClick={() => setModalId('new')}>הוסף איש קשר ראשון</button>
+        {/* Cards grid */}
+        {filtered.length > 0 ? (
+          <div className="contact-cards-grid">
+            {filtered.map(contact => (
+              <ContactCard
+                key={contact.id}
+                contact={contact}
+                onEdit={() => setModalId(contact.id)}
+                onDelete={async () => {
+                  const ok = await confirm({ title: 'מחיקת איש קשר', message: `האם אתה בטוח שברצונך למחוק את "${contact.name}"?`, confirmLabel: 'מחק', danger: true });
+                  if (ok) dispatch({ type: 'DELETE_CONTACT', payload: contact.id });
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <div style={{ padding: 64, textAlign: 'center', color: 'var(--on-surface-variant)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 52, color: 'var(--outline-variant)', display: 'block', marginBottom: 16 }}>person_search</span>
+            <p style={{ fontSize: 16, fontWeight: 700, fontFamily: 'Manrope, sans-serif', marginBottom: 8 }}>לא נמצאו אנשי קשר</p>
+            <p style={{ fontSize: 13, marginBottom: 24 }}>נסה לשנות את הסינון או הוסף איש קשר חדש</p>
+            <button className="btn btn-primary" onClick={() => setModalId('new')}>הוסף איש קשר</button>
           </div>
         )}
-      </div>
 
-      {modalId && <ContactModal contactId={modalId} onClose={() => setModalId(null)} />}
-    </div>
+        {modalId && <ContactModal contactId={modalId} onClose={() => setModalId(null)} />}
+      </div>
     </>
   );
 }

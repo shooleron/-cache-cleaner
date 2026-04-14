@@ -117,7 +117,7 @@ export function AIAgentPanel() {
       }
     } else if (action.type === 'create_contact') {
       const p = action.payload as { name?: string; email?: string; company?: string };
-      dispatch({ type: 'CREATE_CONTACT', payload: { name: p.name || '', email: p.email || '', company: p.company || '', phone: '', position: '', status: 'prospect', tags: [], notes: '', ownerId: state.currentUser.id } });
+      dispatch({ type: 'CREATE_CONTACT', payload: { name: p.name || '', email: p.email || '', company: p.company || '', phone: '', position: '', status: 'prospect', contactType: 'other', tags: [], notes: '', ownerId: state.currentUser.id } });
       dispatch({ type: 'ADD_AI_MESSAGE', payload: { id: uuidv4(), role: 'assistant', content: `✅ איש קשר "${p.name}" נוצר!`, createdAt: new Date().toISOString() }});
     }
   }

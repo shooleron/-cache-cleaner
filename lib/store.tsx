@@ -3,9 +3,10 @@
 import React, { createContext, useContext, useReducer, useEffect, useRef, ReactNode } from 'react';
 import {
   AppState, Task, Project, User, Notification, Comment, Group, BoardView,
-  AppSection, CRMView, Contact, Deal, DealActivity, AutomationRule, AIMessage,
+  AppSection, CRMView, Contact, ContactType, Deal, DealActivity, AutomationRule, AIMessage,
   DealStage, SubItem, ActivityLog, ActivityVerb, Event, Campaign, EventStatus,
   Attachment, AttachmentType, TaskNote, Speaker, Panel, SponsorshipProduct, DealLineItem, Brand,
+  ChatConversation, ChatMessage,
 } from './types';
 import { INITIAL_STATE } from './mockData';
 import { v4 as uuidv4 } from 'uuid';
@@ -98,11 +99,20 @@ type Action =
   | { type: 'DELETE_PANEL'; payload: string }
   | { type: 'ADD_SPEAKER_TO_PANEL'; payload: { panelId: string; speakerId: string } }
   | { type: 'REMOVE_SPEAKER_FROM_PANEL'; payload: { panelId: string; speakerId: string } }
-  | { type: 'CREATE_BRAND'; payload: Omit<Brand, 'id' | 'createdAt' | 'updatedAt'> };
+  | { type: 'CREATE_BRAND'; payload: Omit<Brand, 'id' | 'createdAt' | 'updatedAt'> }
+  | { type: 'TOGGLE_CHAT_PANEL' }
+  | { type: 'OPEN_CHAT'; payload: string }
+  | { type: 'CLOSE_CHAT_CONVERSATION' }
+  | { type: 'SEND_CHAT_MESSAGE'; payload: { toUserId: string; text: string } }
+  | { type: 'MARK_CHAT_READ'; payload: { conversationId: string } }
+  | { type: 'DISMISS_WELCOME' }
+  | { type: 'DISMISS_CELEBRATION' };
 
 // Fields that should NOT be synced to Supabase (UI-only state)
 const UI_ONLY_FIELDS: (keyof AppState)[] = [
   'notificationsPanelOpen',
+  'chatPanelOpen',
+  'activeChatUserId',
   'taskModalId',
   'newProjectModalOpen',
   'inviteModalOpen',
@@ -116,6 +126,8 @@ const UI_ONLY_FIELDS: (keyof AppState)[] = [
   'activeEventId',
   'newEventModalOpen',
   'speakerModalId',
+  'welcomeTaskId',
+  'celebrationTaskId',
 ];
 
 function makeLog(userId: string, verb: ActivityVerb, label: string, entityId?: string, entityType?: ActivityLog['entityType']): ActivityLog {
@@ -289,16 +301,31 @@ function reducer(state: AppState, action: Action): AppState {
       });
 
       let notifications = state.notifications;
+      let welcomeTaskId = state.welcomeTaskId;
+      let celebrationTaskId = state.celebrationTaskId;
+
+      // Celebration on task completion
+      if (action.payload.status === 'done' && oldTask && oldTask.status !== 'done') {
+        celebrationTaskId = action.payload.id;
+        oldTask.assigneeIds.forEach(assigneeId => {
+          notifications = [{ id: uuidv4(), userId: assigneeId, type: 'task_completed', message: `🎉 משימה "${oldTask.title}" הושלמה!`, taskId: action.payload.id, projectId: oldTask.projectId, read: false, createdAt: now }, ...notifications];
+        });
+      }
+
+      // Assignment notifications + welcome screen
       if (action.payload.assigneeIds) {
         const newAssignees = action.payload.assigneeIds.filter(id => !oldTask?.assigneeIds.includes(id));
         newAssignees.forEach(assigneeId => {
           const assignee = state.users.find(u => u.id === assigneeId);
-          if (assignee && assigneeId !== state.currentUser.id) {
-            notifications = [{ id: uuidv4(), userId: assigneeId, type: 'assigned', message: `${state.currentUser.name} assigned you to "${oldTask?.title}"`, taskId: action.payload.id, projectId: oldTask?.projectId || null, read: false, createdAt: now }, ...notifications];
+          if (assignee) {
+            notifications = [{ id: uuidv4(), userId: assigneeId, type: 'assigned', message: `${state.currentUser.name} שייך אותך למשימה "${oldTask?.title}"`, taskId: action.payload.id, projectId: oldTask?.projectId || null, read: false, createdAt: now }, ...notifications];
+            if (assigneeId === state.currentUser.id) {
+              welcomeTaskId = action.payload.id;
+            }
           }
         });
       }
-      return { ...state, tasks: updatedTasks, notifications, activityLogs: [makeLog(actor.id, 'updated_task', `עדכן משימה "${oldTask?.title || ''}"`, action.payload.id, 'task'), ...state.activityLogs].slice(0, 500) };
+      return { ...state, tasks: updatedTasks, notifications, welcomeTaskId, celebrationTaskId, activityLogs: [makeLog(actor.id, 'updated_task', `עדכן משימה "${oldTask?.title || ''}"`, action.payload.id, 'task'), ...state.activityLogs].slice(0, 500) };
     }
 
     case 'DELETE_TASK': {
@@ -309,10 +336,23 @@ function reducer(state: AppState, action: Action): AppState {
     case 'MOVE_TASK': {
       const now = new Date().toISOString();
       const movedTask = state.tasks.find(t => t.id === action.payload.taskId);
-      const moveLog = action.payload.newStatus === 'done'
+      const becameDone = action.payload.newStatus === 'done' && movedTask?.status !== 'done';
+      const moveLog = becameDone
         ? makeLog(state.currentUser.id, 'completed_task', `סימן משימה "${movedTask?.title || ''}" כהושלמה`, action.payload.taskId, 'task')
         : null;
-      return { ...state, tasks: state.tasks.map(t => t.id === action.payload.taskId ? { ...t, status: action.payload.newStatus, updatedAt: now } : t), activityLogs: moveLog ? [moveLog, ...state.activityLogs].slice(0, 500) : state.activityLogs };
+      let moveNotifications = state.notifications;
+      if (becameDone && movedTask) {
+        movedTask.assigneeIds.forEach(assigneeId => {
+          moveNotifications = [{ id: uuidv4(), userId: assigneeId, type: 'task_completed', message: `🎉 משימה "${movedTask.title}" הושלמה!`, taskId: movedTask.id, projectId: movedTask.projectId, read: false, createdAt: now }, ...moveNotifications];
+        });
+      }
+      return {
+        ...state,
+        tasks: state.tasks.map(t => t.id === action.payload.taskId ? { ...t, status: action.payload.newStatus, updatedAt: now } : t),
+        notifications: moveNotifications,
+        celebrationTaskId: becameDone ? action.payload.taskId : state.celebrationTaskId,
+        activityLogs: moveLog ? [moveLog, ...state.activityLogs].slice(0, 500) : state.activityLogs,
+      };
     }
 
     case 'ADD_COMMENT': {
@@ -642,10 +682,16 @@ function reducer(state: AppState, action: Action): AppState {
     case 'CREATE_EVENT': {
       const now = new Date().toISOString();
       const newEvent: Event = { ...action.payload, id: uuidv4(), createdAt: now, updatedAt: now };
+      const eventNotifications: Notification[] = state.users.map(u => ({
+        id: uuidv4(), userId: u.id, type: 'event_created' as const,
+        message: `אירוע חדש נוצר: "${newEvent.name}"`,
+        taskId: null, projectId: null, read: false, createdAt: now,
+      }));
       return {
         ...state,
         events: [...state.events, newEvent],
         activeEventId: newEvent.id,
+        notifications: [...eventNotifications, ...state.notifications],
         activityLogs: [makeLog(state.currentUser.id, 'created_event', `יצר אירוע "${newEvent.name}"`, newEvent.id, 'event'), ...state.activityLogs].slice(0, 500)
       };
     }
@@ -871,6 +917,60 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, brands: [...state.brands, newBrand] };
     }
 
+    case 'TOGGLE_CHAT_PANEL':
+      return { ...state, chatPanelOpen: !state.chatPanelOpen };
+
+    case 'OPEN_CHAT':
+      return { ...state, chatPanelOpen: true, activeChatUserId: action.payload };
+
+    case 'CLOSE_CHAT_CONVERSATION':
+      return { ...state, activeChatUserId: null };
+
+    case 'SEND_CHAT_MESSAGE': {
+      const { toUserId, text } = action.payload;
+      const now = new Date().toISOString();
+      const existingConv = state.chats.find(c =>
+        c.participantIds.includes(state.currentUser.id) && c.participantIds.includes(toUserId)
+      );
+      const convId = existingConv?.id || uuidv4();
+      const newMsg: ChatMessage = {
+        id: uuidv4(),
+        conversationId: convId,
+        fromUserId: state.currentUser.id,
+        text,
+        createdAt: now,
+        readByIds: [state.currentUser.id],
+      };
+      if (existingConv) {
+        return { ...state, chats: state.chats.map(c => c.id === convId ? { ...c, messages: [...c.messages, newMsg] } : c) };
+      } else {
+        const newConv: ChatConversation = {
+          id: convId,
+          participantIds: [state.currentUser.id, toUserId],
+          messages: [newMsg],
+          createdAt: now,
+        };
+        return { ...state, chats: [...state.chats, newConv] };
+      }
+    }
+
+    case 'MARK_CHAT_READ': {
+      return {
+        ...state,
+        chats: state.chats.map(c =>
+          c.id === action.payload.conversationId
+            ? { ...c, messages: c.messages.map(m => m.readByIds.includes(state.currentUser.id) ? m : { ...m, readByIds: [...m.readByIds, state.currentUser.id] }) }
+            : c
+        ),
+      };
+    }
+
+    case 'DISMISS_WELCOME':
+      return { ...state, welcomeTaskId: null };
+
+    case 'DISMISS_CELEBRATION':
+      return { ...state, celebrationTaskId: null };
+
     default:
       return state;
   }
@@ -886,11 +986,13 @@ function getSharedData(state: AppState) {
 // Check if action should trigger a sync
 function isSyncAction(action: Action): boolean {
   const uiOnlyActions = [
-    'TOGGLE_NOTIFICATIONS_PANEL', 'TOGGLE_AI_PANEL',
+    'TOGGLE_NOTIFICATIONS_PANEL', 'TOGGLE_AI_PANEL', 'TOGGLE_CHAT_PANEL',
     'OPEN_TASK_MODAL', 'CLOSE_TASK_MODAL',
     'OPEN_NEW_PROJECT_MODAL', 'CLOSE_NEW_PROJECT_MODAL',
     'OPEN_NEW_EVENT_MODAL', 'CLOSE_NEW_EVENT_MODAL',
     'OPEN_INVITE_MODAL', 'CLOSE_INVITE_MODAL',
+    'OPEN_CHAT', 'CLOSE_CHAT_CONVERSATION', 'MARK_CHAT_READ',
+    'DISMISS_WELCOME', 'DISMISS_CELEBRATION',
     'SET_ACTIVE_VIEW', 'SET_ACTIVE_SECTION', 'SET_CRM_VIEW',
     'SET_ACTIVE_PROJECT', 'SET_ACTIVE_EVENT', 'ADD_AI_MESSAGE', 'CLEAR_AI_MESSAGES',
     'LOAD_STATE',

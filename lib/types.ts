@@ -14,6 +14,7 @@ export type EventStatus = 'draft' | 'active' | 'completed' | 'archived';
 export type CRMView = 'contacts' | 'deals';
 export type DealStage = 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'closed_won' | 'closed_lost';
 export type ContactStatus = 'prospect' | 'active' | 'customer' | 'inactive';
+export type ContactType = 'developer' | 'lawyer' | 'infrastructure' | 'appraiser' | 'other';
 export type AutomationTrigger = 'task_created' | 'status_changed' | 'due_date_passed' | 'deal_stage_changed' | 'task_assigned';
 export type AutomationActionType = 'send_notification' | 'change_status' | 'assign_to' | 'move_deal_stage' | 'create_task';
 
@@ -166,11 +167,27 @@ export interface Project {
 export interface Notification {
   id: string;
   userId: string;
-  type: 'assigned' | 'commented' | 'status_changed' | 'due_soon' | 'mentioned' | 'deal_updated' | 'automation_fired';
+  type: 'assigned' | 'commented' | 'status_changed' | 'due_soon' | 'mentioned' | 'deal_updated' | 'automation_fired' | 'task_completed' | 'event_created';
   message: string;
   taskId: string | null;
   projectId: string | null;
   read: boolean;
+  createdAt: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  conversationId: string;
+  fromUserId: string;
+  text: string;
+  createdAt: string;
+  readByIds: string[];
+}
+
+export interface ChatConversation {
+  id: string;
+  participantIds: string[];
+  messages: ChatMessage[];
   createdAt: string;
 }
 
@@ -208,11 +225,16 @@ export interface Contact {
   company: string;
   position: string;
   status: ContactStatus;
+  contactType: ContactType;
   tags: string[];
   ownerId: string;
   notes: string;
   avatar: string;
   linkedDealIds: string[];
+  city?: string;
+  website?: string;
+  linkedin?: string;
+  budget?: string;
   createdAt: string;
   updatedAt: string;
   lastActivityAt: string;
@@ -363,12 +385,15 @@ export interface AppState {
   deals: Deal[];
   automations: AutomationRule[];
   aiMessages: AIMessage[];
+  chats: ChatConversation[];
   activeEventId: string | null;
   activeProjectId: string | null;
   activeView: BoardView;
   activeSection: AppSection;
   activeCRMView: CRMView;
   notificationsPanelOpen: boolean;
+  chatPanelOpen: boolean;
+  activeChatUserId: string | null;
   taskModalId: string | null;
   newProjectModalOpen: boolean;
   newEventModalOpen: boolean;
@@ -382,4 +407,6 @@ export interface AppState {
   appLocked: boolean;
   profileModalOpen: boolean;
   activityLogs: ActivityLog[];
+  welcomeTaskId: string | null;
+  celebrationTaskId: string | null;
 }

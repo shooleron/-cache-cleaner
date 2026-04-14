@@ -75,11 +75,27 @@ export function TopBar() {
 
       {/* Left side: actions + user */}
       <div className="topbar-left">
+        {(() => {
+          const unreadNotifs = state.notifications.filter(n => n.userId === state.currentUser.id && !n.read).length;
+          const unreadChats = state.chats.reduce((acc, c) => {
+            if (!c.participantIds.includes(state.currentUser.id)) return acc;
+            return acc + c.messages.filter(m => m.fromUserId !== state.currentUser.id && !m.readByIds.includes(state.currentUser.id)).length;
+          }, 0);
+          return (
+            <>
+              <button className="topbar-icon-btn topbar-icon-btn--rel" onClick={() => dispatch({ type: 'TOGGLE_CHAT_PANEL' })}>
+                <span className="material-symbols-outlined">chat</span>
+                {unreadChats > 0 && <span className="topbar-badge">{unreadChats}</span>}
+              </button>
+              <button className="topbar-icon-btn topbar-icon-btn--rel" onClick={() => dispatch({ type: 'TOGGLE_NOTIFICATIONS_PANEL' })}>
+                <span className="material-symbols-outlined">notifications</span>
+                {unreadNotifs > 0 && <span className="topbar-badge">{unreadNotifs}</span>}
+              </button>
+            </>
+          );
+        })()}
         <button className="topbar-icon-btn">
           <span className="material-symbols-outlined">settings</span>
-        </button>
-        <button className="topbar-icon-btn">
-          <span className="material-symbols-outlined">help</span>
         </button>
 
         <div style={{ width: 1, height: 32, background: 'var(--outline-variant)', margin: '0 4px' }} />

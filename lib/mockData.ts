@@ -1,4 +1,4 @@
-import { AppState, Task, Group, Project, User, Notification, Contact, Deal, AutomationRule, Event, Campaign, Speaker, Panel, SponsorshipProduct, Brand } from './types';
+import { AppState, Task, Group, Project, User, Notification, Contact, Deal, AutomationRule, Event, Campaign, Speaker, Panel, SponsorshipProduct, Brand, ContactType } from './types';
 
 export const MOCK_USERS: User[] = [
   { id: 'user-1', name: 'יורי אלט', email: 'yuri@atelier.co.il', avatar: 'יא', color: '#0073ea', role: 'owner', status: 'active', jobTitle: 'מנכ"ל', department: 'management' },
@@ -138,13 +138,22 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
   { id: 'notif-3', userId: 'user-1', type: 'status_changed', message: '"User interviews" status changed to Done', taskId: 'task-7', projectId: 'proj-2', read: true, createdAt: '2026-03-15T08:00:00Z' },
 ];
 
+const C = (c: Omit<Contact, 'avatar'>): Contact => ({
+  ...c,
+  avatar: c.name.split(' ').map(n => n[0]).join('').substring(0, 2),
+});
+
 export const MOCK_CONTACTS: Contact[] = [
-  { id: 'contact-1', name: 'Alex Johnson', email: 'alex@techcorp.com', phone: '+1 555-0101', company: 'TechCorp', position: 'CTO', status: 'customer', tags: ['enterprise', 'saas'], ownerId: 'user-1', notes: 'Key decision maker. Very technical background.', avatar: 'AJ', linkedDealIds: ['deal-1'], createdAt: '2026-01-10T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z', lastActivityAt: '2026-03-20T09:00:00Z' },
-  { id: 'contact-2', name: 'Maria Santos', email: 'maria@startup.io', phone: '+1 555-0102', company: 'StartupIO', position: 'CEO', status: 'prospect', tags: ['startup', 'hot-lead'], ownerId: 'user-2', notes: 'Met at SaaStr 2026. Very interested in our enterprise plan.', avatar: 'MS', linkedDealIds: ['deal-2'], createdAt: '2026-02-15T10:00:00Z', updatedAt: '2026-03-18T14:00:00Z', lastActivityAt: '2026-03-18T14:00:00Z' },
-  { id: 'contact-3', name: 'David Kim', email: 'david@enterprise.co', phone: '+1 555-0103', company: 'Enterprise Co', position: 'VP Sales', status: 'active', tags: ['enterprise'], ownerId: 'user-1', notes: 'Evaluating multiple vendors. Price sensitive.', avatar: 'DK', linkedDealIds: ['deal-3'], createdAt: '2026-02-20T08:00:00Z', updatedAt: '2026-03-22T11:00:00Z', lastActivityAt: '2026-03-22T11:00:00Z' },
-  { id: 'contact-4', name: 'Sarah Park', email: 'sarah@agency.com', phone: '+1 555-0104', company: 'Creative Agency', position: 'Marketing Director', status: 'customer', tags: ['agency', 'recurring'], ownerId: 'user-3', notes: 'Long-term customer. Uses basic plan.', avatar: 'SP', linkedDealIds: [], createdAt: '2026-01-05T09:00:00Z', updatedAt: '2026-03-10T16:00:00Z', lastActivityAt: '2026-03-10T16:00:00Z' },
-  { id: 'contact-5', name: 'Mike Wilson', email: 'mike@oldclient.com', phone: '+1 555-0105', company: 'Old Client Inc', position: 'CFO', status: 'inactive', tags: ['churned'], ownerId: 'user-1', notes: 'Churned Q4 2025. Budget cuts.', avatar: 'MW', linkedDealIds: [], createdAt: '2025-06-01T09:00:00Z', updatedAt: '2025-12-15T09:00:00Z', lastActivityAt: '2025-12-15T09:00:00Z' },
-  { id: 'contact-6', name: 'Lisa Chen', email: 'lisa@fintech.com', phone: '+1 555-0106', company: 'FinTech Labs', position: 'Head of Product', status: 'prospect', tags: ['fintech', 'demo-done'], ownerId: 'user-2', notes: 'Completed demo. Waiting for security review.', avatar: 'LC', linkedDealIds: ['deal-4', 'deal-5'], createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-03-25T13:00:00Z', lastActivityAt: '2026-03-25T13:00:00Z' },
+  C({ id: 'contact-1', name: 'נאור בקר', email: 'naor@hanegev.co.il', phone: '050-1234567', company: 'קבוצת נגב נדל״ן', position: 'מנכ"ל ובעלים', status: 'customer', contactType: 'developer', tags: ['יזם ותיק', 'VIP', 'נדל"ן'], ownerId: 'user-6', notes: 'לקוח קבוע מ-2023. משתתף בכל הכנסים. מגיע עם עוזר אישי.', linkedDealIds: ['deal-1'], city: 'באר שבע', budget: '200K–500K ₪', createdAt: '2026-01-10T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z', lastActivityAt: '2026-03-20T09:00:00Z' }),
+  C({ id: 'contact-2', name: 'מיכל שפירא', email: 'michal@shapira-law.co.il', phone: '052-9876543', company: 'שפירא ושות׳ — עורכי דין', position: 'שותפה בכירה', status: 'customer', contactType: 'lawyer', tags: ['מקרקעין', 'חוזים', 'VIP'], ownerId: 'user-6', notes: 'מומחית דיני מקרקעין. קנתה הרצאה + פאנל בכנס אילת.', linkedDealIds: ['deal-2'], city: 'תל אביב', budget: '100K–250K ₪', website: 'shapira-law.co.il', createdAt: '2026-01-12T10:00:00Z', updatedAt: '2026-03-18T14:00:00Z', lastActivityAt: '2026-03-18T14:00:00Z' }),
+  C({ id: 'contact-3', name: 'אריה גלוטמן', email: 'arie@glutman-infra.co.il', phone: '054-3334455', company: 'גלוטמן תשתיות בע"מ', position: 'סמנכ"ל פיתוח עסקי', status: 'active', contactType: 'infrastructure', tags: ['תשתיות', 'ממשל'], ownerId: 'user-1', notes: 'ענקית תשתיות. מעוניין בחסות עמדה + ברים בכנס הנדל"ן.', linkedDealIds: ['deal-3'], city: 'חיפה', budget: '100K–300K ₪', createdAt: '2026-02-20T08:00:00Z', updatedAt: '2026-03-22T11:00:00Z', lastActivityAt: '2026-03-22T11:00:00Z' }),
+  C({ id: 'contact-4', name: 'ד"ר רונית לוי', email: 'ronit@shama-appraisals.co.il', phone: '053-6667788', company: 'שמא הערכות נדל"ן', position: 'שמאית מקרקעין ראשית', status: 'prospect', contactType: 'appraiser', tags: ['שמאות', 'הערכות שווי'], ownerId: 'user-6', notes: 'פגישה ראשונה בוועידת הנדל"ן. מעוניינת בעמדה ב-2026.', linkedDealIds: [], city: 'ירושלים', budget: '30K–80K ₪', createdAt: '2026-02-01T09:00:00Z', updatedAt: '2026-03-10T16:00:00Z', lastActivityAt: '2026-03-10T16:00:00Z' }),
+  C({ id: 'contact-5', name: 'יוסי אברמוב', email: 'yossi@avramov-dev.co.il', phone: '050-9998877', company: 'אברמוב יזמות ובנייה', position: 'יו"ר הדירקטוריון', status: 'customer', contactType: 'developer', tags: ['יזם', 'ותיק', 'רב-פרויקטי'], ownerId: 'user-1', notes: 'יזם בכיר. משתתף מ-2020. דורש מקום VIP בכל כנס.', linkedDealIds: ['deal-4'], city: 'תל אביב', budget: '300K–600K ₪', createdAt: '2025-09-01T09:00:00Z', updatedAt: '2026-03-15T09:00:00Z', lastActivityAt: '2026-03-15T09:00:00Z' }),
+  C({ id: 'contact-6', name: 'עו"ד גיא פרידמן', email: 'guy@friedman-law.co.il', phone: '052-1113344', company: 'פרידמן ושות׳', position: 'עורך דין בכיר', status: 'prospect', contactType: 'lawyer', tags: ['מקרקעין', 'ליטיגציה'], ownerId: 'user-6', notes: 'ליטיגטור מקרקעין ידוע. יצר קשר אחרי ועידת הנדל"ן.', linkedDealIds: [], city: 'תל אביב', budget: '60K–150K ₪', createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-03-25T13:00:00Z', lastActivityAt: '2026-03-25T13:00:00Z' }),
+  C({ id: 'contact-7', name: 'שי קוהן', email: 'shai@solel-boneh.co.il', phone: '054-5556677', company: 'סולל בונה תשתיות', position: 'מנהל שיווק ומכירות', status: 'active', contactType: 'infrastructure', tags: ['תשתיות', 'ביצוע', 'ממשלתי'], ownerId: 'user-1', notes: 'ממצגות מרשימות. מחפש חסות אולם ראשי.', linkedDealIds: ['deal-5'], city: 'רמת גן', budget: '150K–400K ₪', createdAt: '2026-02-10T09:00:00Z', updatedAt: '2026-03-28T10:00:00Z', lastActivityAt: '2026-03-28T10:00:00Z' }),
+  C({ id: 'contact-8', name: 'מנחם ברג', email: 'menachem@berg-shama.co.il', phone: '053-2223344', company: 'ברג שמאות', position: 'שמאי מוסמך', status: 'inactive', contactType: 'appraiser', tags: ['שמאות', 'מגורים'], ownerId: 'user-6', notes: 'לא חידש חסות לאחרון. ייתכן פניה מחדש לכנס 2027.', linkedDealIds: [], city: 'חיפה', budget: '20K–50K ₪', createdAt: '2025-05-01T09:00:00Z', updatedAt: '2025-11-30T09:00:00Z', lastActivityAt: '2025-11-30T09:00:00Z' }),
+  C({ id: 'contact-9', name: 'אורית מזרחי', email: 'orit@leumi.co.il', phone: '050-4445566', company: 'בנק לאומי למשכנתאות', position: 'סמנכ"לית שיווק', status: 'customer', contactType: 'other', tags: ['בנק', 'מימון', 'ותיק'], ownerId: 'user-1', notes: 'שותפה אסטרטגית. ספונסר ראשי בכנסי 2024–2025.', linkedDealIds: ['deal-1', 'deal-3'], city: 'תל אביב', budget: '400K–800K ₪', website: 'leumi.co.il', createdAt: '2025-08-01T09:00:00Z', updatedAt: '2026-04-01T09:00:00Z', lastActivityAt: '2026-04-01T09:00:00Z' }),
+  C({ id: 'contact-10', name: 'עמי כרמי', email: 'ami@karmi-dev.co.il', phone: '052-7778899', company: 'כרמי נדל"ן', position: 'מנכ"ל', status: 'prospect', contactType: 'developer', tags: ['יזם', 'מגורים', 'צפון'], ownerId: 'user-6', notes: 'יזם בצפון הארץ. ראשית קשר דרך כנס בית ונוי.', linkedDealIds: [], city: 'חיפה', budget: '80K–200K ₪', createdAt: '2026-03-15T09:00:00Z', updatedAt: '2026-04-05T09:00:00Z', lastActivityAt: '2026-04-05T09:00:00Z' }),
 ];
 
 export const MOCK_DEALS: Deal[] = [
@@ -431,12 +440,15 @@ export const INITIAL_STATE: AppState = {
   deals: MOCK_DEALS,
   automations: MOCK_AUTOMATIONS,
   aiMessages: [],
+  chats: [],
   activeEventId: 'event-1',
   activeProjectId: 'proj-1',
   activeView: 'table',
   activeSection: 'events',
   activeCRMView: 'contacts',
   notificationsPanelOpen: false,
+  chatPanelOpen: false,
+  activeChatUserId: null,
   taskModalId: null,
   newProjectModalOpen: false,
   newEventModalOpen: false,
@@ -450,4 +462,6 @@ export const INITIAL_STATE: AppState = {
   appLocked: false,
   profileModalOpen: false,
   activityLogs: [],
+  welcomeTaskId: null,
+  celebrationTaskId: null,
 };

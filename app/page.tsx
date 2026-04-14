@@ -18,6 +18,9 @@ import { EventsView } from '@/components/views/EventsView';
 import { SpeakerModal } from '@/components/modals/SpeakerModal';
 import { AIAgentPanel } from '@/components/ai/AIAgentPanel';
 import { NotificationsPanel } from '@/components/panels/NotificationsPanel';
+import { ChatPanel } from '@/components/panels/ChatPanel';
+import { WelcomeModal } from '@/components/modals/WelcomeModal';
+import { CelebrationOverlay } from '@/components/ui/CelebrationOverlay';
 import { TaskModal } from '@/components/modals/TaskModal';
 import { NewProjectModal } from '@/components/modals/NewProjectModal';
 import { NewEventModal } from '@/components/modals/NewEventModal';
@@ -69,6 +72,9 @@ function AppContent() {
       </div>
       {state.aiPanelOpen && <AIAgentPanel />}
       {state.notificationsPanelOpen && <NotificationsPanel />}
+      {state.chatPanelOpen && <ChatPanel />}
+      {state.welcomeTaskId && <WelcomeModal />}
+      {state.celebrationTaskId && <CelebrationOverlay />}
       {state.taskModalId && <TaskModal />}
       {state.newProjectModalOpen && <NewProjectModal />}
       {state.newEventModalOpen && <NewEventModal />}
