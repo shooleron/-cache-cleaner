@@ -2,24 +2,12 @@
 
 import React from 'react';
 import { useStore } from '@/lib/store';
-import { BoardView, CRMView, ProjectCategory } from '@/lib/types';
-
-const MKT_CATEGORY_LABELS: Record<ProjectCategory, string> = {
-  marketing: 'שיווק',
-  promotion: 'קידום',
-  social:    'סושיאל',
-  design:    'עיצוב',
-  bizdev:    'פיתוח עסקי',
-};
-
-const MKT_SECTION_SET = new Set<string>(['marketing', 'promotion', 'social', 'design', 'bizdev']);
+import { BoardView, CRMView } from '@/lib/types';
 
 export function TopBar() {
   const { state, dispatch } = useStore();
   const activeProject = state.projects.find(p => p.id === state.activeProjectId);
   const activeEvent = state.events?.find(e => e.id === state.activeEventId);
-  const isMktSection = MKT_SECTION_SET.has(state.activeSection);
-  const activeProjectCategory = activeProject?.category ?? null;
 
   const sectionTitles: Record<string, string> = {
     dashboard: 'תפעול פנימי',
@@ -28,11 +16,6 @@ export function TopBar() {
     events: activeProject?.name || 'אירועים',
     users: 'משתמשים',
     ai: 'AI אסיסטנט',
-    marketing: 'שיווק',
-    promotion: 'שיווק',
-    social: 'שיווק',
-    design: 'שיווק',
-    bizdev: 'שיווק',
   };
 
   const views: { value: BoardView; label: string }[] = [
@@ -73,30 +56,6 @@ export function TopBar() {
               </span>
             ))}
           </nav>
-        )}
-
-        {isMktSection && activeProject && (
-          <>
-            <div className="topbar-breadcrumb">
-              {activeEvent && <><span className="topbar-breadcrumb-event">{activeEvent.name}</span><span className="topbar-breadcrumb-sep">›</span></>}
-              {activeProjectCategory && (
-                <span className="topbar-category-tag">{MKT_CATEGORY_LABELS[activeProjectCategory]}</span>
-              )}
-              <span className="topbar-breadcrumb-sep">›</span>
-              <span className="topbar-breadcrumb-project">{activeProject.name}</span>
-            </div>
-            <nav className="topbar-nav">
-              {views.map(v => (
-                <span
-                  key={v.value}
-                  className={`topbar-nav-link ${state.activeView === v.value ? 'active' : ''}`}
-                  onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: v.value })}
-                >
-                  {v.label}
-                </span>
-              ))}
-            </nav>
-          </>
         )}
 
         {state.activeSection === 'crm' && (

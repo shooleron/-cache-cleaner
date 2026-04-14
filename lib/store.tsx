@@ -539,7 +539,6 @@ function reducer(state: AppState, action: Action): AppState {
         memberIds: [deal.ownerId, state.currentUser.id],
         defaultView: 'table',
         eventId: deal.eventId,
-        category: null,
         createdAt: now,
         updatedAt: now,
       };

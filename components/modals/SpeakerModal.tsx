@@ -2,17 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/lib/store';
-import { Speaker, SpeakerApprovalStatus, SpeakerCVStatus, SpeakerPhotoStatus, SpeakerCategory, SpeakerContact, Panel } from '@/lib/types';
+import { Speaker, SpeakerApprovalStatus, SpeakerCVStatus, SpeakerPhotoStatus, Panel } from '@/lib/types';
 import { useConfirm } from '@/components/ui/ConfirmDialog';
 
 const FORMAT_LABELS: Record<string, string> = {
   panel: 'פאנל', lecture: 'הרצאה', interview: 'ראיון', video: 'סרטון', discussion: 'דיון',
-};
-
-const CATEGORY_CONFIG: Record<SpeakerCategory, { label: string; color: string; bg: string }> = {
-  commercial: { label: 'מסחרי',       color: '#0073ea', bg: '#e6f2ff' },
-  systemic:   { label: 'מערכתי',      color: '#9c27b0', bg: '#f3e5f5' },
-  paid:        { label: 'מרצה משלם',  color: '#e65100', bg: '#fff3e0' },
 };
 
 const PANEL_STATUS_COLOR: Record<string, string> = {
@@ -38,8 +32,6 @@ export function SpeakerModal() {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [eventIds, setEventIds] = useState<string[]>([]);
-  const [category, setCategory] = useState<SpeakerCategory>('commercial');
-  const [contactPerson, setContactPerson] = useState<SpeakerContact | null>(null);
   const [dirty, setDirty] = useState(false);
   const [addPanelOpen, setAddPanelOpen] = useState(false);
 
@@ -60,8 +52,6 @@ export function SpeakerModal() {
     setPhotoStatus(speaker.photoStatus);
     setTags(speaker.tags);
     setEventIds(speaker.eventIds);
-    setCategory(speaker.category);
-    setContactPerson(speaker.contactPerson);
     setDirty(false);
     setTab('details');
   }, [state.speakerModalId]);
@@ -86,8 +76,6 @@ export function SpeakerModal() {
         approvalStatus,
         cvStatus,
         photoStatus,
-        category,
-        contactPerson,
         tags,
         eventIds,
         avatar: initials,
@@ -230,101 +218,6 @@ export function SpeakerModal() {
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Category */}
-              <div className="speaker-section">
-                <div className="speaker-section-title">קטגוריה</div>
-                <div className="speaker-category-row">
-                  {(Object.entries(CATEGORY_CONFIG) as [SpeakerCategory, typeof CATEGORY_CONFIG[SpeakerCategory]][]).map(([key, cfg]) => (
-                    <button
-                      key={key}
-                      className={`speaker-category-btn ${category === key ? 'active' : ''}`}
-                      style={category === key ? { background: cfg.bg, color: cfg.color, borderColor: cfg.color } : {}}
-                      onClick={() => { setCategory(key); mark(); }}
-                    >
-                      {cfg.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Contact person */}
-              <div className="speaker-section">
-                <div className="speaker-section-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>איש קשר / נציג</span>
-                  {!contactPerson && (
-                    <button
-                      className="speaker-add-contact-btn"
-                      onClick={() => { setContactPerson({ name: '', role: '', phone: '', email: '' }); mark(); }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span>
-                      הוסף
-                    </button>
-                  )}
-                </div>
-                {contactPerson ? (
-                  <div className="speaker-contact-person-card">
-                    <div className="speaker-field-row">
-                      <div className="speaker-field">
-                        <label className="speaker-label">שם</label>
-                        <input
-                          className="speaker-input"
-                          value={contactPerson.name}
-                          onChange={e => { setContactPerson({ ...contactPerson, name: e.target.value }); mark(); }}
-                          placeholder="שם מלא"
-                        />
-                      </div>
-                      <div className="speaker-field">
-                        <label className="speaker-label">תפקיד</label>
-                        <input
-                          className="speaker-input"
-                          value={contactPerson.role}
-                          onChange={e => { setContactPerson({ ...contactPerson, role: e.target.value }); mark(); }}
-                          placeholder="עוזר אישי, מנהלת לשכה..."
-                        />
-                      </div>
-                    </div>
-                    <div className="speaker-field-row">
-                      <div className="speaker-field">
-                        <label className="speaker-label">טלפון</label>
-                        <div className="speaker-input-wrap">
-                          <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--outline)' }}>phone</span>
-                          <input
-                            className="speaker-input" dir="ltr"
-                            value={contactPerson.phone}
-                            onChange={e => { setContactPerson({ ...contactPerson, phone: e.target.value }); mark(); }}
-                            placeholder="050-0000000"
-                          />
-                        </div>
-                      </div>
-                      <div className="speaker-field">
-                        <label className="speaker-label">אימייל</label>
-                        <div className="speaker-input-wrap">
-                          <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--outline)' }}>mail</span>
-                          <input
-                            className="speaker-input" dir="ltr" type="email"
-                            value={contactPerson.email}
-                            onChange={e => { setContactPerson({ ...contactPerson, email: e.target.value }); mark(); }}
-                            placeholder="email@example.com"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      className="speaker-remove-contact-btn"
-                      onClick={() => { setContactPerson(null); mark(); }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: 14 }}>delete</span>
-                      הסר איש קשר
-                    </button>
-                  </div>
-                ) : (
-                  <div className="speaker-no-contact">
-                    <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--outline-variant)' }}>person_off</span>
-                    <span>לא הוגדר איש קשר</span>
-                  </div>
-                )}
               </div>
 
               {/* Bio */}

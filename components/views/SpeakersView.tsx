@@ -2,13 +2,7 @@
 
 import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
-import { Speaker, SpeakerApprovalStatus, SpeakerCategory } from '@/lib/types';
-
-const CATEGORY_CONFIG: Record<SpeakerCategory, { label: string; color: string; bg: string }> = {
-  commercial: { label: 'מסחרי',      color: '#0073ea', bg: '#e6f2ff' },
-  systemic:   { label: 'מערכתי',     color: '#9c27b0', bg: '#f3e5f5' },
-  paid:        { label: 'מרצה משלם', color: '#e65100', bg: '#fff3e0' },
-};
+import { Speaker, SpeakerApprovalStatus } from '@/lib/types';
 
 const APPROVAL_STYLE: Record<SpeakerApprovalStatus, { label: string; color: string; bg: string; icon: string }> = {
   approved:  { label: 'מאושר',   color: '#16a34a', bg: '#f0fdf4', icon: 'check_circle' },
@@ -54,26 +48,12 @@ function SpeakerCard({ speaker }: { speaker: Speaker }) {
 
       {/* Info */}
       <div className="speaker-card-info">
-        <div className="speaker-card-name-row">
-          <div className="speaker-card-name">{speaker.name}</div>
-          <span
-            className="speaker-category-badge"
-            style={{ color: CATEGORY_CONFIG[speaker.category].color, background: CATEGORY_CONFIG[speaker.category].bg }}
-          >
-            {CATEGORY_CONFIG[speaker.category].label}
-          </span>
-        </div>
+        <div className="speaker-card-name">{speaker.name}</div>
         <div className="speaker-card-title">{speaker.jobTitle}</div>
         <div className="speaker-card-org">
           <span className="material-symbols-outlined" style={{ fontSize: 12 }}>business</span>
           {speaker.organization}
         </div>
-        {speaker.contactPerson && (
-          <div className="speaker-card-contact">
-            <span className="material-symbols-outlined" style={{ fontSize: 12 }}>support_agent</span>
-            {speaker.contactPerson.name} · {speaker.contactPerson.phone}
-          </div>
-        )}
       </div>
 
       {/* Checklist row */}
@@ -114,7 +94,6 @@ function SpeakerCard({ speaker }: { speaker: Speaker }) {
 export function SpeakersView() {
   const { state, dispatch } = useStore();
   const [search, setSearch] = useState('');
-  const [filterCategory, setFilterCategory] = useState<'all' | SpeakerCategory>('all');
   const [filterApproval, setFilterApproval] = useState<'all' | SpeakerApprovalStatus>('all');
   const [filterCV, setFilterCV] = useState<'all' | 'received' | 'pending'>('all');
   const [filterPhoto, setFilterPhoto] = useState<'all' | 'uploaded' | 'missing'>('all');
@@ -122,7 +101,6 @@ export function SpeakersView() {
 
   const filtered = state.speakers.filter(s => {
     if (search && !s.name.includes(search) && !s.organization.includes(search) && !s.jobTitle.includes(search)) return false;
-    if (filterCategory !== 'all' && s.category !== filterCategory) return false;
     if (filterApproval !== 'all' && s.approvalStatus !== filterApproval) return false;
     if (filterCV !== 'all' && s.cvStatus !== filterCV) return false;
     if (filterPhoto !== 'all' && s.photoStatus !== filterPhoto) return false;
@@ -153,8 +131,6 @@ export function SpeakersView() {
         approvalStatus: 'pending',
         cvStatus: 'pending',
         photoStatus: 'missing',
-        category: 'commercial',
-        contactPerson: null,
         panelIds: [],
         eventIds: state.activeEventId ? [state.activeEventId] : [],
         tags: [],
@@ -201,12 +177,6 @@ export function SpeakersView() {
         </div>
 
         <div className="speakers-filters">
-          <select className="speakers-filter-select" value={filterCategory} onChange={e => setFilterCategory(e.target.value as any)}>
-            <option value="all">כל הקטגוריות</option>
-            <option value="commercial">מסחרי</option>
-            <option value="systemic">מערכתי</option>
-            <option value="paid">מרצה משלם</option>
-          </select>
           <select className="speakers-filter-select" value={filterApproval} onChange={e => setFilterApproval(e.target.value as any)}>
             <option value="all">כל הסטטוסים</option>
             <option value="approved">מאושר</option>

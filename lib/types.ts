@@ -8,7 +8,6 @@ export type Department = 'operations' | 'sales' | 'marketing' | 'design' | 'cont
 export type SpeakerApprovalStatus = 'approved' | 'pending' | 'cancelled';
 export type SpeakerCVStatus = 'received' | 'pending';
 export type SpeakerPhotoStatus = 'uploaded' | 'missing';
-export type SpeakerCategory = 'commercial' | 'systemic' | 'paid';
 export type PanelFormat = 'panel' | 'lecture' | 'interview' | 'video' | 'discussion';
 export type PanelStatus = 'draft' | 'confirmed' | 'cancelled';
 export type EventStatus = 'draft' | 'active' | 'completed' | 'archived';
@@ -16,7 +15,6 @@ export type CRMView = 'contacts' | 'deals';
 export type DealStage = 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'closed_won' | 'closed_lost';
 export type ContactStatus = 'prospect' | 'active' | 'customer' | 'inactive';
 export type ContactType = 'developer' | 'lawyer' | 'infrastructure' | 'appraiser' | 'other';
-export type ProjectCategory = 'marketing' | 'promotion' | 'social' | 'design' | 'bizdev';
 export type AutomationTrigger = 'task_created' | 'status_changed' | 'due_date_passed' | 'deal_stage_changed' | 'task_assigned';
 export type AutomationActionType = 'send_notification' | 'change_status' | 'assign_to' | 'move_deal_stage' | 'create_task';
 
@@ -162,7 +160,6 @@ export interface Project {
   memberIds: string[];
   defaultView: BoardView;
   eventId: string | null;
-  category: ProjectCategory | null;  // null = general project under events
   createdAt: string;
   updatedAt: string;
 }
@@ -328,13 +325,6 @@ export interface ActivityLog {
 
 // ===================== SPEAKERS & PANELS =====================
 
-export interface SpeakerContact {
-  name: string;
-  role: string;   // e.g. עוזר אישי, מנהלת לוח זמנים
-  phone: string;
-  email: string;
-}
-
 export interface Speaker {
   id: string;
   name: string;
@@ -349,8 +339,6 @@ export interface Speaker {
   approvalStatus: SpeakerApprovalStatus;
   cvStatus: SpeakerCVStatus;
   photoStatus: SpeakerPhotoStatus;
-  category: SpeakerCategory;
-  contactPerson: SpeakerContact | null;
   panelIds: string[];
   eventIds: string[];
   tags: string[];

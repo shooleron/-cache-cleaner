@@ -35,24 +35,7 @@ function AppContent() {
   const renderMainContent = () => {
     if (state.activeSection === 'dashboard') return <DashboardView />;
     if (state.activeSection === 'my-tasks') return <MyTasksView />;
-    if (state.activeSection === 'rd') return <MyTasksView />;
-    if (state.activeSection === 'marketing' || state.activeSection === 'promotion' || state.activeSection === 'social' || state.activeSection === 'design' || state.activeSection === 'bizdev') {
-      const mktProject = state.activeProjectId ? state.projects?.find((p: any) => p.id === state.activeProjectId) : null;
-      const hasMktProject = mktProject && mktProject.category !== null;
-      if (!hasMktProject) return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 12, color: 'var(--on-surface-variant)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--outline-variant)' }}>campaign</span>
-          <p style={{ fontSize: 15, fontWeight: 600 }}>בחר פרויקט שיווקי מהסרגל הצדדי</p>
-          <p style={{ fontSize: 13 }}>כל משימה מקושרת לפרויקט — עצמאי או מקושר לאירוע</p>
-        </div>
-      );
-      switch (state.activeView) {
-        case 'kanban': return <KanbanView />;
-        case 'roadmap': return <RoadmapView />;
-        case 'calendar': return <CalendarView />;
-        default: return <TableView />;
-      }
-    }
+    if (state.activeSection === 'marketing' || state.activeSection === 'promotion' || state.activeSection === 'social' || state.activeSection === 'design' || state.activeSection === 'bizdev' || state.activeSection === 'rd') return <MyTasksView />;
     if (state.activeSection === 'crm') {
       return state.activeCRMView === 'deals' ? <DealsView /> : <ContactsView />;
     }

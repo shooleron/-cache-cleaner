@@ -1,4 +1,4 @@
-import { AppState, Task, Group, Project, User, Notification, Contact, Deal, AutomationRule, Event, Campaign, Speaker, Panel, SponsorshipProduct, Brand, ContactType, ProjectCategory } from './types';
+import { AppState, Task, Group, Project, User, Notification, Contact, Deal, AutomationRule, Event, Campaign, Speaker, Panel, SponsorshipProduct, Brand, ContactType } from './types';
 
 export const MOCK_USERS: User[] = [
   { id: 'user-1', name: 'יורי אלט', email: 'yuri@atelier.co.il', avatar: 'יא', color: '#0073ea', role: 'owner', status: 'active', jobTitle: 'מנכ"ל', department: 'management' },
@@ -64,21 +64,10 @@ export const MOCK_EVENTS: Event[] = [
   },
 ];
 
-const P = (p: Omit<Project, 'category'> & { category?: ProjectCategory | null }): Project => ({ ...p, category: p.category ?? null });
-
 export const MOCK_PROJECTS: Project[] = [
-  // ── General event projects (operations) ──
-  P({ id: 'proj-1', name: 'תפעול כנס נדל"ן', description: 'ניהול תפעול כנס נדל"ן ישראל', color: '#0073ea', icon: '🗂️', memberIds: ['user-1', 'user-2', 'user-3'], defaultView: 'table', eventId: 'event-1', createdAt: '2026-01-15T10:00:00Z', updatedAt: '2026-03-10T12:00:00Z' }),
-  P({ id: 'proj-2', name: 'תפעול כנס טק', description: 'ניהול תפעול כנס הטכנולוגיה', color: '#e2445c', icon: '⚙️', memberIds: ['user-1', 'user-2', 'user-4'], defaultView: 'kanban', eventId: 'event-2', createdAt: '2026-02-01T09:00:00Z', updatedAt: '2026-03-15T08:00:00Z' }),
-
-  // ── Marketing projects linked to events ──
-  P({ id: 'proj-mkt-1', name: 'שיווק — כנס נדל"ן', description: 'אסטרטגיית שיווק וקמפיינים לכנס הנדל"ן', color: '#00c875', icon: '📣', memberIds: ['user-1', 'user-3', 'user-5'], defaultView: 'table', eventId: 'event-1', category: 'marketing', createdAt: '2026-01-20T09:00:00Z', updatedAt: '2026-03-12T09:00:00Z' }),
-  P({ id: 'proj-promo-1', name: 'קידום ממומן — כנס נדל"ן', description: 'גוגל, פייסבוק, לינקדאין ADS', color: '#fdab3d', icon: '🎯', memberIds: ['user-1', 'user-4'], defaultView: 'table', eventId: 'event-1', category: 'promotion', createdAt: '2026-01-22T09:00:00Z', updatedAt: '2026-03-14T09:00:00Z' }),
-  P({ id: 'proj-social-1', name: 'סושיאל — כנס טק', description: 'ניהול סושיאל מדיה לכנס הטכנולוגיה', color: '#9c27b0', icon: '📱', memberIds: ['user-2', 'user-3'], defaultView: 'kanban', eventId: 'event-2', category: 'social', createdAt: '2026-02-05T09:00:00Z', updatedAt: '2026-03-16T09:00:00Z' }),
-
-  // ── Standalone marketing projects (no event) ──
-  P({ id: 'proj-design-s', name: 'עיצוב מותג 2026', description: 'חידוש זהות מותג וחומרי עיצוב שנתיים', color: '#e91e63', icon: '🎨', memberIds: ['user-2', 'user-5'], defaultView: 'table', eventId: null, category: 'design', createdAt: '2026-01-10T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z' }),
-  P({ id: 'proj-bizdev-s', name: 'פיתוח עסקי Q2', description: 'שותפויות, נותני חסות ולידים עסקיים', color: '#ff5722', icon: '🤝', memberIds: ['user-1', 'user-4'], defaultView: 'table', eventId: null, category: 'bizdev', createdAt: '2026-02-01T09:00:00Z', updatedAt: '2026-03-22T09:00:00Z' }),
+  { id: 'proj-1', name: 'Website Redesign', description: 'Complete overhaul of the company website', color: '#0073ea', icon: '🌐', memberIds: ['user-1', 'user-2', 'user-3'], defaultView: 'table', eventId: 'event-1', createdAt: '2026-01-15T10:00:00Z', updatedAt: '2026-03-10T12:00:00Z' },
+  { id: 'proj-2', name: 'Mobile App Launch', description: 'Product launch plan for Q2', color: '#e2445c', icon: '📱', memberIds: ['user-1', 'user-2', 'user-4'], defaultView: 'kanban', eventId: 'event-1', createdAt: '2026-02-01T09:00:00Z', updatedAt: '2026-03-15T08:00:00Z' },
+  { id: 'proj-3', name: 'Marketing Campaign', description: 'Q2 marketing initiatives', color: '#fdab3d', icon: '📣', memberIds: ['user-1', 'user-3'], defaultView: 'roadmap', eventId: 'event-2', createdAt: '2026-03-01T11:00:00Z', updatedAt: '2026-03-17T14:00:00Z' },
 ];
 
 export const MOCK_CAMPAIGNS: Campaign[] = [
@@ -182,8 +171,6 @@ export const MOCK_SPEAKERS: Speaker[] = [
     bio: 'יזם ומשקיע נדל"ן עם ניסיון של מעל 20 שנה בשוק הישראלי. מייסד קבוצת הנגב.', email: 'naor@hanegev.co.il', phone: '050-1234567',
     avatar: 'נב', photoUrl: null, cvUrl: null,
     approvalStatus: 'approved', cvStatus: 'received', photoStatus: 'uploaded',
-    category: 'commercial',
-    contactPerson: { name: 'ליאת בן-דוד', role: 'עוזרת אישית', phone: '050-1234568', email: 'liat@hanegev.co.il' },
     panelIds: ['panel-1', 'panel-2'], eventIds: ['event-1'], tags: ['נדל"ן', 'יזמות'], notes: 'מגיע עם עוזר אישי. יש לשריין חניה VIP.', createdAt: '2026-01-10T09:00:00Z', updatedAt: '2026-03-15T09:00:00Z',
   },
   {
@@ -191,8 +178,6 @@ export const MOCK_SPEAKERS: Speaker[] = [
     bio: 'מומחית בדיני מקרקעין ומיסוי נדל"ן. מרצה בקורסים מקצועיים ברחבי הארץ.', email: 'michal@shapira-law.co.il', phone: '052-9876543',
     avatar: 'מש', photoUrl: null, cvUrl: null,
     approvalStatus: 'approved', cvStatus: 'received', photoStatus: 'missing',
-    category: 'paid',
-    contactPerson: { name: 'אורן שפירא', role: 'מנהל לוח זמנים', phone: '052-9876540', email: 'oren@shapira-law.co.il' },
     panelIds: ['panel-1'], eventIds: ['event-1'], tags: ['משפט', 'מיסוי'], notes: '', createdAt: '2026-01-12T10:00:00Z', updatedAt: '2026-03-10T10:00:00Z',
   },
   {
@@ -200,8 +185,6 @@ export const MOCK_SPEAKERS: Speaker[] = [
     bio: 'בכיר בתחום המימון הנדל"ני. מוביל את אסטרטגיית המשכנתאות בלאומי.', email: 'avi.cohen@leumi.co.il', phone: '054-1112233',
     avatar: 'אכ', photoUrl: null, cvUrl: null,
     approvalStatus: 'pending', cvStatus: 'pending', photoStatus: 'missing',
-    category: 'systemic',
-    contactPerson: { name: 'נועה כהן', role: 'דוברת הבנק', phone: '054-1112200', email: 'noa.pr@leumi.co.il' },
     panelIds: ['panel-2'], eventIds: ['event-1'], tags: ['מימון', 'בנקאות'], notes: 'מחכה לאישור מהדוברת ראשית של הבנק.', createdAt: '2026-02-01T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z',
   },
   {
@@ -209,8 +192,6 @@ export const MOCK_SPEAKERS: Speaker[] = [
     bio: 'כלכלנית ראשית במשרד האוצר, מנהלת מחלקת מדיניות דיור וקרקעות.', email: 'ruth.levy@mof.gov.il', phone: '053-4445566',
     avatar: 'רל', photoUrl: null, cvUrl: null,
     approvalStatus: 'approved', cvStatus: 'received', photoStatus: 'uploaded',
-    category: 'systemic',
-    contactPerson: { name: 'יוסי מלכה', role: 'רכז תקשורת', phone: '053-4445500', email: 'yossi.m@mof.gov.il' },
     panelIds: ['panel-3'], eventIds: ['event-1'], tags: ['ממשלה', 'מדיניות', 'כלכלה'], notes: '', createdAt: '2026-01-20T09:00:00Z', updatedAt: '2026-03-18T09:00:00Z',
   },
   {
@@ -218,8 +199,6 @@ export const MOCK_SPEAKERS: Speaker[] = [
     bio: 'יזם טק סדרתי. מייסד פלטפורמת PropTech המובילה בישראל לניהול נכסים דיגיטלי.', email: 'danny@proptech.co.il', phone: '050-7778899',
     avatar: 'דב', photoUrl: null, cvUrl: null,
     approvalStatus: 'approved', cvStatus: 'received', photoStatus: 'uploaded',
-    category: 'commercial',
-    contactPerson: null,
     panelIds: ['panel-3', 'panel-4'], eventIds: ['event-1', 'event-2'], tags: ['טכנולוגיה', 'PropTech', 'סטארטאפ'], notes: 'יכול להציג demo של הפלטפורמה.', createdAt: '2026-01-25T09:00:00Z', updatedAt: '2026-03-22T09:00:00Z',
   },
   {
@@ -227,8 +206,6 @@ export const MOCK_SPEAKERS: Speaker[] = [
     bio: 'ראש עיר אילת. מוביל פרויקטי פיתוח מהגדולים בנגב ובאזור הדרום.', email: 'mayor@eilat.muni.il', phone: '08-6361444',
     avatar: 'שמ', photoUrl: null, cvUrl: null,
     approvalStatus: 'pending', cvStatus: 'pending', photoStatus: 'missing',
-    category: 'systemic',
-    contactPerson: { name: 'טל גרינברג', role: 'מנהלת לשכה', phone: '08-6361400', email: 'tal.g@eilat.muni.il' },
     panelIds: [], eventIds: ['event-1'], tags: ['ממשל', 'פיתוח', 'דרום'], notes: 'ממתינים לאישור לוח זמנים מהלשכה.', createdAt: '2026-02-10T09:00:00Z', updatedAt: '2026-03-25T09:00:00Z',
   },
 ];
