@@ -415,9 +415,9 @@ function TaskRow({ task, cols, totalWidth }: { task: Task; cols: ColDef[]; total
   );
 }
 
-// ── GroupSection ─────────────────────────────────────────────────
-function GroupSection({ groupId, projectId, cols, totalWidth }: {
-  groupId: string; projectId: string; cols: ColDef[]; totalWidth: number;
+// ── GroupSection — renders as <tbody> inside the shared full-width table ─
+function GroupSection({ groupId, projectId, cols }: {
+  groupId: string; projectId: string; cols: ColDef[];
 }) {
   const { state, dispatch } = useStore();
   const [collapsed, setCollapsed] = useState(false);
@@ -430,6 +430,8 @@ function GroupSection({ groupId, projectId, cols, totalWidth }: {
   const tasks = state.tasks.filter(t => t.groupId === groupId).sort((a, b) => a.order - b.order);
   if (!group) return null;
 
+  const colSpan = cols.length + 1; // +actions col
+
   const handleAddTask = () => {
     if (newTaskTitle.trim()) {
       dispatch({ type: 'CREATE_TASK', payload: { projectId, groupId, title: newTaskTitle.trim() } });
@@ -439,61 +441,61 @@ function GroupSection({ groupId, projectId, cols, totalWidth }: {
   };
 
   return (
-    <div className="table-group">
-      {/* Group header — spans full width */}
-      <div className="table-group-header" style={{ minWidth: totalWidth }}>
-        <button className="group-collapse-btn" onClick={() => setCollapsed(c => !c)}>
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
-            {collapsed ? 'chevron_right' : 'expand_more'}
-          </span>
-        </button>
-        <span className="group-color-swatch" style={{ background: group.color }} />
-        {editingName ? (
-          <input className="group-name-input" value={groupName}
-            onChange={e => setGroupName(e.target.value)}
-            onBlur={() => {
-              setEditingName(false);
-              if (groupName.trim() && groupName !== group.name)
-                dispatch({ type: 'UPDATE_GROUP', payload: { id: groupId, name: groupName.trim() } });
-            }}
-            onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); if (e.key === 'Escape') setEditingName(false); }}
-            style={{ color: group.color }} autoFocus />
-        ) : (
-          <span className="group-name" style={{ color: group.color }}
-            onDoubleClick={() => { setGroupName(group.name); setEditingName(true); }}>
-            {group.name}
-          </span>
-        )}
-        <span className="group-task-count">{tasks.length} פריטים</span>
-      </div>
+    <tbody className="table-group">
+      {/* Group header row */}
+      <tr className="table-group-header-row" style={{ borderRight: `3px solid ${group.color}` }}>
+        <td colSpan={colSpan} className="table-group-header-cell">
+          <div className="table-group-header">
+            <button className="group-collapse-btn" onClick={() => setCollapsed(c => !c)}>
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
+                {collapsed ? 'chevron_left' : 'expand_more'}
+              </span>
+            </button>
+            <span className="group-color-swatch" style={{ background: group.color }} />
+            {editingName ? (
+              <input className="group-name-input" value={groupName}
+                onChange={e => setGroupName(e.target.value)}
+                onBlur={() => {
+                  setEditingName(false);
+                  if (groupName.trim() && groupName !== group.name)
+                    dispatch({ type: 'UPDATE_GROUP', payload: { id: groupId, name: groupName.trim() } });
+                }}
+                onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); if (e.key === 'Escape') setEditingName(false); }}
+                style={{ color: group.color }} autoFocus />
+            ) : (
+              <span className="group-name" style={{ color: group.color }}
+                onDoubleClick={() => { setGroupName(group.name); setEditingName(true); }}>
+                {group.name}
+              </span>
+            )}
+            <span className="group-task-count">{tasks.length} פריטים</span>
+          </div>
+        </td>
+      </tr>
 
       {!collapsed && (
         <>
-          <table className="table-view" style={{ width: totalWidth, tableLayout: 'fixed' }}>
-            <colgroup>
-              {cols.map(col => <col key={col.id} style={{ width: col.width }} />)}
-              <col style={{ width: 40 }} />
-            </colgroup>
-            <tbody>
-              {tasks.map(task => <TaskRow key={task.id} task={task} cols={cols} totalWidth={totalWidth} />)}
-              {addingTask && (
-                <tr className="table-row">
-                  <td className="table-cell task-name-cell" colSpan={cols.length + 1}>
-                    <input className="new-task-input" placeholder="שם משימה..." value={newTaskTitle}
-                      onChange={e => setNewTaskTitle(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter') handleAddTask(); if (e.key === 'Escape') setAddingTask(false); }}
-                      onBlur={handleAddTask} autoFocus />
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-          <button className="add-task-btn" style={{ marginRight: 32 }} onClick={() => setAddingTask(true)}>
-            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span> הוסף פריט
-          </button>
+          {tasks.map(task => <TaskRow key={task.id} task={task} cols={cols} totalWidth={0} />)}
+          {addingTask && (
+            <tr className="table-row">
+              <td className="table-cell task-name-cell" colSpan={colSpan}>
+                <input className="new-task-input" placeholder="שם משימה..." value={newTaskTitle}
+                  onChange={e => setNewTaskTitle(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleAddTask(); if (e.key === 'Escape') setAddingTask(false); }}
+                  onBlur={handleAddTask} autoFocus />
+              </td>
+            </tr>
+          )}
+          <tr className="table-add-task-row">
+            <td colSpan={colSpan}>
+              <button className="add-task-btn" onClick={() => setAddingTask(true)}>
+                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span> הוסף פריט
+              </button>
+            </td>
+          </tr>
         </>
       )}
-    </div>
+    </tbody>
   );
 }
 
@@ -505,7 +507,7 @@ export function TableView() {
   const [addingGroup, setAddingGroup] = useState(false);
   const [showColPicker, setShowColPicker] = useState(false);
   const [dragOver, setDragOver] = useState<number | null>(null);
-  const pickerRef = useRef<HTMLDivElement>(null);
+  const pickerRef = useRef<HTMLTableHeaderCellElement>(null);
 
   const dragColIdx = useRef<number | null>(null);
   const resizingIdx = useRef<number | null>(null);
@@ -581,7 +583,7 @@ export function TableView() {
     }
   };
 
-  const totalWidth = cols.reduce((sum, c) => sum + c.width, 0) + 40 + 44; // +actions col +add-col btn
+  const totalWidth = cols.reduce((sum, c) => sum + c.width, 0) + 40; // kept for resize ref, not used for table width
 
   const handleAddGroup = () => {
     if (newGroupName.trim() && state.activeProjectId) {
@@ -592,79 +594,86 @@ export function TableView() {
 
   return (
     <div className="table-view-container" dir="rtl">
-      {/* Horizontally scrollable area */}
       <div className="table-scroll-wrap">
-        {/* Column header bar */}
-        <div className="table-col-header-row" style={{ minWidth: totalWidth }}>
-          {/* Title col header — rightmost, fixed */}
-          {cols.map((col, idx) => (
-            <div key={col.id}
-              className={`table-col-header${dragOver === idx ? ' col-drag-over' : ''}`}
-              style={{ width: col.width, minWidth: col.width, maxWidth: col.width }}
-              draggable={!col.fixed}
-              onDragStart={e => onDragStart(e, idx)}
-              onDragOver={e => onDragOver(e, idx)}
-              onDrop={e => onDrop(e, idx)}
-              onDragEnd={() => { setDragOver(null); dragColIdx.current = null; }}
-            >
-              <span className="col-header-label">{col.label}</span>
-              {!col.fixed && (
-                <>
-                  <span className="col-drag-handle" title="גרור להזזה">
-                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>drag_indicator</span>
-                  </span>
-                  <button className="col-remove-btn" onClick={() => setCols(prev => prev.filter(c => c.id !== col.id))} title="הסר עמודה">×</button>
-                </>
-              )}
-              {/* Resize handle — left edge (RTL) */}
-              <div className="col-resize-handle" onMouseDown={e => onResizeMouseDown(e, idx)} />
-            </div>
+        <table className="table-view" style={{ width: '100%', tableLayout: 'fixed' }}>
+          <colgroup>
+            {cols.map((col, i) => (
+              <col key={col.id} style={{ width: i === 0 ? undefined : col.width }} />
+            ))}
+            <col style={{ width: 40 }} />
+            <col style={{ width: 44 }} />
+          </colgroup>
+
+          {/* Column header */}
+          <thead>
+            <tr className="table-col-header-row">
+              {cols.map((col, idx) => (
+                <th key={col.id}
+                  className={`table-col-header${dragOver === idx ? ' col-drag-over' : ''}`}
+                  draggable={!col.fixed}
+                  onDragStart={e => onDragStart(e, idx)}
+                  onDragOver={e => onDragOver(e, idx)}
+                  onDrop={e => onDrop(e, idx)}
+                  onDragEnd={() => { setDragOver(null); dragColIdx.current = null; }}
+                >
+                  <span className="col-header-label">{col.label}</span>
+                  {!col.fixed && (
+                    <>
+                      <span className="col-drag-handle" title="גרור להזזה">
+                        <span className="material-symbols-outlined" style={{ fontSize: 14 }}>drag_indicator</span>
+                      </span>
+                      <button className="col-remove-btn" onClick={() => setCols(prev => prev.filter(c => c.id !== col.id))} title="הסר עמודה">×</button>
+                    </>
+                  )}
+                  <div className="col-resize-handle" onMouseDown={e => onResizeMouseDown(e, idx)} />
+                </th>
+              ))}
+              {/* Actions col */}
+              <th className="table-col-header" style={{ width: 40 }} />
+              {/* Add column */}
+              <th className="table-col-header add-col-header" style={{ width: 44, position: 'relative' }} ref={pickerRef}>
+                <button className="add-col-btn" onClick={() => setShowColPicker(o => !o)} title="הצג / הסתר עמודות">
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>view_column</span>
+                </button>
+                {showColPicker && (
+                  <ColPickerCheckbox
+                    visibleIds={visibleIds}
+                    onToggle={handleColToggle}
+                    onClose={() => setShowColPicker(false)}
+                  />
+                )}
+              </th>
+            </tr>
+          </thead>
+
+          {/* Group sections — each group = one <tbody> */}
+          {projectGroups.map(group => (
+            <GroupSection
+              key={group.id}
+              groupId={group.id}
+              projectId={state.activeProjectId!}
+              cols={cols}
+            />
           ))}
-          {/* Actions col spacer */}
-          <div className="table-col-header" style={{ width: 40, minWidth: 40, flex: 'none' }} />
-          {/* Add column button — leftmost in RTL */}
-          {/* Filler to fill remaining space */}
-          <div className="table-filler-col" />
-          <div className="table-col-header add-col-header" style={{ width: 44, minWidth: 44, flex: 'none', position: 'relative' }} ref={pickerRef}>
-            <button className="add-col-btn" onClick={() => setShowColPicker(o => !o)} title="הצג / הסתר עמודות">
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>view_column</span>
-            </button>
-            {showColPicker && (
-              <ColPickerCheckbox
-                visibleIds={visibleIds}
-                onToggle={handleColToggle}
-                onClose={() => setShowColPicker(false)}
-              />
-            )}
-          </div>
-        </div>
 
-        {/* Group sections */}
-        {projectGroups.map(group => (
-          <GroupSection
-            key={group.id}
-            groupId={group.id}
-            projectId={state.activeProjectId!}
-            cols={cols}
-            totalWidth={totalWidth}
-          />
-        ))}
-      </div>
-
-      {/* Add group — outside scroll */}
-      <div className="table-add-group-area">
-        {addingGroup ? (
-          <div className="add-group-row">
-            <input className="new-task-input" placeholder="שם קבוצה..." value={newGroupName}
-              onChange={e => setNewGroupName(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') handleAddGroup(); if (e.key === 'Escape') setAddingGroup(false); }}
-              onBlur={handleAddGroup} autoFocus />
-          </div>
-        ) : (
-          <button className="add-group-btn" onClick={() => setAddingGroup(true)}>
-            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>add</span> הוסף קבוצה
-          </button>
-        )}
+          {/* Add group row */}
+          <tbody>
+            <tr>
+              <td colSpan={cols.length + 2} className="table-add-group-cell">
+                {addingGroup ? (
+                  <input className="new-task-input" placeholder="שם קבוצה..." value={newGroupName}
+                    onChange={e => setNewGroupName(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') handleAddGroup(); if (e.key === 'Escape') setAddingGroup(false); }}
+                    onBlur={handleAddGroup} autoFocus />
+                ) : (
+                  <button className="add-group-btn" onClick={() => setAddingGroup(true)}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 15 }}>add</span> הוסף קבוצה
+                  </button>
+                )}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   );
