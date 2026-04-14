@@ -9,6 +9,11 @@ export function TopBar() {
   const activeProject = state.projects.find(p => p.id === state.activeProjectId);
   const activeEvent = state.events?.find(e => e.id === state.activeEventId);
 
+  const isMktSection = ['marketing','promotion','social','design','bizdev'].includes(state.activeSection);
+  const mktProject = isMktSection && state.activeProjectId
+    ? state.projects.find(p => p.id === state.activeProjectId && p.category !== null)
+    : null;
+
   const sectionTitles: Record<string, string> = {
     dashboard: 'תפעול פנימי',
     crm: 'מכירות ו-CRM',
@@ -16,6 +21,11 @@ export function TopBar() {
     events: activeProject?.name || 'אירועים',
     users: 'משתמשים',
     ai: 'AI אסיסטנט',
+    marketing: mktProject ? mktProject.name : 'מרכז שיווק',
+    promotion: mktProject ? mktProject.name : 'מרכז שיווק',
+    social: mktProject ? mktProject.name : 'מרכז שיווק',
+    design: mktProject ? mktProject.name : 'מרכז שיווק',
+    bizdev: mktProject ? mktProject.name : 'מרכז שיווק',
   };
 
   const views: { value: BoardView; label: string }[] = [
@@ -56,6 +66,29 @@ export function TopBar() {
               </span>
             ))}
           </nav>
+        )}
+
+        {isMktSection && mktProject && (
+          <>
+            <button
+              className="topbar-back-btn"
+              onClick={() => dispatch({ type: 'CLEAR_ACTIVE_PROJECT' })}
+              title="חזור למרכז השיווק"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_forward</span>
+            </button>
+            <nav className="topbar-nav">
+              {views.map(v => (
+                <span
+                  key={v.value}
+                  className={`topbar-nav-link ${state.activeView === v.value ? 'active' : ''}`}
+                  onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: v.value })}
+                >
+                  {v.label}
+                </span>
+              ))}
+            </nav>
+          </>
         )}
 
         {state.activeSection === 'crm' && (

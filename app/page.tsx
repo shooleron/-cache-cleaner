@@ -14,6 +14,7 @@ import { AutomationsPanel } from '@/components/automations/AutomationsPanel';
 import { UsersView } from '@/components/views/UsersView';
 import { SpeakersView } from '@/components/views/SpeakersView';
 import { MyTasksView } from '@/components/views/MyTasksView';
+import { MarketingHubView } from '@/components/views/MarketingHubView';
 import { EventsView } from '@/components/views/EventsView';
 import { SpeakerModal } from '@/components/modals/SpeakerModal';
 import { AIAgentPanel } from '@/components/ai/AIAgentPanel';
@@ -35,7 +36,22 @@ function AppContent() {
   const renderMainContent = () => {
     if (state.activeSection === 'dashboard') return <DashboardView />;
     if (state.activeSection === 'my-tasks') return <MyTasksView />;
-    if (state.activeSection === 'marketing' || state.activeSection === 'promotion' || state.activeSection === 'social' || state.activeSection === 'design' || state.activeSection === 'bizdev' || state.activeSection === 'rd') return <MyTasksView />;
+    if (state.activeSection === 'rd') return <MyTasksView />;
+    if (state.activeSection === 'marketing' || state.activeSection === 'promotion' || state.activeSection === 'social' || state.activeSection === 'design' || state.activeSection === 'bizdev') {
+      // If active project has a marketing category → show board view
+      const mktProject = state.activeProjectId
+        ? state.projects?.find((p: any) => p.id === state.activeProjectId)
+        : null;
+      if (mktProject?.category) {
+        switch (state.activeView) {
+          case 'kanban': return <KanbanView />;
+          case 'roadmap': return <RoadmapView />;
+          case 'calendar': return <CalendarView />;
+          default: return <TableView />;
+        }
+      }
+      return <MarketingHubView />;
+    }
     if (state.activeSection === 'crm') {
       return state.activeCRMView === 'deals' ? <DealsView /> : <ContactsView />;
     }

@@ -1,7 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
+import { ProjectCategory } from '@/lib/types';
+
+const CATEGORY_LABELS: Record<ProjectCategory, string> = {
+  marketing: 'שיווק', promotion: 'קידום', social: 'סושיאל', design: 'עיצוב', bizdev: 'פיתוח עסקי',
+};
 
 const PROJECT_COLORS = [
   '#0073ea', '#e2445c', '#fdab3d', '#00c875', '#9c27b0',
@@ -16,6 +21,15 @@ export function NewProjectModal() {
   const [description, setDescription] = useState('');
   const [color, setColor] = useState(PROJECT_COLORS[0]);
   const [icon, setIcon] = useState(PROJECT_ICONS[0]);
+  const [linkedEventId, setLinkedEventId] = useState<string | null>(null);
+
+  const category = state.newProjectCategory;
+
+  useEffect(() => {
+    if (state.newProjectModalOpen) {
+      setLinkedEventId(category ? null : (state.activeEventId || null));
+    }
+  }, [state.newProjectModalOpen]);
 
   if (!state.newProjectModalOpen) return null;
 
@@ -23,12 +37,21 @@ export function NewProjectModal() {
     if (!name.trim()) return;
     dispatch({
       type: 'CREATE_PROJECT',
-      payload: { name: name.trim(), description: description.trim(), color, icon, defaultView: 'table', eventId: state.activeEventId },
+      payload: {
+        name: name.trim(),
+        description: description.trim(),
+        color,
+        icon,
+        defaultView: 'table',
+        category,
+        eventId: category ? linkedEventId : state.activeEventId,
+      },
     });
     setName('');
     setDescription('');
     setColor(PROJECT_COLORS[0]);
     setIcon(PROJECT_ICONS[0]);
+    setLinkedEventId(null);
   };
 
   return (
@@ -38,10 +61,27 @@ export function NewProjectModal() {
           <button className="modal-close-btn" onClick={() => dispatch({ type: 'CLOSE_NEW_PROJECT_MODAL' })}>
             <span className="material-symbols-outlined">close</span>
           </button>
-          <h2>פרויקט חדש</h2>
+          <h2>{category ? `פרויקט ${CATEGORY_LABELS[category]} חדש` : 'פרויקט חדש'}</h2>
         </div>
 
         <div className="small-modal-body">
+          {/* Event link — for marketing projects */}
+          {category && (
+            <div className="form-field">
+              <label>קישור לאירוע (אופציונלי)</label>
+              <select
+                className="form-input"
+                value={linkedEventId || ''}
+                onChange={e => setLinkedEventId(e.target.value || null)}
+              >
+                <option value="">ללא אירוע — פרויקט עצמאי</option>
+                {state.events.filter(ev => ev.status !== 'archived').map(ev => (
+                  <option key={ev.id} value={ev.id}>{ev.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Icon picker */}
           <div className="form-field">
             <label>אייקון</label>

@@ -1,4 +1,4 @@
-import { AppState, Task, Group, Project, User, Notification, Contact, Deal, AutomationRule, Event, Campaign, Speaker, Panel, SponsorshipProduct, Brand, ContactType } from './types';
+import { AppState, Task, Group, Project, User, Notification, Contact, Deal, AutomationRule, Event, Campaign, Speaker, Panel, SponsorshipProduct, Brand, ContactType, ProjectCategory } from './types';
 
 export const MOCK_USERS: User[] = [
   { id: 'user-1', name: 'יורי אלט', email: 'yuri@atelier.co.il', avatar: 'יא', color: '#0073ea', role: 'owner', status: 'active', jobTitle: 'מנכ"ל', department: 'management' },
@@ -65,9 +65,19 @@ export const MOCK_EVENTS: Event[] = [
 ];
 
 export const MOCK_PROJECTS: Project[] = [
-  { id: 'proj-1', name: 'Website Redesign', description: 'Complete overhaul of the company website', color: '#0073ea', icon: '🌐', memberIds: ['user-1', 'user-2', 'user-3'], defaultView: 'table', eventId: 'event-1', createdAt: '2026-01-15T10:00:00Z', updatedAt: '2026-03-10T12:00:00Z' },
-  { id: 'proj-2', name: 'Mobile App Launch', description: 'Product launch plan for Q2', color: '#e2445c', icon: '📱', memberIds: ['user-1', 'user-2', 'user-4'], defaultView: 'kanban', eventId: 'event-1', createdAt: '2026-02-01T09:00:00Z', updatedAt: '2026-03-15T08:00:00Z' },
-  { id: 'proj-3', name: 'Marketing Campaign', description: 'Q2 marketing initiatives', color: '#fdab3d', icon: '📣', memberIds: ['user-1', 'user-3'], defaultView: 'roadmap', eventId: 'event-2', createdAt: '2026-03-01T11:00:00Z', updatedAt: '2026-03-17T14:00:00Z' },
+  // תפעול — מתחת לאירועים
+  { id: 'proj-1', name: 'Website Redesign', description: 'Complete overhaul of the company website', color: '#0073ea', icon: '🌐', memberIds: ['user-1', 'user-2', 'user-3'], defaultView: 'table', eventId: 'event-1', category: null, createdAt: '2026-01-15T10:00:00Z', updatedAt: '2026-03-10T12:00:00Z' },
+  { id: 'proj-2', name: 'Mobile App Launch', description: 'Product launch plan for Q2', color: '#e2445c', icon: '📱', memberIds: ['user-1', 'user-2', 'user-4'], defaultView: 'kanban', eventId: 'event-1', category: null, createdAt: '2026-02-01T09:00:00Z', updatedAt: '2026-03-15T08:00:00Z' },
+  { id: 'proj-3', name: 'Marketing Campaign', description: 'Q2 marketing initiatives', color: '#fdab3d', icon: '📣', memberIds: ['user-1', 'user-3'], defaultView: 'roadmap', eventId: 'event-2', category: null, createdAt: '2026-03-01T11:00:00Z', updatedAt: '2026-03-17T14:00:00Z' },
+  // שיווק — פרויקטים לפי קטגוריה
+  { id: 'proj-mkt-1', name: 'שיווק — כנס נדל"ן', description: 'אסטרטגיית שיווק לכנס הנדל"ן 2026', color: '#00c875', icon: '📣', memberIds: ['user-1', 'user-3'], defaultView: 'table', eventId: 'event-1', category: 'marketing', createdAt: '2026-01-20T09:00:00Z', updatedAt: '2026-03-12T09:00:00Z' },
+  { id: 'proj-mkt-2', name: 'שיווק שנתי', description: 'אסטרטגיית שיווק כללית לשנת 2026', color: '#0073ea', icon: '📊', memberIds: ['user-1', 'user-2'], defaultView: 'table', eventId: null, category: 'marketing', createdAt: '2026-01-05T09:00:00Z', updatedAt: '2026-03-01T09:00:00Z' },
+  { id: 'proj-promo-1', name: 'קידום ממומן — כנס נדל"ן', description: 'Google Ads, Meta, LinkedIn לכנס', color: '#fdab3d', icon: '🎯', memberIds: ['user-1', 'user-4'], defaultView: 'table', eventId: 'event-1', category: 'promotion', createdAt: '2026-01-22T09:00:00Z', updatedAt: '2026-03-14T09:00:00Z' },
+  { id: 'proj-social-1', name: 'סושיאל — כנס נדל"ן', description: 'אינסטגרם, לינקדאין, פייסבוק לכנס', color: '#9c27b0', icon: '📱', memberIds: ['user-2', 'user-3'], defaultView: 'kanban', eventId: 'event-1', category: 'social', createdAt: '2026-02-05T09:00:00Z', updatedAt: '2026-03-16T09:00:00Z' },
+  { id: 'proj-social-2', name: 'סושיאל שוטף', description: 'ניהול ערוצי הסושיאל השוטפים', color: '#e91e63', icon: '🔥', memberIds: ['user-2'], defaultView: 'kanban', eventId: null, category: 'social', createdAt: '2026-01-01T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z' },
+  { id: 'proj-design-1', name: 'עיצוב — כנס נדל"ן', description: 'חומרי עיצוב לכנס הנדל"ן', color: '#ff5722', icon: '🎨', memberIds: ['user-2', 'user-5'], defaultView: 'table', eventId: 'event-1', category: 'design', createdAt: '2026-01-18T09:00:00Z', updatedAt: '2026-03-18T09:00:00Z' },
+  { id: 'proj-design-2', name: 'מיתוג 2026', description: 'חידוש זהות מותג וחומרי עיצוב שנתיים', color: '#795548', icon: '✏️', memberIds: ['user-2'], defaultView: 'table', eventId: null, category: 'design', createdAt: '2026-01-10T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z' },
+  { id: 'proj-bizdev-1', name: 'פיתוח עסקי Q2', description: 'שותפויות, נותני חסות ולידים עסקיים', color: '#607d8b', icon: '🤝', memberIds: ['user-1', 'user-4'], defaultView: 'table', eventId: null, category: 'bizdev', createdAt: '2026-02-01T09:00:00Z', updatedAt: '2026-03-22T09:00:00Z' },
 ];
 
 export const MOCK_CAMPAIGNS: Campaign[] = [
@@ -451,6 +461,7 @@ export const INITIAL_STATE: AppState = {
   activeChatUserId: null,
   taskModalId: null,
   newProjectModalOpen: false,
+  newProjectCategory: null,
   newEventModalOpen: false,
   inviteModalOpen: false,
   aiPanelOpen: false,

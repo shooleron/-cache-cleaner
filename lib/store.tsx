@@ -6,7 +6,7 @@ import {
   AppSection, CRMView, Contact, ContactType, Deal, DealActivity, AutomationRule, AIMessage,
   DealStage, SubItem, ActivityLog, ActivityVerb, Event, Campaign, EventStatus,
   Attachment, AttachmentType, TaskNote, Speaker, Panel, SponsorshipProduct, DealLineItem, Brand,
-  ChatConversation, ChatMessage,
+  ChatConversation, ChatMessage, ProjectCategory,
 } from './types';
 import { INITIAL_STATE } from './mockData';
 import { v4 as uuidv4 } from 'uuid';
@@ -33,8 +33,9 @@ type Action =
   | { type: 'TOGGLE_AI_PANEL' }
   | { type: 'OPEN_TASK_MODAL'; payload: string }
   | { type: 'CLOSE_TASK_MODAL' }
-  | { type: 'OPEN_NEW_PROJECT_MODAL' }
+  | { type: 'OPEN_NEW_PROJECT_MODAL'; payload?: { category?: ProjectCategory } }
   | { type: 'CLOSE_NEW_PROJECT_MODAL' }
+  | { type: 'CLEAR_ACTIVE_PROJECT' }
   | { type: 'OPEN_INVITE_MODAL' }
   | { type: 'CLOSE_INVITE_MODAL' }
   | { type: 'CREATE_PROJECT'; payload: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'memberIds'> }
@@ -164,10 +165,13 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, taskModalId: null };
 
     case 'OPEN_NEW_PROJECT_MODAL':
-      return { ...state, newProjectModalOpen: true };
+      return { ...state, newProjectModalOpen: true, newProjectCategory: action.payload?.category ?? null };
 
     case 'CLOSE_NEW_PROJECT_MODAL':
-      return { ...state, newProjectModalOpen: false };
+      return { ...state, newProjectModalOpen: false, newProjectCategory: null };
+
+    case 'CLEAR_ACTIVE_PROJECT':
+      return { ...state, activeProjectId: null };
 
     case 'OPEN_NEW_EVENT_MODAL':
       return { ...state, newEventModalOpen: true };
@@ -539,6 +543,7 @@ function reducer(state: AppState, action: Action): AppState {
         memberIds: [deal.ownerId, state.currentUser.id],
         defaultView: 'table',
         eventId: deal.eventId,
+        category: null,
         createdAt: now,
         updatedAt: now,
       };

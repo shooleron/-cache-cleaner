@@ -102,9 +102,7 @@ export function Sidebar() {
   const [mgmtOpen, setMgmtOpen] = useState(
     state.activeSection === 'crm' || state.activeSection === 'speakers'
   );
-  const [mktOpen, setMktOpen] = useState(
-    state.activeSection === 'marketing' || state.activeSection === 'promotion' || state.activeSection === 'social' || state.activeSection === 'design' || state.activeSection === 'bizdev'
-  );
+  const [mktOpen, setMktOpen] = useState(false);
   const [rdOpen, setRdOpen] = useState(state.activeSection === 'rd');
   const [expandedBrands, setExpandedBrands] = useState<Set<string>>(new Set(['brand-1']));
   const [showNewBrand, setShowNewBrand] = useState(false);
@@ -265,56 +263,14 @@ export function Sidebar() {
           </div>
         )}
 
-        {/* שיווק — collapsible top-level section */}
+        {/* שיווק — פריט יחיד, החלוקה במסך התוכן */}
         <div
-          className={`sidebar-item sidebar-group-header ${isMktActive ? 'active' : ''}`}
-          onClick={() => setMktOpen(o => !o)}
+          className={`sidebar-item ${isMktActive ? 'active' : ''}`}
+          onClick={() => { setSection('marketing'); dispatch({ type: 'CLEAR_ACTIVE_PROJECT' }); }}
         >
           <span className="material-symbols-outlined sidebar-item-icon">campaign</span>
-          <span style={{ flex: 1 }}>שיווק</span>
-          <span className="material-symbols-outlined" style={{ fontSize: 16, transition: 'transform 0.2s', transform: mktOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
-            chevron_left
-          </span>
+          <span>שיווק</span>
         </div>
-        {mktOpen && (
-          <div className="sidebar-group-items">
-            <div
-              className={`sidebar-item sidebar-sub-item ${state.activeSection === 'marketing' ? 'active' : ''}`}
-              onClick={() => setSection('marketing')}
-            >
-              <span className="material-symbols-outlined sidebar-item-icon">trending_up</span>
-              <span>שיווק</span>
-            </div>
-            <div
-              className={`sidebar-item sidebar-sub-item ${state.activeSection === 'promotion' ? 'active' : ''}`}
-              onClick={() => setSection('promotion')}
-            >
-              <span className="material-symbols-outlined sidebar-item-icon">ads_click</span>
-              <span>קידום</span>
-            </div>
-            <div
-              className={`sidebar-item sidebar-sub-item ${state.activeSection === 'social' ? 'active' : ''}`}
-              onClick={() => setSection('social')}
-            >
-              <span className="material-symbols-outlined sidebar-item-icon">groups</span>
-              <span>סושיאל</span>
-            </div>
-            <div
-              className={`sidebar-item sidebar-sub-item ${state.activeSection === 'design' ? 'active' : ''}`}
-              onClick={() => setSection('design')}
-            >
-              <span className="material-symbols-outlined sidebar-item-icon">brush</span>
-              <span>עיצוב</span>
-            </div>
-            <div
-              className={`sidebar-item sidebar-sub-item ${state.activeSection === 'bizdev' ? 'active' : ''}`}
-              onClick={() => setSection('bizdev')}
-            >
-              <span className="material-symbols-outlined sidebar-item-icon">handshake</span>
-              <span>פיתוח עסקי</span>
-            </div>
-          </div>
-        )}
 
         {/* R&D — top-level section */}
         <div

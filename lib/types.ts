@@ -15,6 +15,7 @@ export type CRMView = 'contacts' | 'deals';
 export type DealStage = 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'closed_won' | 'closed_lost';
 export type ContactStatus = 'prospect' | 'active' | 'customer' | 'inactive';
 export type ContactType = 'developer' | 'lawyer' | 'infrastructure' | 'appraiser' | 'other';
+export type ProjectCategory = 'marketing' | 'promotion' | 'social' | 'design' | 'bizdev';
 export type AutomationTrigger = 'task_created' | 'status_changed' | 'due_date_passed' | 'deal_stage_changed' | 'task_assigned';
 export type AutomationActionType = 'send_notification' | 'change_status' | 'assign_to' | 'move_deal_stage' | 'create_task';
 
@@ -160,6 +161,7 @@ export interface Project {
   memberIds: string[];
   defaultView: BoardView;
   eventId: string | null;
+  category: ProjectCategory | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -396,6 +398,7 @@ export interface AppState {
   activeChatUserId: string | null;
   taskModalId: string | null;
   newProjectModalOpen: boolean;
+  newProjectCategory: ProjectCategory | null;
   newEventModalOpen: boolean;
   inviteModalOpen: boolean;
   aiPanelOpen: boolean;
