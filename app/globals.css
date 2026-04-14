@@ -2428,6 +2428,30 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   flex: 1;
 }
 
+/* New project modal type/category row */
+.new-proj-type-row {
+  display: flex; gap: 8px;
+}
+.new-proj-type-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 10px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  border: 1.5px solid var(--outline-variant); background: var(--surface-variant);
+  color: var(--on-surface-variant); cursor: pointer; transition: all 0.15s;
+}
+.new-proj-type-btn:hover { border-color: var(--primary); color: var(--primary); }
+.new-proj-type-btn.active { background: var(--primary-container); border-color: var(--primary); color: var(--primary); font-weight: 700; }
+
+.new-proj-cat-row {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.new-proj-cat-btn {
+  padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  border: 1.5px solid var(--outline-variant); background: transparent;
+  color: var(--on-surface-variant); cursor: pointer; transition: all 0.15s;
+}
+.new-proj-cat-btn:hover { border-color: var(--primary); color: var(--primary); }
+.new-proj-cat-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+
 .small-modal-footer {
   display: flex;
   flex-direction: row-reverse;
@@ -4801,6 +4825,33 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   color: var(--on-surface-variant);
 }
 
+/* ===== Marketing Sidebar ===== */
+.sidebar-mkt-section {
+  display: flex; flex-direction: column; gap: 2px; padding: 4px 8px 8px;
+}
+.sidebar-mkt-filter {
+  display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 0 6px;
+}
+.sidebar-mkt-pill {
+  font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px;
+  border: 1px solid var(--outline-variant); background: transparent;
+  color: var(--on-surface-variant); cursor: pointer; transition: all 0.15s;
+}
+.sidebar-mkt-pill:hover { border-color: var(--primary); color: var(--primary); }
+.sidebar-mkt-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+.sidebar-mkt-add-btn {
+  display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600;
+  color: var(--primary); background: none; border: none; cursor: pointer;
+  padding: 6px 4px; border-radius: 6px; margin-top: 4px;
+}
+.sidebar-mkt-add-btn:hover { background: var(--primary-container); }
+
+/* TopBar category tag */
+.topbar-category-tag {
+  font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+  background: var(--primary-container); color: var(--primary);
+}
+
 /* ===== Events Sidebar ===== */
 .sidebar-events-list {
   margin-top: 4px;
@@ -5696,11 +5747,20 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 }
 
 .speaker-card-info { display: flex; flex-direction: column; gap: 2px; }
+.speaker-card-name-row { display: flex; flex-direction: row-reverse; align-items: center; justify-content: space-between; gap: 6px; }
 .speaker-card-name  { font-size: 15px; font-weight: 700; color: var(--on-surface); }
+.speaker-category-badge {
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
+  white-space: nowrap; flex-shrink: 0;
+}
 .speaker-card-title { font-size: 12px; color: var(--on-surface-variant); }
 .speaker-card-org   {
   display: flex; flex-direction: row-reverse; align-items: center; gap: 4px;
   font-size: 11px; color: var(--on-surface-variant); margin-top: 2px;
+}
+.speaker-card-contact {
+  display: flex; flex-direction: row-reverse; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--primary); margin-top: 2px;
 }
 
 .speaker-card-checks {
@@ -5856,6 +5916,34 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .speaker-section-title {
   font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
   color: var(--on-surface-variant); text-transform: uppercase;
+}
+
+/* Speaker category buttons */
+.speaker-category-row { display: flex; flex-direction: row-reverse; gap: 8px; flex-wrap: wrap; }
+.speaker-category-btn {
+  flex: 1; min-width: 90px; padding: 7px 10px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  border: 1.5px solid var(--outline-variant); background: var(--surface-variant);
+  color: var(--on-surface-variant); cursor: pointer; transition: all 0.15s;
+}
+.speaker-category-btn:hover { border-color: var(--primary); color: var(--primary); }
+.speaker-category-btn.active { font-weight: 700; }
+
+/* Speaker contact person card */
+.speaker-contact-person-card {
+  background: var(--surface-variant); border-radius: 10px; padding: 12px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.speaker-add-contact-btn {
+  display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600;
+  color: var(--primary); background: none; border: none; cursor: pointer; padding: 0;
+}
+.speaker-remove-contact-btn {
+  display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--error);
+  background: none; border: none; cursor: pointer; padding: 4px 0; align-self: flex-start;
+}
+.speaker-no-contact {
+  display: flex; flex-direction: row-reverse; align-items: center; gap: 8px;
+  color: var(--on-surface-variant); font-size: 13px; padding: 10px 0;
 }
 
 .speaker-field-row { display: flex; flex-direction: row-reverse; gap: 10px; }

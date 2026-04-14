@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { useStore } from '@/lib/store';
-import { AppSection } from '@/lib/types';
+import { AppSection, ProjectCategory } from '@/lib/types';
 import { isAdmin } from '@/lib/permissions';
 
 const EVENT_STATUS_COLOR: Record<string, string> = {
@@ -106,6 +106,10 @@ export function Sidebar() {
     state.activeSection === 'marketing' || state.activeSection === 'promotion' || state.activeSection === 'social' || state.activeSection === 'design' || state.activeSection === 'bizdev'
   );
   const [rdOpen, setRdOpen] = useState(state.activeSection === 'rd');
+  const [expandedMktEvents, setExpandedMktEvents] = useState<Set<string>>(
+    new Set(state.events.filter(e => e.status !== 'archived').map(e => e.id).slice(0, 3))
+  );
+  const [mktCategoryFilter, setMktCategoryFilter] = useState<ProjectCategory | 'all'>('all');
   const [expandedBrands, setExpandedBrands] = useState<Set<string>>(new Set(['brand-1']));
   const [showNewBrand, setShowNewBrand] = useState(false);
   const [newBrandName, setNewBrandName] = useState('');
@@ -128,6 +132,22 @@ export function Sidebar() {
     dispatch({ type: 'SET_ACTIVE_PROJECT', payload: projectId });
     dispatch({ type: 'SET_ACTIVE_EVENT', payload: eventId });
     dispatch({ type: 'SET_ACTIVE_SECTION', payload: 'events' });
+  }
+
+  function selectMarketingProject(projectId: string, eventId: string) {
+    dispatch({ type: 'SET_ACTIVE_PROJECT', payload: projectId });
+    dispatch({ type: 'SET_ACTIVE_EVENT', payload: eventId });
+    // Keep current marketing sub-section; default to 'marketing' if entering fresh
+    if (!isMktActive) dispatch({ type: 'SET_ACTIVE_SECTION', payload: 'marketing' });
+  }
+
+  function toggleMktEvent(eventId: string) {
+    setExpandedMktEvents(prev => {
+      const next = new Set(prev);
+      if (next.has(eventId)) next.delete(eventId);
+      else next.add(eventId);
+      return next;
+    });
   }
 
   const mainNavItems: { section: AppSection; icon: string; label: string }[] = [
@@ -265,10 +285,10 @@ export function Sidebar() {
           </div>
         )}
 
-        {/* שיווק — collapsible top-level section */}
+        {/* שיווק — collapsible section with marketing projects */}
         <div
           className={`sidebar-item sidebar-group-header ${isMktActive ? 'active' : ''}`}
-          onClick={() => setMktOpen(o => !o)}
+          onClick={() => { setMktOpen(o => !o); if (!isMktActive) setSection('marketing'); }}
         >
           <span className="material-symbols-outlined sidebar-item-icon">campaign</span>
           <span style={{ flex: 1 }}>שיווק</span>
@@ -276,45 +296,99 @@ export function Sidebar() {
             chevron_left
           </span>
         </div>
-        {mktOpen && (
-          <div className="sidebar-group-items">
-            <div
-              className={`sidebar-item sidebar-sub-item ${state.activeSection === 'marketing' ? 'active' : ''}`}
-              onClick={() => setSection('marketing')}
-            >
-              <span className="material-symbols-outlined sidebar-item-icon">trending_up</span>
-              <span>שיווק</span>
+        {mktOpen && (() => {
+          const MKT_CATS: { value: ProjectCategory | 'all'; label: string }[] = [
+            { value: 'all', label: 'הכל' },
+            { value: 'marketing', label: 'שיווק' },
+            { value: 'promotion', label: 'קידום' },
+            { value: 'social', label: 'סושיאל' },
+            { value: 'design', label: 'עיצוב' },
+            { value: 'bizdev', label: 'פיתוח עסקי' },
+          ];
+          const mktProjects = state.projects.filter(p =>
+            p.category !== null &&
+            (mktCategoryFilter === 'all' || p.category === mktCategoryFilter)
+          );
+          const eventGroups = activeEvents.map(ev => ({
+            event: ev,
+            projects: mktProjects.filter(p => p.eventId === ev.id),
+          })).filter(g => g.projects.length > 0);
+          const standaloneProjects = mktProjects.filter(p => p.eventId === null);
+
+          return (
+            <div className="sidebar-mkt-section">
+              {/* Category filter pills */}
+              <div className="sidebar-mkt-filter">
+                {MKT_CATS.map(cat => (
+                  <button
+                    key={cat.value}
+                    className={`sidebar-mkt-pill ${mktCategoryFilter === cat.value ? 'active' : ''}`}
+                    onClick={() => setMktCategoryFilter(cat.value)}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Projects under events */}
+              {eventGroups.map(({ event, projects }) => {
+                const isExpanded = expandedMktEvents.has(event.id);
+                return (
+                  <div key={event.id} className="sidebar-event-group">
+                    <div
+                      className="sidebar-event-item"
+                      onClick={() => toggleMktEvent(event.id)}
+                    >
+                      <span className="material-symbols-outlined sidebar-chevron"
+                        style={{ fontSize: 14, transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                        chevron_left
+                      </span>
+                      <span className="sidebar-event-dot" style={{ background: EVENT_STATUS_COLOR[event.status] }} />
+                      <span className="sidebar-event-name">{event.name}</span>
+                    </div>
+                    {isExpanded && projects.map(project => (
+                      <SidebarProjectRow
+                        key={project.id}
+                        project={project}
+                        isActive={isMktActive && state.activeProjectId === project.id}
+                        onSelect={() => selectMarketingProject(project.id, event.id)}
+                        dispatch={dispatch}
+                      />
+                    ))}
+                  </div>
+                );
+              })}
+
+              {/* Standalone projects */}
+              {standaloneProjects.length > 0 && (
+                <div className="sidebar-event-group">
+                  <div className="sidebar-event-item" style={{ opacity: 0.7 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 14, color: 'var(--outline)' }}>folder_open</span>
+                    <span className="sidebar-event-name">ללא אירוע</span>
+                  </div>
+                  {standaloneProjects.map(project => (
+                    <SidebarProjectRow
+                      key={project.id}
+                      project={project}
+                      isActive={isMktActive && state.activeProjectId === project.id}
+                      onSelect={() => { dispatch({ type: 'SET_ACTIVE_PROJECT', payload: project.id }); if (!isMktActive) setSection('marketing'); }}
+                      dispatch={dispatch}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Add project button */}
+              <button
+                className="sidebar-mkt-add-btn"
+                onClick={() => { dispatch({ type: 'SET_ACTIVE_SECTION', payload: 'marketing' }); dispatch({ type: 'OPEN_NEW_PROJECT_MODAL' }); }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span>
+                הוסף פרויקט
+              </button>
             </div>
-            <div
-              className={`sidebar-item sidebar-sub-item ${state.activeSection === 'promotion' ? 'active' : ''}`}
-              onClick={() => setSection('promotion')}
-            >
-              <span className="material-symbols-outlined sidebar-item-icon">ads_click</span>
-              <span>קידום</span>
-            </div>
-            <div
-              className={`sidebar-item sidebar-sub-item ${state.activeSection === 'social' ? 'active' : ''}`}
-              onClick={() => setSection('social')}
-            >
-              <span className="material-symbols-outlined sidebar-item-icon">groups</span>
-              <span>סושיאל</span>
-            </div>
-            <div
-              className={`sidebar-item sidebar-sub-item ${state.activeSection === 'design' ? 'active' : ''}`}
-              onClick={() => setSection('design')}
-            >
-              <span className="material-symbols-outlined sidebar-item-icon">brush</span>
-              <span>עיצוב</span>
-            </div>
-            <div
-              className={`sidebar-item sidebar-sub-item ${state.activeSection === 'bizdev' ? 'active' : ''}`}
-              onClick={() => setSection('bizdev')}
-            >
-              <span className="material-symbols-outlined sidebar-item-icon">handshake</span>
-              <span>פיתוח עסקי</span>
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* R&D — top-level section */}
         <div
