@@ -308,7 +308,7 @@ function reducer(state: AppState, action: Action): AppState {
       if (action.payload.status === 'done' && oldTask && oldTask.status !== 'done') {
         celebrationTaskId = action.payload.id;
         oldTask.assigneeIds.forEach(assigneeId => {
-          notifications = [{ id: uuidv4(), userId: assigneeId, type: 'task_completed', message: `🎉 משימה "${oldTask.title}" הושלמה!`, taskId: action.payload.id, projectId: oldTask.projectId, read: false, createdAt: now }, ...notifications];
+          notifications = [{ id: uuidv4(), userId: assigneeId, type: 'task_completed', message: `🎉 משימה "${oldTask.title}" הושלם!`, taskId: action.payload.id, projectId: oldTask.projectId, read: false, createdAt: now }, ...notifications];
         });
       }
 
@@ -338,12 +338,12 @@ function reducer(state: AppState, action: Action): AppState {
       const movedTask = state.tasks.find(t => t.id === action.payload.taskId);
       const becameDone = action.payload.newStatus === 'done' && movedTask?.status !== 'done';
       const moveLog = becameDone
-        ? makeLog(state.currentUser.id, 'completed_task', `סימן משימה "${movedTask?.title || ''}" כהושלמה`, action.payload.taskId, 'task')
+        ? makeLog(state.currentUser.id, 'completed_task', `סימן משימה "${movedTask?.title || ''}" כהושלם`, action.payload.taskId, 'task')
         : null;
       let moveNotifications = state.notifications;
       if (becameDone && movedTask) {
         movedTask.assigneeIds.forEach(assigneeId => {
-          moveNotifications = [{ id: uuidv4(), userId: assigneeId, type: 'task_completed', message: `🎉 משימה "${movedTask.title}" הושלמה!`, taskId: movedTask.id, projectId: movedTask.projectId, read: false, createdAt: now }, ...moveNotifications];
+          moveNotifications = [{ id: uuidv4(), userId: assigneeId, type: 'task_completed', message: `🎉 משימה "${movedTask.title}" הושלם!`, taskId: movedTask.id, projectId: movedTask.projectId, read: false, createdAt: now }, ...moveNotifications];
         });
       }
       return {
@@ -551,7 +551,7 @@ function reducer(state: AppState, action: Action): AppState {
         activities: [...deal.activities, {
           id: uuidv4(), dealId: deal.id,
           type: 'stage_changed' as const,
-          description: `✅ עסקה נסגרה! פרויקט תפעול נוצר אוטומטית עם ${tasks.length} משימות.`,
+          description: `✅ עסקה נסגר! פרויקט תפעול נוצר אוטומטית עם ${tasks.length} משימות.`,
           userId: state.currentUser.id, createdAt: now,
         }],
       };

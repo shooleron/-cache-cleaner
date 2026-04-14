@@ -165,7 +165,7 @@ function ForgotPasswordScreen({ onBack }: { onBack: () => void }) {
             <div className="forgot-success-icon">
               <span className="material-symbols-outlined" style={{ fontSize: 48, color: '#00c875' }}>check_circle</span>
             </div>
-            <h2 className="password-gate-title">הסיסמה עודכנה</h2>
+            <h2 className="password-gate-title">הסיסמה עודכן</h2>
             <p className="password-gate-sub">תוכל להיכנס עם הסיסמה החדשה שלך</p>
             <button className="password-gate-btn" onClick={onBack}>
               חזור לכניסה

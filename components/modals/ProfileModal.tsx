@@ -289,7 +289,7 @@ export function ProfileModal() {
               {passwordSaved && (
                 <div className="profile-success">
                   <span className="material-symbols-outlined" style={{ fontSize: 14 }}>check_circle</span>
-                  {hasPassword ? 'הסיסמה הוסרה בהצלחה' : 'הסיסמה עודכנה בהצלחה!'}
+                  {hasPassword ? 'הסיסמה הוסר בהצלחה' : 'הסיסמה עודכן בהצלחה!'}
                 </div>
               )}
 

@@ -113,7 +113,7 @@ export function AIAgentPanel() {
       const group = state.groups.find(g => g.projectId === projectId);
       if (projectId && group) {
         dispatch({ type: 'CREATE_TASK', payload: { projectId, groupId: group.id, title: p.title || 'משימה חדשה' } });
-        dispatch({ type: 'ADD_AI_MESSAGE', payload: { id: uuidv4(), role: 'assistant', content: `✅ משימה "${p.title}" נוצרה!`, createdAt: new Date().toISOString() }});
+        dispatch({ type: 'ADD_AI_MESSAGE', payload: { id: uuidv4(), role: 'assistant', content: `✅ משימה "${p.title}" נוצר!`, createdAt: new Date().toISOString() }});
       }
     } else if (action.type === 'create_contact') {
       const p = action.payload as { name?: string; email?: string; company?: string };

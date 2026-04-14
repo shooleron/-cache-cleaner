@@ -47,8 +47,8 @@ export function CelebrationOverlay() {
       <div className="celebration-card">
         <div className="celebration-emoji">🎉</div>
         <h2 className="celebration-title">כל הכבוד!</h2>
-        <p className="celebration-task">{task?.title || 'משימה הושלמה'}</p>
-        <p className="celebration-sub">המשימה הושלמה בהצלחה. עבודה מעולה! ⭐</p>
+        <p className="celebration-task">{task?.title || 'משימה הושלם'}</p>
+        <p className="celebration-sub">המשימה הושלם בהצלחה. עבודה מעולה! ⭐</p>
       </div>
     </div>
   );

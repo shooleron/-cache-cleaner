@@ -6,11 +6,11 @@ import { AutomationRule, AutomationTrigger, AutomationActionType } from '@/lib/t
 import { useConfirm } from '@/components/ui/ConfirmDialog';
 
 const TRIGGERS: { value: AutomationTrigger; label: string }[] = [
-  { value: 'task_created', label: 'משימה נוצרה' },
+  { value: 'task_created', label: 'משימה נוצר' },
   { value: 'status_changed', label: 'סטטוס השתנה' },
   { value: 'due_date_passed', label: 'תאריך יעד עבר' },
-  { value: 'deal_stage_changed', label: 'עסקה עברה שלב' },
-  { value: 'task_assigned', label: 'משימה הוקצתה' },
+  { value: 'deal_stage_changed', label: 'עסקה עבר שלב' },
+  { value: 'task_assigned', label: 'משימה הוקצה' },
 ];
 
 const ACTIONS: { value: AutomationActionType; label: string }[] = [
@@ -58,7 +58,7 @@ function RuleModal({ rule, onClose }: { rule: Partial<AutomationRule> | null; on
         {/* Name */}
         <div className="modal-field">
           <label className="modal-label">שם האוטומציה</label>
-          <input style={inp} placeholder="לדוגמה: התראה כשמשימה הושלמה" value={form.name || ''} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+          <input style={inp} placeholder="לדוגמה: התראה כשמשימה הושלם" value={form.name || ''} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
         </div>
 
         {/* WHEN → THEN visual flow */}
