@@ -371,6 +371,111 @@ function ContactCard({ contact, onEdit, onDelete }: { contact: Contact; onEdit: 
   );
 }
 
+// ── Contact Table Row ────────────────────────────────────
+
+function ContactTableRow({ contact, onEdit, onDelete }: { contact: Contact; onEdit: () => void; onDelete: () => void }) {
+  const { state } = useStore();
+  const statusConf = STATUS_CONFIG[contact.status];
+  const typeConf = TYPE_CONFIG[contact.contactType] || TYPE_CONFIG.other;
+  const owner = state.users.find(u => u.id === contact.ownerId);
+  const color = avatarColor(contact.name);
+
+  return (
+    <tr className="contacts-table-row" onClick={onEdit}>
+      {/* Avatar + name */}
+      <td className="contacts-table-cell">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexDirection: 'row-reverse' }}>
+          <div style={{ width: 44, height: 44, borderRadius: '50%', background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: 15, flexShrink: 0, border: '2px solid white', boxShadow: '0 1px 6px rgba(0,0,0,0.10)', fontFamily: 'Manrope, sans-serif' }}>
+            {getInitials(contact.name)}
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--on-surface)' }}>{contact.name}</div>
+            <div style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>{contact.position}</div>
+          </div>
+        </div>
+      </td>
+
+      {/* Company */}
+      <td className="contacts-table-cell">
+        <div style={{ fontSize: 13, color: 'var(--on-surface)', fontWeight: 600 }}>{contact.company}</div>
+        {contact.city && <div style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>{contact.city}</div>}
+      </td>
+
+      {/* Type */}
+      <td className="contacts-table-cell">
+        <span className="contact-type-badge" style={{ background: typeConf.bg, color: typeConf.color }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 12 }}>{typeConf.icon}</span>
+          {typeConf.label}
+        </span>
+      </td>
+
+      {/* Status */}
+      <td className="contacts-table-cell">
+        <span className="contact-status-badge" style={{ background: statusConf.bg, color: statusConf.color }}>
+          {statusConf.label}
+        </span>
+      </td>
+
+      {/* Phone */}
+      <td className="contacts-table-cell">
+        {contact.phone ? (
+          <a href={`tel:${contact.phone}`} onClick={e => e.stopPropagation()} style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none' }}>
+            {contact.phone}
+          </a>
+        ) : <span style={{ color: 'var(--outline-variant)', fontSize: 12 }}>—</span>}
+      </td>
+
+      {/* Email */}
+      <td className="contacts-table-cell">
+        {contact.email ? (
+          <a href={`mailto:${contact.email}`} onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: 'var(--on-surface-variant)', textDecoration: 'none' }}>
+            {contact.email}
+          </a>
+        ) : <span style={{ color: 'var(--outline-variant)', fontSize: 12 }}>—</span>}
+      </td>
+
+      {/* Budget */}
+      <td className="contacts-table-cell">
+        {contact.budget
+          ? <span className="contact-meta-chip"><span className="material-symbols-outlined" style={{ fontSize: 12 }}>payments</span>{contact.budget}</span>
+          : <span style={{ color: 'var(--outline-variant)', fontSize: 12 }}>—</span>
+        }
+      </td>
+
+      {/* Deals */}
+      <td className="contacts-table-cell" style={{ textAlign: 'center' }}>
+        {contact.linkedDealIds.length > 0
+          ? <span style={{ fontWeight: 700, fontSize: 13 }}>{contact.linkedDealIds.length}</span>
+          : <span style={{ color: 'var(--outline-variant)', fontSize: 12 }}>—</span>
+        }
+      </td>
+
+      {/* Owner */}
+      <td className="contacts-table-cell">
+        {owner && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+            <span style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>{owner.name}</span>
+            <div style={{ width: 24, height: 24, borderRadius: '50%', background: owner.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 10, fontWeight: 700 }}>
+              {owner.avatar}
+            </div>
+          </div>
+        )}
+      </td>
+
+      {/* Delete */}
+      <td className="contacts-table-cell" style={{ textAlign: 'center' }}>
+        <button
+          className="contact-card-delete-btn"
+          title="מחק"
+          onClick={e => { e.stopPropagation(); onDelete(); }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
+        </button>
+      </td>
+    </tr>
+  );
+}
+
 // ── Main View ────────────────────────────────────────────
 
 export function ContactsView() {
@@ -380,6 +485,7 @@ export function ContactsView() {
   const [filterStatus, setFilterStatus] = useState<ContactStatus | 'all'>('all');
   const [filterType, setFilterType] = useState<ContactType | 'all'>('all');
   const [modalId, setModalId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   const filtered = state.contacts.filter(c => {
     const q = search.toLowerCase();
@@ -400,10 +506,21 @@ export function ContactsView() {
             <h1 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 24, fontWeight: 900, color: 'var(--on-surface)', lineHeight: 1.2 }}>אנשי קשר</h1>
             <p style={{ fontSize: 13, color: 'var(--on-surface-variant)', marginTop: 4 }}>{filtered.length} מתוך {state.contacts.length} אנשי קשר</p>
           </div>
-          <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6 }} onClick={() => setModalId('new')}>
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>person_add</span>
-            הוסף איש קשר
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {/* View toggle */}
+            <div className="view-toggle-group">
+              <button className={`view-toggle-btn ${viewMode === 'cards' ? 'active' : ''}`} onClick={() => setViewMode('cards')} title="כרטסיות">
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>grid_view</span>
+              </button>
+              <button className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`} onClick={() => setViewMode('table')} title="טבלה">
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>table_rows</span>
+              </button>
+            </div>
+            <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6 }} onClick={() => setModalId('new')}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>person_add</span>
+              הוסף איש קשר
+            </button>
+          </div>
         </div>
 
         {/* Type tabs */}
@@ -467,8 +584,15 @@ export function ContactsView() {
           </div>
         </div>
 
-        {/* Cards grid */}
-        {filtered.length > 0 ? (
+        {/* Content */}
+        {filtered.length === 0 ? (
+          <div style={{ padding: 64, textAlign: 'center', color: 'var(--on-surface-variant)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 52, color: 'var(--outline-variant)', display: 'block', marginBottom: 16 }}>person_search</span>
+            <p style={{ fontSize: 16, fontWeight: 700, fontFamily: 'Manrope, sans-serif', marginBottom: 8 }}>לא נמצאו אנשי קשר</p>
+            <p style={{ fontSize: 13, marginBottom: 24 }}>נסה לשנות את הסינון או הוסף איש קשר חדש</p>
+            <button className="btn btn-primary" onClick={() => setModalId('new')}>הוסף איש קשר</button>
+          </div>
+        ) : viewMode === 'cards' ? (
           <div className="contact-cards-grid">
             {filtered.map(contact => (
               <ContactCard
@@ -483,11 +607,36 @@ export function ContactsView() {
             ))}
           </div>
         ) : (
-          <div style={{ padding: 64, textAlign: 'center', color: 'var(--on-surface-variant)' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 52, color: 'var(--outline-variant)', display: 'block', marginBottom: 16 }}>person_search</span>
-            <p style={{ fontSize: 16, fontWeight: 700, fontFamily: 'Manrope, sans-serif', marginBottom: 8 }}>לא נמצאו אנשי קשר</p>
-            <p style={{ fontSize: 13, marginBottom: 24 }}>נסה לשנות את הסינון או הוסף איש קשר חדש</p>
-            <button className="btn btn-primary" onClick={() => setModalId('new')}>הוסף איש קשר</button>
+          <div className="contacts-table-wrap">
+            <table className="contacts-table">
+              <thead>
+                <tr className="contacts-table-head-row">
+                  <th className="contacts-table-th">איש קשר</th>
+                  <th className="contacts-table-th">חברה</th>
+                  <th className="contacts-table-th">סוג</th>
+                  <th className="contacts-table-th">סטטוס</th>
+                  <th className="contacts-table-th">טלפון</th>
+                  <th className="contacts-table-th">אימייל</th>
+                  <th className="contacts-table-th">תקציב</th>
+                  <th className="contacts-table-th" style={{ textAlign: 'center' }}>עסקאות</th>
+                  <th className="contacts-table-th">אחראי</th>
+                  <th className="contacts-table-th" />
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(contact => (
+                  <ContactTableRow
+                    key={contact.id}
+                    contact={contact}
+                    onEdit={() => setModalId(contact.id)}
+                    onDelete={async () => {
+                      const ok = await confirm({ title: 'מחיקת איש קשר', message: `האם אתה בטוח שברצונך למחוק את "${contact.name}"?`, confirmLabel: 'מחק', danger: true });
+                      if (ok) dispatch({ type: 'DELETE_CONTACT', payload: contact.id });
+                    }}
+                  />
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 
