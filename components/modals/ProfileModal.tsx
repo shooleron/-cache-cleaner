@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useStore } from '@/lib/store';
 import { hashPassword, verifyPassword, getStoredPasswordHash, savePasswordHash } from '@/lib/password';
+import { UserAvatar } from '@/components/ui/UserAvatar';
+import { ANIMALS } from '@/lib/animalAvatars';
 
 const JOB_TITLES = [
   'מנכ״ל / בעלים', 'מנהל תפעול', 'מנהל מוצר', 'מנהל פרויקטים',
@@ -25,6 +27,9 @@ export function ProfileModal() {
   const [company, setCompany] = useState(user.company || '');
   const [companyAddress, setCompanyAddress] = useState(user.companyAddress || '');
   const [profileSaved, setProfileSaved] = useState(false);
+  const [localPhotoUrl, setLocalPhotoUrl] = useState<string | null>(user.photoUrl ?? null);
+  const [localAvatarAnimal, setLocalAvatarAnimal] = useState<string | null>(user.avatarAnimal ?? null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Password fields
   const [currentPassword, setCurrentPassword] = useState('');
@@ -35,6 +40,31 @@ export function ProfileModal() {
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const hasPassword = !!getStoredPasswordHash();
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      setLocalPhotoUrl(dataUrl);
+      setLocalAvatarAnimal(null);
+      dispatch({ type: 'UPDATE_PROFILE', payload: { photoUrl: dataUrl, avatarAnimal: null, _keepModalOpen: true } });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSelectAnimal = (animalId: string) => {
+    setLocalAvatarAnimal(animalId);
+    setLocalPhotoUrl(null);
+    dispatch({ type: 'UPDATE_PROFILE', payload: { avatarAnimal: animalId, photoUrl: null, _keepModalOpen: true } });
+  };
+
+  const handleResetAvatar = () => {
+    setLocalAvatarAnimal(null);
+    setLocalPhotoUrl(null);
+    dispatch({ type: 'UPDATE_PROFILE', payload: { avatarAnimal: null, photoUrl: null, _keepModalOpen: true } });
+  };
 
   const handleSaveProfile = () => {
     if (!name.trim()) return;
@@ -92,7 +122,11 @@ export function ProfileModal() {
             <span className="material-symbols-outlined">close</span>
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexDirection: 'row-reverse' }}>
-            <div className="profile-modal-avatar" style={{ background: user.color }}>{user.avatar}</div>
+            <UserAvatar
+              user={{ ...user, photoUrl: localPhotoUrl, avatarAnimal: localAvatarAnimal }}
+              size={64}
+              className="profile-modal-avatar"
+            />
             <div style={{ textAlign: 'right' }}>
               <div className="profile-modal-name">{user.name}</div>
               <div className="profile-modal-role">{user.jobTitle || 'חבר צוות'}</div>
@@ -123,6 +157,58 @@ export function ProfileModal() {
           {/* ── Profile tab ── */}
           {tab === 'profile' && (
             <div className="profile-fields">
+
+              {/* ── Avatar Picker ── */}
+              <div className="avatar-picker-section">
+                <label style={{ fontWeight: 600, fontSize: 13, color: 'var(--on-surface-variant)', marginBottom: 2 }}>אווטאר</label>
+
+                <div className="avatar-picker-preview">
+                  <UserAvatar
+                    user={{ ...user, photoUrl: localPhotoUrl, avatarAnimal: localAvatarAnimal }}
+                    size={80}
+                  />
+                </div>
+
+                <div className="avatar-picker-actions">
+                  <button className="avatar-upload-btn" onClick={() => fileInputRef.current?.click()}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 15 }}>upload</span>
+                    העלאת תמונה
+                  </button>
+                  <button className="avatar-reset-btn" onClick={handleResetAvatar}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 15 }}>person</span>
+                    אותיות
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handlePhotoUpload}
+                  />
+                </div>
+
+                <div className="avatar-animal-grid">
+                  {ANIMALS.map(animal => {
+                    const { Illustration } = animal;
+                    const selected = localAvatarAnimal === animal.id;
+                    return (
+                      <button
+                        key={animal.id}
+                        className={`avatar-animal-btn${selected ? ' selected' : ''}`}
+                        title={animal.label}
+                        onClick={() => handleSelectAnimal(animal.id)}
+                        style={{ '--animal-color': animal.bg } as React.CSSProperties}
+                      >
+                        <svg viewBox="0 0 100 100" width={40} height={40} style={{ display: 'block', borderRadius: '50%' }}>
+                          <circle cx="50" cy="50" r="50" fill={animal.bg} />
+                          <Illustration />
+                        </svg>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="profile-two-col">
                 <div className="profile-field">
                   <label>שם מלא</label>

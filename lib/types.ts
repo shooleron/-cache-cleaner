@@ -32,6 +32,8 @@ export interface User {
   companyAddress?: string;
   jobTitle?: string;
   department?: Department;
+  avatarAnimal?: string | null;   // animal id e.g. 'fox', 'panda'
+  photoUrl?: string | null;       // base64 data URL from file upload
 }
 
 export interface Comment {

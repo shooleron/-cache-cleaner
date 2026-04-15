@@ -7950,4 +7950,97 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   white-space: nowrap;
 }
 
+/* ===== Avatar Picker ===== */
+.avatar-picker-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--outline-variant);
+  margin-bottom: 4px;
+}
+
+.avatar-picker-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-picker-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+}
+
+.avatar-animal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  justify-items: center;
+}
+
+.avatar-animal-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 2px;
+  cursor: pointer;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, transform 0.1s;
+}
+
+.avatar-animal-btn:hover {
+  border-color: var(--primary);
+  transform: scale(1.08);
+}
+
+.avatar-animal-btn.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-fixed);
+}
+
+.avatar-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-full);
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--on-surface);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.avatar-upload-btn:hover {
+  background: var(--surface-container);
+}
+
+.avatar-reset-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-full);
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.avatar-reset-btn:hover {
+  background: var(--surface-container-low);
+  color: var(--on-surface);
+}
+
 .celebration-sub { font-size: 13px; color: var(--on-surface-variant); }

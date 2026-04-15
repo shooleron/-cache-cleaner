@@ -78,7 +78,7 @@ type Action =
   | { type: 'LOCK_APP' }
   | { type: 'OPEN_PROFILE_MODAL' }
   | { type: 'CLOSE_PROFILE_MODAL' }
-  | { type: 'UPDATE_PROFILE'; payload: { name?: string; jobTitle?: string; phone?: string; email?: string; company?: string; companyAddress?: string } }
+  | { type: 'UPDATE_PROFILE'; payload: { name?: string; jobTitle?: string; phone?: string; email?: string; company?: string; companyAddress?: string; avatarAnimal?: string | null; photoUrl?: string | null; _keepModalOpen?: boolean } }
   | { type: 'OPEN_NEW_EVENT_MODAL' }
   | { type: 'CLOSE_NEW_EVENT_MODAL' }
   | { type: 'CREATE_EVENT'; payload: Omit<Event, 'id' | 'createdAt' | 'updatedAt'> }
@@ -669,14 +669,15 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, profileModalOpen: false };
 
     case 'UPDATE_PROFILE': {
-      const updatedUser = { ...state.currentUser, ...action.payload };
+      const { _keepModalOpen, ...profilePayload } = action.payload;
+      const updatedUser = { ...state.currentUser, ...profilePayload };
       const avatar = updatedUser.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
       updatedUser.avatar = avatar;
       return {
         ...state,
         currentUser: updatedUser,
         users: state.users.map(u => u.id === state.currentUser.id ? updatedUser : u),
-        profileModalOpen: false,
+        profileModalOpen: _keepModalOpen ? state.profileModalOpen : false,
         activityLogs: [makeLog(state.currentUser.id, 'updated_profile', 'עדכן פרטי פרופיל', state.currentUser.id, 'user'), ...state.activityLogs].slice(0, 500),
       };
     }
