@@ -176,20 +176,27 @@ export function Sidebar() {
   return (
     <aside className="sidebar">
       {/* Logo — מרכז הנדל״ן */}
-      <div className="sidebar-logo" style={{ padding: '0 16px 24px', flexDirection: 'row', justifyContent: 'flex-end' }}>
-        <svg viewBox="0 0 220 64" width="180" height="52" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
-          {/* Geometric icon — right side */}
-          <g transform="translate(150, 4)">
-            {/* Main purple rectangle */}
-            <rect x="0" y="0" width="58" height="56" fill="#5400C8" rx="3"/>
-            {/* White square cutout */}
-            <rect x="8" y="20" width="26" height="26" fill="white" rx="1"/>
-            {/* Top-right triangle notch (dark purple overlay) */}
-            <polygon points="30,0 58,0 58,28" fill="#3a0090"/>
+      <div style={{ padding: '16px 12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+        <svg viewBox="0 0 224 56" width="224" height="56" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block', overflow: 'visible' }}>
+          {/* ── Geometric icon (right side) ── */}
+          <g transform="translate(162, 0)">
+            <rect x="0" y="0" width="56" height="56" fill="#5400C8" rx="4"/>
+            <rect x="7" y="19" width="24" height="24" fill="white" rx="1"/>
+            <polygon points="28,0 56,0 56,27" fill="#3a0090"/>
           </g>
-          {/* Text — left side */}
-          <text x="138" y="28" textAnchor="end" fontFamily="'Arial Black', 'Helvetica', sans-serif" fontSize="26" fontWeight="900" fill="#FF5800" letterSpacing="-0.5">מרכז</text>
-          <text x="138" y="56" textAnchor="end" fontFamily="'Arial Black', 'Helvetica', sans-serif" fontSize="22" fontWeight="900" fill="#5400C8" letterSpacing="-0.5">הנדל״ן</text>
+          {/* ── Text (left of icon) ── */}
+          <text
+            x="154" y="24"
+            textAnchor="end"
+            fontFamily="'Arial Black', Arial, sans-serif"
+            fontSize="27" fontWeight="900" fill="#FF5800"
+          >מרכז</text>
+          <text
+            x="154" y="52"
+            textAnchor="end"
+            fontFamily="'Arial Black', Arial, sans-serif"
+            fontSize="22" fontWeight="900" fill="#5400C8"
+          >הנדל״ן</text>
         </svg>
       </div>
 
