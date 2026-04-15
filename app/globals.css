@@ -227,6 +227,88 @@ h1, h2, h3, h4, h5 { font-family: 'Manrope', sans-serif; }
 .sidebar-user-name { font-size: 12px; font-weight: 700; color: var(--on-surface); line-height: 1; }
 .sidebar-user-role { font-size: 10px; color: var(--on-surface-variant); margin-top: 1px; }
 
+/* ── User row + dropdown ── */
+.sidebar-user-row { position: relative; }
+
+.sidebar-user-dropdown {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--surface-container-lowest);
+  border: 1.5px solid var(--outline-variant);
+  border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 200;
+}
+
+.sidebar-dropdown-item {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  color: var(--on-surface);
+  text-align: right;
+  width: 100%;
+  transition: background 0.12s;
+}
+.sidebar-dropdown-item:hover { background: var(--surface-container-low); }
+.sidebar-dropdown-item.danger { color: var(--error); }
+.sidebar-dropdown-item.danger:hover { background: #fef2f2; }
+
+.sidebar-dropdown-divider {
+  height: 1px;
+  background: var(--outline-variant);
+  margin: 4px 8px;
+}
+
+/* ── Floating AI button ── */
+.ai-float-btn {
+  position: fixed;
+  bottom: 28px;
+  left: 28px;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 18px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #5a45cb, #7c5fe6);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(90,69,203,0.40);
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  transition: all 0.2s;
+}
+.ai-float-btn:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 10px 32px rgba(90,69,203,0.50);
+}
+.ai-float-btn.active {
+  background: linear-gradient(135deg, #3d2db0, #5a45cb);
+  box-shadow: 0 4px 16px rgba(90,69,203,0.35);
+}
+.ai-float-label {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
 /* ── TOPBAR ── */
 .topbar {
   display: flex;

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { AppSection } from '@/lib/types';
 import { isAdmin } from '@/lib/permissions';
@@ -107,7 +107,20 @@ export function Sidebar() {
   const [expandedBrands, setExpandedBrands] = useState<Set<string>>(new Set(['brand-1']));
   const [showNewBrand, setShowNewBrand] = useState(false);
   const [newBrandName, setNewBrandName] = useState('');
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const admin = isAdmin(state.currentUser);
+
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [userMenuOpen]);
 
   function setSection(section: AppSection) {
     dispatch({ type: 'SET_ACTIVE_SECTION', payload: section });
@@ -305,60 +318,68 @@ export function Sidebar() {
         </button>
       )}
 
-      {/* Footer */}
+      {/* Footer — user row only, with dropdown */}
       <div className="sidebar-footer">
-        <div
-          className="sidebar-item"
-          style={{ color: state.aiPanelOpen ? 'var(--primary)' : undefined }}
-          onClick={() => dispatch({ type: 'TOGGLE_AI_PANEL' })}
-        >
-          <span style={{ flex: 1, textAlign: 'right' }}>AI אסיסטנט</span>
-          <span className="material-symbols-outlined sidebar-item-icon">smart_toy</span>
-        </div>
-        <div
-          className="sidebar-user"
-          onClick={() => dispatch({ type: 'OPEN_PROFILE_MODAL' })}
-          style={{ cursor: 'pointer' }}
-          title="פרופיל"
-        >
-          {/* Action icons — LEFT side */}
-          <div style={{ display: 'flex', gap: 4, marginLeft: 'auto' }}>
-            {admin && (
-              <button
-                className="sidebar-lock-btn"
-                onClick={e => { e.stopPropagation(); dispatch({ type: 'OPEN_INVITE_MODAL' }); }}
-                title="הזמן משתתפים"
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person_add</span>
+        <div className="sidebar-user-row" ref={userMenuRef}>
+          {/* Clickable user row */}
+          <div
+            className="sidebar-user"
+            onClick={() => setUserMenuOpen(o => !o)}
+            style={{ cursor: 'pointer' }}
+          >
+            {/* Chevron — far left */}
+            <span className="material-symbols-outlined" style={{ fontSize: 14, color: 'var(--outline)', transition: 'transform 0.2s', transform: userMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+              expand_less
+            </span>
+            {/* Name + role — right side */}
+            <div className="sidebar-user-info" style={{ flex: 1, textAlign: 'right' }}>
+              <div className="sidebar-user-name">{state.currentUser.name}</div>
+              <div className="sidebar-user-role">{state.currentUser.jobTitle || 'מנהל תפעול'}</div>
+            </div>
+            {/* Avatar — far right */}
+            <div className="sidebar-user-avatar" style={{ background: state.currentUser.color }}>
+              {state.currentUser.avatar}
+            </div>
+          </div>
+
+          {/* Dropdown menu */}
+          {userMenuOpen && (
+            <div className="sidebar-user-dropdown">
+              <button className="sidebar-dropdown-item" onClick={() => { setUserMenuOpen(false); dispatch({ type: 'OPEN_PROFILE_MODAL' }); }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 17 }}>manage_accounts</span>
+                <span>הפרופיל שלי</span>
               </button>
-            )}
-            {admin && (
-              <button
-                className="sidebar-lock-btn"
-                onClick={e => { e.stopPropagation(); dispatch({ type: 'SET_ACTIVE_SECTION', payload: 'users' }); }}
-                title="משתמשים"
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>group</span>
+              {admin && (
+                <button className="sidebar-dropdown-item" onClick={() => { setUserMenuOpen(false); dispatch({ type: 'OPEN_INVITE_MODAL' }); }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 17 }}>person_add</span>
+                  <span>הזמן אנשי צוות</span>
+                </button>
+              )}
+              {admin && (
+                <button className="sidebar-dropdown-item" onClick={() => { setUserMenuOpen(false); dispatch({ type: 'SET_ACTIVE_SECTION', payload: 'users' }); }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 17 }}>group</span>
+                  <span>ניהול משתמשים</span>
+                </button>
+              )}
+              <div className="sidebar-dropdown-divider" />
+              <button className="sidebar-dropdown-item danger" onClick={() => { setUserMenuOpen(false); dispatch({ type: 'LOCK_APP' }); }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 17 }}>lock</span>
+                <span>נעל מסך</span>
               </button>
-            )}
-            <button
-              className="sidebar-lock-btn"
-              onClick={e => { e.stopPropagation(); dispatch({ type: 'LOCK_APP' }); }}
-              title="נעל"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>lock</span>
-            </button>
-          </div>
-          {/* Name + role — RIGHT side */}
-          <div className="sidebar-user-info" style={{ textAlign: 'right' }}>
-            <div className="sidebar-user-name">{state.currentUser.name}</div>
-            <div className="sidebar-user-role">{state.currentUser.jobTitle || 'מנהל תפעול'}</div>
-          </div>
-          <div className="sidebar-user-avatar" style={{ background: state.currentUser.color }}>
-            {state.currentUser.avatar}
-          </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Floating AI button — bottom-left of viewport */}
+      <button
+        className={`ai-float-btn ${state.aiPanelOpen ? 'active' : ''}`}
+        onClick={() => dispatch({ type: 'TOGGLE_AI_PANEL' })}
+        title="AI אסיסטנט"
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: 26 }}>smart_toy</span>
+        {!state.aiPanelOpen && <span className="ai-float-label">AI</span>}
+      </button>
     </aside>
   );
 }
