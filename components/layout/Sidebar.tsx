@@ -162,13 +162,22 @@ export function Sidebar() {
 
   return (
     <aside className="sidebar">
-      {/* Logo */}
-      <div className="sidebar-logo">
-        <div className="sidebar-logo-icon">A</div>
-        <div className="sidebar-logo-text">
-          <span className="sidebar-logo-name">{state.workspaceName || 'אטלייה'}</span>
-          <span className="sidebar-logo-sub">סביבת עבודה</span>
-        </div>
+      {/* Logo — מרכז הנדל״ן */}
+      <div className="sidebar-logo" style={{ padding: '0 16px 24px', flexDirection: 'row', justifyContent: 'flex-end' }}>
+        <svg viewBox="0 0 220 64" width="180" height="52" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+          {/* Geometric icon — right side */}
+          <g transform="translate(150, 4)">
+            {/* Main purple rectangle */}
+            <rect x="0" y="0" width="58" height="56" fill="#5400C8" rx="3"/>
+            {/* White square cutout */}
+            <rect x="8" y="20" width="26" height="26" fill="white" rx="1"/>
+            {/* Top-right triangle notch (dark purple overlay) */}
+            <polygon points="30,0 58,0 58,28" fill="#3a0090"/>
+          </g>
+          {/* Text — left side */}
+          <text x="138" y="28" textAnchor="end" fontFamily="'Arial Black', 'Helvetica', sans-serif" fontSize="26" fontWeight="900" fill="#FF5800" letterSpacing="-0.5">מרכז</text>
+          <text x="138" y="56" textAnchor="end" fontFamily="'Arial Black', 'Helvetica', sans-serif" fontSize="22" fontWeight="900" fill="#5400C8" letterSpacing="-0.5">הנדל״ן</text>
+        </svg>
       </div>
 
       {/* Nav */}
@@ -179,8 +188,8 @@ export function Sidebar() {
               className={`sidebar-item ${state.activeSection === item.section || (item.section === 'dashboard' && state.activeSection === 'my-tasks') ? 'active' : ''}`}
               onClick={() => setSection(item.section)}
             >
+              <span style={{ flex: 1, textAlign: 'right' }}>{item.label}</span>
               <span className="material-symbols-outlined sidebar-item-icon">{item.icon}</span>
-              <span>{item.label}</span>
             </div>
             {item.section === 'dashboard' && (state.activeSection === 'dashboard' || state.activeSection === 'my-tasks') && (
               <div className="sidebar-group-items">
@@ -188,8 +197,8 @@ export function Sidebar() {
                   className={`sidebar-item sidebar-sub-item ${state.activeSection === 'my-tasks' ? 'active' : ''}`}
                   onClick={() => setSection('my-tasks')}
                 >
+                  <span style={{ flex: 1, textAlign: 'right' }}>המשימות שלי</span>
                   <span className="material-symbols-outlined sidebar-item-icon">task_alt</span>
-                  <span>המשימות שלי</span>
                 </div>
               </div>
             )}
@@ -242,11 +251,11 @@ export function Sidebar() {
           className={`sidebar-item sidebar-group-header ${isMgmtActive ? 'active' : ''}`}
           onClick={() => setMgmtOpen(o => !o)}
         >
-          <span className="material-symbols-outlined sidebar-item-icon">manage_accounts</span>
-          <span style={{ flex: 1 }}>ניהול</span>
-          <span className="material-symbols-outlined" style={{ fontSize: 16, transition: 'transform 0.2s', transform: mgmtOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 15, transition: 'transform 0.2s', transform: mgmtOpen ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
             chevron_left
           </span>
+          <span style={{ flex: 1, textAlign: 'right' }}>ניהול</span>
+          <span className="material-symbols-outlined sidebar-item-icon">manage_accounts</span>
         </div>
         {mgmtOpen && (
           <div className="sidebar-group-items">
@@ -256,20 +265,20 @@ export function Sidebar() {
                 className={`sidebar-item sidebar-sub-item ${state.activeSection === item.section ? 'active' : ''}`}
                 onClick={() => setSection(item.section)}
               >
+                <span style={{ flex: 1, textAlign: 'right' }}>{item.label}</span>
                 <span className="material-symbols-outlined sidebar-item-icon">{item.icon}</span>
-                <span>{item.label}</span>
               </div>
             ))}
           </div>
         )}
 
-        {/* שיווק — פריט יחיד, החלוקה במסך התוכן */}
+        {/* שיווק — פריט יחיד */}
         <div
           className={`sidebar-item ${isMktActive ? 'active' : ''}`}
           onClick={() => { setSection('marketing'); dispatch({ type: 'CLEAR_ACTIVE_PROJECT' }); }}
         >
+          <span style={{ flex: 1, textAlign: 'right' }}>שיווק</span>
           <span className="material-symbols-outlined sidebar-item-icon">campaign</span>
-          <span>שיווק</span>
         </div>
 
         {/* R&D — top-level section */}
@@ -277,8 +286,11 @@ export function Sidebar() {
           className={`sidebar-item sidebar-group-header ${state.activeSection === 'rd' ? 'active' : ''}`}
           onClick={() => { setRdOpen(o => !o); setSection('rd'); }}
         >
+          <span className="material-symbols-outlined" style={{ fontSize: 15, transition: 'transform 0.2s', transform: rdOpen ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+            chevron_left
+          </span>
+          <span style={{ flex: 1, textAlign: 'right' }}>R&amp;D</span>
           <span className="material-symbols-outlined sidebar-item-icon">science</span>
-          <span>R&amp;D</span>
         </div>
       </nav>
 
@@ -300,8 +312,8 @@ export function Sidebar() {
           style={{ color: state.aiPanelOpen ? 'var(--primary)' : undefined }}
           onClick={() => dispatch({ type: 'TOGGLE_AI_PANEL' })}
         >
+          <span style={{ flex: 1, textAlign: 'right' }}>AI אסיסטנט</span>
           <span className="material-symbols-outlined sidebar-item-icon">smart_toy</span>
-          <span>AI אסיסטנט</span>
         </div>
         <div
           className="sidebar-user"
@@ -309,14 +321,8 @@ export function Sidebar() {
           style={{ cursor: 'pointer' }}
           title="פרופיל"
         >
-          <div className="sidebar-user-avatar" style={{ background: state.currentUser.color }}>
-            {state.currentUser.avatar}
-          </div>
-          <div className="sidebar-user-info">
-            <div className="sidebar-user-name">{state.currentUser.name}</div>
-            <div className="sidebar-user-role">{state.currentUser.jobTitle || 'מנהל תפעול'}</div>
-          </div>
-          <div style={{ display: 'flex', gap: 4 }}>
+          {/* Action icons — LEFT side */}
+          <div style={{ display: 'flex', gap: 4, marginLeft: 'auto' }}>
             {admin && (
               <button
                 className="sidebar-lock-btn"
@@ -342,6 +348,14 @@ export function Sidebar() {
             >
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>lock</span>
             </button>
+          </div>
+          {/* Name + role — RIGHT side */}
+          <div className="sidebar-user-info" style={{ textAlign: 'right' }}>
+            <div className="sidebar-user-name">{state.currentUser.name}</div>
+            <div className="sidebar-user-role">{state.currentUser.jobTitle || 'מנהל תפעול'}</div>
+          </div>
+          <div className="sidebar-user-avatar" style={{ background: state.currentUser.color }}>
+            {state.currentUser.avatar}
           </div>
         </div>
       </div>

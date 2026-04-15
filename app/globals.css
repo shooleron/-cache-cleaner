@@ -144,14 +144,14 @@ h1, h2, h3, h4, h5 { font-family: 'Manrope', sans-serif; }
 
 .sidebar-item {
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: row;
   align-items: center;
-  gap: 12px;
-  padding: 12px 20px;
+  gap: 10px;
+  padding: 10px 14px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   color: var(--on-surface-variant);
-  font-size: 15px;
+  font-size: 14px;
   font-family: 'Manrope', sans-serif;
   font-weight: 500;
   transition: background 0.15s;
@@ -163,9 +163,12 @@ h1, h2, h3, h4, h5 { font-family: 'Manrope', sans-serif; }
 .sidebar-item.active {
   color: #7B68EE;
   font-weight: 700;
-  border-right: 4px solid #7B68EE;
-  padding-right: 16px;
+  border-right: 3px solid #7B68EE;
+  padding-right: 11px;
 }
+
+/* label flex-fills — icon pushed to far left */
+.sidebar-item > span:not(.material-symbols-outlined):not(.sidebar-item-icon) { flex: 1; }
 
 .sidebar-item-icon { font-size: 20px; flex-shrink: 0; }
 
@@ -197,9 +200,9 @@ h1, h2, h3, h4, h5 { font-family: 'Manrope', sans-serif; }
 
 .sidebar-user {
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: row;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 10px 12px;
   border-radius: var(--radius);
   margin: 4px 0;
@@ -6609,7 +6612,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 
 /* ===================== SIDEBAR GROUP (ניהול) ===================== */
 .sidebar-group-header {
-  display: flex; flex-direction: row-reverse; align-items: center;
+  display: flex; flex-direction: row; align-items: center;
 }
 .sidebar-group-items {
   display: flex; flex-direction: column;
