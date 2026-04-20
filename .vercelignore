@@ -1,0 +1,24 @@
+Library/
+Downloads/
+Documents/
+Desktop/
+Movies/
+Music/
+Pictures/
+Applications/
+OneDrive
+.Trash/
+.adobe/
+.config/
+.ssh/
+.nvm/
+.npm/
+.local/
+.vscode/
+.zsh_history
+.zsh_sessions/
+.zshrc
+.zprofile
+Claude/
+Creative Cloud Files*
+*.png
