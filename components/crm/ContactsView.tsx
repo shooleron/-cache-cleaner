@@ -6,6 +6,7 @@ import { Contact, ContactStatus, ContactType } from '@/lib/types';
 import { useConfirm } from '@/components/ui/ConfirmDialog';
 import { exportContacts } from '@/lib/exportExcel';
 import { ImportContactsModal } from '@/components/modals/ImportContactsModal';
+import { GoogleSheetsModal } from '@/components/modals/GoogleSheetsModal';
 
 // ── Config ──────────────────────────────────────────────
 
@@ -489,6 +490,7 @@ export function ContactsView() {
   const [modalId, setModalId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [importOpen, setImportOpen] = useState(false);
+  const [gsheetsOpen, setGsheetsOpen] = useState(false);
 
   const filtered = state.contacts.filter(c => {
     const q = search.toLowerCase();
@@ -519,6 +521,10 @@ export function ContactsView() {
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>table_rows</span>
               </button>
             </div>
+            <button className="btn-export" onClick={() => setGsheetsOpen(true)} style={{ gap: 6 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>sync</span>
+              Google Sheets
+            </button>
             <button className="btn-export" onClick={() => setImportOpen(true)}>
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>upload</span>
               ייבוא מאקסל
@@ -653,6 +659,7 @@ export function ContactsView() {
 
         {modalId && <ContactModal contactId={modalId} onClose={() => setModalId(null)} />}
         {importOpen && <ImportContactsModal onClose={() => setImportOpen(false)} />}
+        {gsheetsOpen && <GoogleSheetsModal onClose={() => setGsheetsOpen(false)} />}
       </div>
     </>
   );
