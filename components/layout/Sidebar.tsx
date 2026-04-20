@@ -176,28 +176,8 @@ export function Sidebar() {
   return (
     <aside className="sidebar">
       {/* Logo — מרכז הנדל״ן */}
-      <div style={{ padding: '16px 12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-        <svg viewBox="0 0 224 56" width="224" height="56" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block', overflow: 'visible' }}>
-          {/* ── Geometric icon (right side) ── */}
-          <g transform="translate(162, 0)">
-            <rect x="0" y="0" width="56" height="56" fill="#5400C8" rx="4"/>
-            <rect x="7" y="19" width="24" height="24" fill="white" rx="1"/>
-            <polygon points="28,0 56,0 56,27" fill="#3a0090"/>
-          </g>
-          {/* ── Text (left of icon) ── */}
-          <text
-            x="154" y="24"
-            textAnchor="end"
-            fontFamily="'Arial Black', Arial, sans-serif"
-            fontSize="27" fontWeight="900" fill="#FF5800"
-          >מרכז</text>
-          <text
-            x="154" y="52"
-            textAnchor="end"
-            fontFamily="'Arial Black', Arial, sans-serif"
-            fontSize="22" fontWeight="900" fill="#5400C8"
-          >הנדל״ן</text>
-        </svg>
+      <div style={{ padding: '12px 16px 20px', display: 'flex', justifyContent: 'center' }}>
+        <img src="/logo-nadlan.svg" alt="מרכז הנדל״ן" style={{ width: '100%', maxWidth: 220, height: 'auto', display: 'block' }} />
       </div>
 
       {/* Nav */}
