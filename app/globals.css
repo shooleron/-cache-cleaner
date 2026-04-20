@@ -8129,3 +8129,26 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 }
 
 .celebration-sub { font-size: 13px; color: var(--on-surface-variant); }
+
+/* Export button */
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  background: var(--surface-container-low);
+  border: 1.5px solid var(--outline-variant);
+  color: var(--on-surface-variant);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-export:hover {
+  background: var(--surface-container);
+  color: var(--on-surface);
+  border-color: var(--outline);
+}

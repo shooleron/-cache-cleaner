@@ -3,6 +3,7 @@
 import React from 'react';
 import { useStore } from '@/lib/store';
 import { BoardView, CRMView } from '@/lib/types';
+import { exportTasks } from '@/lib/exportExcel';
 
 export function TopBar() {
   const { state, dispatch } = useStore();
@@ -108,6 +109,18 @@ export function TopBar() {
 
       {/* Left side: actions + user */}
       <div className="topbar-left">
+        {(state.activeSection === 'events' || isMktSection) && state.activeProjectId && (
+          <button
+            className="btn-export"
+            onClick={() => {
+              const projectTasks = state.tasks.filter(t => t.projectId === state.activeProjectId);
+              exportTasks(projectTasks, state.groups, state.projects, state.users);
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>download</span>
+            ייצוא Excel
+          </button>
+        )}
         {(() => {
           const unreadNotifs = state.notifications.filter(n => n.userId === state.currentUser.id && !n.read).length;
           const unreadChats = state.chats.reduce((acc, c) => {

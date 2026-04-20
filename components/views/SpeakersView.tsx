@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { Speaker, SpeakerApprovalStatus } from '@/lib/types';
+import { exportSpeakers } from '@/lib/exportExcel';
 
 const APPROVAL_STYLE: Record<SpeakerApprovalStatus, { label: string; color: string; bg: string; icon: string }> = {
   approved:  { label: 'מאושר',   color: '#16a34a', bg: '#f0fdf4', icon: 'check_circle' },
@@ -330,6 +331,10 @@ export function SpeakersView() {
           </button>
         </div>
 
+        <button className="btn-export" onClick={() => exportSpeakers(filtered, state.events)}>
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>download</span>
+          ייצוא Excel
+        </button>
         <button className="btn-primary" style={{ gap: 6, display: 'flex', alignItems: 'center' }} onClick={openNewSpeaker}>
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>person_add</span>
           הוסף דובר

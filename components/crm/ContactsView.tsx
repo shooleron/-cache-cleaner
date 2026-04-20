@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { Contact, ContactStatus, ContactType } from '@/lib/types';
 import { useConfirm } from '@/components/ui/ConfirmDialog';
+import { exportContacts } from '@/lib/exportExcel';
 
 // ── Config ──────────────────────────────────────────────
 
@@ -516,6 +517,10 @@ export function ContactsView() {
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>table_rows</span>
               </button>
             </div>
+            <button className="btn-export" onClick={() => exportContacts(filtered, state.users)}>
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>download</span>
+              ייצוא Excel
+            </button>
             <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6 }} onClick={() => setModalId('new')}>
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>person_add</span>
               הוסף איש קשר
