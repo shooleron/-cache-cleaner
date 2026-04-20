@@ -275,16 +275,17 @@ section.ds + section.ds{border-top:1px solid var(--doc-border)}
 }
 
 /* ── SPONSORS ───────────────────────────────────────────── */
-.sponsors-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.sponsors-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 @media(max-width:900px){.sponsors-row{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:500px){.sponsors-row{grid-template-columns:repeat(2,1fr)}}
 .sponsor-tile{
   aspect-ratio:3/2;border:1px solid var(--doc-border);border-radius:var(--radius);
-  background:#fff;display:grid;place-items:center;color:var(--doc-muted);
-  font-weight:700;letter-spacing:.04em;font-size:14px;text-align:center;padding:14px;
-  transition:transform .15s,border-color .15s,color .15s;
+  background:#fff;display:grid;place-items:center;padding:18px 20px;position:relative;overflow:hidden;
+  transition:transform .15s,border-color .15s,box-shadow .15s;
 }
-.sponsor-tile:hover{border-color:var(--purple);color:var(--purple);transform:translateY(-2px)}
+.sponsor-tile:hover{border-color:var(--purple);transform:translateY(-2px);box-shadow:0 6px 18px rgba(26,27,46,.08)}
+.sponsor-tile svg{max-width:100%;max-height:100%;width:auto;height:auto;display:block}
+.sponsor-tile .lg-text{font-weight:700;line-height:1;text-align:center;white-space:nowrap}
 
 /* ── REGISTER ───────────────────────────────────────────── */
 .register{
@@ -550,18 +551,147 @@ ul.links{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;g
       <h2 class="section-title">מי שעומד מאחורי הוועידה.</h2>
     </div>
     <div class="sponsors-row">
-      <div class="sponsor-tile">בנק לאומי</div>
-      <div class="sponsor-tile">בנק הפועלים</div>
-      <div class="sponsor-tile">מזרחי טפחות</div>
-      <div class="sponsor-tile">אמות השקעות</div>
-      <div class="sponsor-tile">אזורים</div>
-      <div class="sponsor-tile">ביג מרכזי קניות</div>
-      <div class="sponsor-tile">תדיראן גרופ</div>
-      <div class="sponsor-tile">רמי לוי נדל״ן</div>
-      <div class="sponsor-tile">קבוצת לוזון</div>
-      <div class="sponsor-tile">קבוצת אשטרום</div>
-      <div class="sponsor-tile">בנק דיסקונט</div>
-      <div class="sponsor-tile">חברת החשמל</div>
+      <!-- Bank Leumi -->
+      <div class="sponsor-tile" title="בנק לאומי">
+        <svg viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg" aria-label="בנק לאומי">
+          <g font-family="Mikhmoret, Arial, sans-serif" font-weight="700">
+            <text x="170" y="28" text-anchor="end" font-size="22" fill="#7A1917">LEUMI</text>
+            <text x="170" y="50" text-anchor="end" font-size="18" fill="#C8202F">בנק לאומי</text>
+            <circle cx="18" cy="30" r="14" fill="#C8202F"/>
+            <circle cx="18" cy="30" r="6" fill="#fff"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Bank Hapoalim -->
+      <div class="sponsor-tile" title="בנק הפועלים">
+        <svg viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg" aria-label="בנק הפועלים">
+          <g font-family="Mikhmoret, Arial, sans-serif" font-weight="700">
+            <rect x="10" y="14" width="32" height="32" rx="3" fill="#D72027"/>
+            <text x="26" y="38" text-anchor="middle" font-size="22" fill="#fff">ב</text>
+            <text x="170" y="28" text-anchor="end" font-size="16" fill="#1a1a2e">בנק</text>
+            <text x="170" y="50" text-anchor="end" font-size="20" fill="#D72027">הפועלים</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Mizrahi Tefahot -->
+      <div class="sponsor-tile" title="מזרחי טפחות">
+        <svg viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg" aria-label="מזרחי טפחות">
+          <g font-family="Mikhmoret, Arial, sans-serif" font-weight="700">
+            <path d="M12 40 L22 18 L32 40 Z" fill="#C9A227"/>
+            <path d="M34 40 L44 22 L54 40 Z" fill="#002E5F"/>
+            <text x="192" y="28" text-anchor="end" font-size="16" fill="#002E5F">מזרחי</text>
+            <text x="192" y="48" text-anchor="end" font-size="16" fill="#C9A227">טפחות</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Discount Bank -->
+      <div class="sponsor-tile" title="בנק דיסקונט">
+        <svg viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg" aria-label="בנק דיסקונט">
+          <g font-family="Mikhmoret, Arial, sans-serif" font-weight="700">
+            <circle cx="22" cy="30" r="16" fill="none" stroke="#00843D" stroke-width="3"/>
+            <path d="M14 30 L22 22 L30 30 L22 38 Z" fill="#00843D"/>
+            <text x="170" y="28" text-anchor="end" font-size="16" fill="#1a1a2e">בנק</text>
+            <text x="170" y="50" text-anchor="end" font-size="20" fill="#00843D">דיסקונט</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Amot Investments -->
+      <div class="sponsor-tile" title="אמות השקעות">
+        <svg viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg" aria-label="אמות השקעות">
+          <g font-family="Mikhmoret, Arial, sans-serif" font-weight="700">
+            <rect x="10" y="16" width="6" height="30" fill="#4A2E80"/>
+            <rect x="20" y="22" width="6" height="24" fill="#8E44AD"/>
+            <rect x="30" y="12" width="6" height="34" fill="#4A2E80"/>
+            <text x="170" y="30" text-anchor="end" font-size="22" fill="#4A2E80">אמות</text>
+            <text x="170" y="48" text-anchor="end" font-size="12" fill="#8E44AD" letter-spacing="2">השקעות במקרקעין</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Azorim -->
+      <div class="sponsor-tile" title="אזורים">
+        <svg viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg" aria-label="אזורים">
+          <g font-family="Mikhmoret, Arial, sans-serif" font-weight="700">
+            <path d="M8 42 L22 18 L36 42 L30 42 L22 28 L14 42 Z" fill="#003087"/>
+            <text x="170" y="34" text-anchor="end" font-size="26" fill="#003087">אזורים</text>
+            <text x="170" y="52" text-anchor="end" font-size="10" fill="#666688" letter-spacing="3">AZORIM</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- BIG Shopping Centers -->
+      <div class="sponsor-tile" title="ביג מרכזי קניות">
+        <svg viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg" aria-label="ביג מרכזי קניות">
+          <g font-family="Arial Black, Impact, sans-serif" font-weight="900">
+            <rect x="10" y="10" width="80" height="40" rx="4" fill="#E2231A"/>
+            <text x="50" y="40" text-anchor="middle" font-size="26" fill="#fff" letter-spacing="2">BIG</text>
+            <text x="170" y="32" text-anchor="end" font-size="14" fill="#1a1a2e" font-family="Mikhmoret, Arial, sans-serif">מרכזי</text>
+            <text x="170" y="50" text-anchor="end" font-size="14" fill="#E2231A" font-family="Mikhmoret, Arial, sans-serif">קניות</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Tadiran Group -->
+      <div class="sponsor-tile" title="תדיראן גרופ">
+        <svg viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg" aria-label="תדיראן גרופ">
+          <g font-family="Mikhmoret, Arial, sans-serif" font-weight="700">
+            <path d="M12 30 Q22 14 32 30 T52 30" fill="none" stroke="#1D4289" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="32" cy="30" r="4" fill="#E8833A"/>
+            <text x="170" y="30" text-anchor="end" font-size="22" fill="#1D4289">תדיראן</text>
+            <text x="170" y="50" text-anchor="end" font-size="12" fill="#666688" letter-spacing="3">GROUP</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Rami Levy -->
+      <div class="sponsor-tile" title="רמי לוי נדל״ן">
+        <svg viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg" aria-label="רמי לוי נדל״ן">
+          <g font-family="Mikhmoret, Arial, sans-serif" font-weight="700">
+            <rect x="10" y="14" width="42" height="32" rx="3" fill="#E30613"/>
+            <text x="31" y="37" text-anchor="middle" font-size="16" fill="#fff">RL</text>
+            <text x="170" y="28" text-anchor="end" font-size="18" fill="#E30613">רמי לוי</text>
+            <text x="170" y="50" text-anchor="end" font-size="14" fill="#1a1a2e">נדל״ן</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Luzon Group -->
+      <div class="sponsor-tile" title="קבוצת לוזון">
+        <svg viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg" aria-label="קבוצת לוזון">
+          <g font-family="Mikhmoret, Arial, sans-serif" font-weight="700">
+            <path d="M16 42 L16 18 L28 30 L40 18 L40 42" fill="none" stroke="#1a1a2e" stroke-width="3" stroke-linejoin="miter"/>
+            <text x="170" y="30" text-anchor="end" font-size="22" fill="#1a1a2e">לוזון</text>
+            <text x="170" y="50" text-anchor="end" font-size="11" fill="#666688" letter-spacing="3">LUZON GROUP</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Ashtrom Group -->
+      <div class="sponsor-tile" title="קבוצת אשטרום">
+        <svg viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg" aria-label="קבוצת אשטרום">
+          <g font-family="Mikhmoret, Arial, sans-serif" font-weight="700">
+            <polygon points="14,42 26,14 38,42" fill="#E8833A"/>
+            <polygon points="18,42 26,22 34,42" fill="#fff"/>
+            <text x="170" y="30" text-anchor="end" font-size="22" fill="#E8833A">אשטרום</text>
+            <text x="170" y="50" text-anchor="end" font-size="11" fill="#666688" letter-spacing="3">ASHTROM GROUP</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Israel Electric Corporation -->
+      <div class="sponsor-tile" title="חברת החשמל">
+        <svg viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg" aria-label="חברת החשמל">
+          <g font-family="Mikhmoret, Arial, sans-serif" font-weight="700">
+            <path d="M22 12 L14 32 L22 32 L18 48 L30 28 L22 28 Z" fill="#F7B500" stroke="#005AAA" stroke-width="1.5" stroke-linejoin="round"/>
+            <text x="170" y="28" text-anchor="end" font-size="16" fill="#005AAA">חברת</text>
+            <text x="170" y="50" text-anchor="end" font-size="20" fill="#005AAA">החשמל</text>
+          </g>
+        </svg>
+      </div>
     </div>
     <p style="text-align:center;margin-top:28px;color:var(--doc-muted);font-size:13px">חלק מרשימת השותפים משנים קודמות. רשימת שותפי 2027 תעודכן בקרוב.</p>
   </div>
