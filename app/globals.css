@@ -8152,3 +8152,89 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   color: var(--on-surface);
   border-color: var(--outline);
 }
+
+/* ===== Import Modal ===== */
+.import-modal-box {
+  width: 100%;
+  max-width: 640px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-container-lowest);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+  border: 1px solid var(--outline-variant);
+}
+.import-modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--outline-variant);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.import-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+.import-dropzone {
+  border: 2px dashed var(--outline-variant);
+  border-radius: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.import-dropzone:hover {
+  border-color: var(--primary);
+  background: var(--primary-fixed);
+}
+.import-dropzone.dragover {
+  border-color: var(--primary);
+  background: var(--primary-fixed);
+}
+.import-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  direction: rtl;
+  font-size: 13px;
+  margin-top: 16px;
+}
+.import-preview-table th {
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  background: var(--surface-container-low);
+  text-align: right;
+  border-bottom: 1.5px solid var(--outline-variant);
+}
+.import-preview-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--outline-variant);
+  color: var(--on-surface);
+  vertical-align: middle;
+}
+.import-preview-table tr:hover td {
+  background: var(--surface-container-low);
+}
+.import-actions {
+  padding: 16px 24px;
+  border-top: 1px solid var(--outline-variant);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.import-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px;
+  text-align: center;
+}

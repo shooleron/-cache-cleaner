@@ -5,6 +5,7 @@ import { useStore } from '@/lib/store';
 import { Contact, ContactStatus, ContactType } from '@/lib/types';
 import { useConfirm } from '@/components/ui/ConfirmDialog';
 import { exportContacts } from '@/lib/exportExcel';
+import { ImportContactsModal } from '@/components/modals/ImportContactsModal';
 
 // ── Config ──────────────────────────────────────────────
 
@@ -487,6 +488,7 @@ export function ContactsView() {
   const [filterType, setFilterType] = useState<ContactType | 'all'>('all');
   const [modalId, setModalId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [importOpen, setImportOpen] = useState(false);
 
   const filtered = state.contacts.filter(c => {
     const q = search.toLowerCase();
@@ -517,6 +519,10 @@ export function ContactsView() {
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>table_rows</span>
               </button>
             </div>
+            <button className="btn-export" onClick={() => setImportOpen(true)}>
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>upload</span>
+              ייבוא מאקסל
+            </button>
             <button className="btn-export" onClick={() => exportContacts(filtered, state.users)}>
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>download</span>
               ייצוא Excel
@@ -646,6 +652,7 @@ export function ContactsView() {
         )}
 
         {modalId && <ContactModal contactId={modalId} onClose={() => setModalId(null)} />}
+        {importOpen && <ImportContactsModal onClose={() => setImportOpen(false)} />}
       </div>
     </>
   );
