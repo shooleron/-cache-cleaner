@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ועידת מרכז הנדל״ן אילת 2027</title>
+<meta name="description" content="ועידת מרכז הנדל״ן אילת 2027 — האירוע החשוב והמקצועי ביותר של ענף הנדל״ן בישראל. 9–11 במאי 2027." />
+<style>
+/* ── FONT ────────────────────────────────────────────────── */
+@font-face { font-family:'Mikhmoret'; src:url('uploads/mikhmoret-bold-aaa.otf') format('opentype'); font-weight:700; font-display:swap; }
+@font-face { font-family:'Mikhmoret'; src:url('uploads/mikhmoret-regular-aaa.otf') format('opentype'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Mikhmoret'; src:url('uploads/mikhmoret-light-aaa.otf') format('opentype'); font-weight:300; font-display:swap; }
+
+/* ── TOKENS ──────────────────────────────────────────────── */
+:root{
+  --purple:#5405BD;
+  --orange:#F15722;
+  --white:#FFFFFF;
+
+  /* Eilat sub-brand */
+  --eilat-red:#FF0000;
+  --eilat-red-cta:#F3541C;
+  --eilat-cyan:#21C8FC;
+
+  --doc-bg:#FFFFFF;
+  --doc-surface:#F8F7FF;
+  --doc-border:#E2DFEF;
+  --doc-text:#1A1A2E;
+  --doc-muted:#666688;
+
+  --font:'Mikhmoret', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  --container:1200px;
+  --radius:4px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--doc-bg);color:var(--doc-text);line-height:1.4;direction:rtl;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+[id]{scroll-margin-top:68px}
+.container{max-width:var(--container);margin:0 auto;padding:0 48px}
+@media(max-width:700px){.container{padding:0 22px}}
+
+/* ── NAV ────────────────────────────────────────────────── */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,.97);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--doc-border);
+  padding:0 48px;display:flex;align-items:center;height:60px;gap:24px;
+}
+@media(max-width:700px){.nav{padding:0 22px}}
+.nav-brand{font-weight:700;font-size:18px;color:var(--doc-text);margin-left:auto;white-space:nowrap}
+.nav-brand span{color:var(--orange)}
+.nav-links{display:flex;gap:2px}
+.nav-links a{
+  font-size:13px;font-weight:400;color:var(--doc-muted);
+  padding:6px 13px;border-radius:var(--radius);
+  transition:color .15s,background .15s;white-space:nowrap;
+}
+.nav-links a:hover{color:var(--purple);background:rgba(84,5,189,.06)}
+.nav-cta{
+  margin-right:6px;background:var(--eilat-red-cta);color:#fff;
+  font-weight:700;font-size:13px;padding:8px 16px;border-radius:var(--radius);
+  transition:filter .15s,transform .1s;
+}
+.nav-cta:hover{filter:brightness(1.08);transform:translateY(-1px)}
+@media(max-width:900px){.nav-links{display:none}}
+
+/* ── HERO ────────────────────────────────────────────────── */
+.hero{
+  position:relative;overflow:hidden;
+  padding:80px 0 72px;
+  background:var(--doc-bg);
+  border-bottom:1px solid var(--doc-border);
+}
+.hero::before{
+  content:'';position:absolute;top:-80px;right:-60px;width:500px;height:500px;
+  background:radial-gradient(circle,rgba(84,5,189,.10) 0%,transparent 70%);pointer-events:none;
+}
+.hero::after{
+  content:'';position:absolute;bottom:-80px;left:-60px;width:400px;height:400px;
+  background:radial-gradient(circle,rgba(33,200,252,.14) 0%,transparent 70%);pointer-events:none;
+}
+/* Top strip – Eilat sub-brand signature */
+.hero-strip-top{position:absolute;top:0;left:0;right:0;height:8px;background:var(--eilat-cyan);z-index:5}
+.hero-strip-side{position:absolute;top:0;bottom:0;right:0;width:8px;background:var(--eilat-red-cta);z-index:5}
+
+.hero-eyebrow{
+  font-size:13px;font-weight:700;letter-spacing:.2em;color:var(--eilat-red-cta);
+  text-transform:uppercase;margin-bottom:20px;
+}
+.hero-title{
+  font-size:clamp(64px,9vw,128px);font-weight:700;line-height:.86;
+  color:var(--doc-text);margin-bottom:24px;letter-spacing:-.01em;
+}
+.hero-title .red{color:var(--eilat-red-cta)}
+.hero-title .cyan{color:var(--eilat-cyan)}
+.hero-sub{
+  font-size:20px;font-weight:400;color:var(--doc-muted);
+  max-width:560px;line-height:1.6;margin-bottom:32px;
+}
+.hero-meta{display:flex;gap:28px;flex-wrap:wrap;font-size:13px;color:var(--doc-muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:36px}
+.hero-meta-dot{color:var(--eilat-red-cta);margin-left:6px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+
+/* Buttons */
+.btn{
+  font-family:var(--font);font-weight:700;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;direction:rtl;
+  transition:filter .15s,transform .1s;line-height:1;border-radius:var(--radius);
+}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-lg{font-size:18px;padding:14px 28px}
+.btn-md{font-size:15px;padding:11px 22px}
+.btn-red{background:var(--eilat-red-cta);color:#fff}
+.btn-cyan{background:var(--eilat-cyan);color:#0D0C2A}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-outline{background:transparent;color:var(--doc-text);border:2px solid var(--doc-border);padding-top:9px;padding-bottom:9px}
+.btn-outline:hover{border-color:var(--purple);color:var(--purple)}
+
+/* ── SECTION FRAME ──────────────────────────────────────── */
+section.ds{padding:100px 0}
+section.ds + section.ds{border-top:1px solid var(--doc-border)}
+.section-label{
+  font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--eilat-red-cta);margin-bottom:12px;
+}
+.section-title{
+  font-weight:700;font-size:clamp(36px,5vw,56px);line-height:.9;
+  color:var(--doc-text);margin-bottom:24px;letter-spacing:-.01em;
+}
+.section-lead{max-width:62ch;font-size:17px;color:var(--doc-muted);line-height:1.65}
+
+/* ── STATS ──────────────────────────────────────────────── */
+.stats{padding:56px 0;background:var(--doc-surface);border-top:1px solid var(--doc-border);border-bottom:1px solid var(--doc-border)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
+@media(max-width:800px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+.stat .n{font-weight:700;font-size:clamp(40px,5vw,64px);line-height:1;color:var(--purple)}
+.stat .l{color:var(--doc-muted);font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:10px}
+
+/* ── ABOUT / PILLARS ────────────────────────────────────── */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+@media(max-width:960px){.about-grid{grid-template-columns:1fr}}
+.pillars{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.pillars{grid-template-columns:1fr}}
+.pillar{
+  border:1px solid var(--doc-border);border-radius:var(--radius);padding:22px;background:#fff;
+  transition:border-color .15s,transform .15s;
+}
+.pillar:hover{border-color:var(--eilat-cyan);transform:translateY(-2px)}
+.pillar-label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--eilat-red-cta);margin-bottom:8px}
+.pillar h3{font-size:18px;font-weight:700;margin-bottom:8px;color:var(--doc-text)}
+.pillar p{font-size:14px;color:var(--doc-muted);line-height:1.65;font-weight:400}
+
+/* ── SPEAKERS ───────────────────────────────────────────── */
+.speakers{background:var(--doc-surface)}
+.speaker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:1000px){.speaker-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.speaker-grid{grid-template-columns:repeat(2,1fr)}}
+.speaker{
+  background:#fff;border:1px solid var(--doc-border);border-radius:var(--radius);
+  padding:22px;position:relative;overflow:hidden;transition:border-color .15s,transform .15s;
+}
+.speaker::before{
+  content:'';position:absolute;top:0;right:0;left:0;height:3px;
+  background:var(--eilat-red-cta);transform:scaleX(0);transform-origin:right;transition:transform .25s;
+}
+.speaker:hover{border-color:var(--eilat-red-cta);transform:translateY(-2px)}
+.speaker:hover::before{transform:scaleX(1)}
+.avatar{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--purple);color:#fff;
+  display:grid;place-items:center;font-weight:700;font-size:18px;margin-bottom:14px;
+}
+.speaker:nth-child(3n) .avatar{background:var(--eilat-red-cta)}
+.speaker:nth-child(3n+1) .avatar{background:var(--purple)}
+.speaker:nth-child(3n+2) .avatar{background:var(--eilat-cyan);color:#0D0C2A}
+.speaker .name{font-weight:700;font-size:16px;margin-bottom:4px;color:var(--doc-text);line-height:1.2}
+.speaker .role{font-size:13px;color:var(--doc-muted);font-weight:400;line-height:1.5}
+
+/* ── AGENDA ─────────────────────────────────────────────── */
+.agenda-wrap{display:grid;grid-template-columns:240px 1fr;gap:32px}
+@media(max-width:900px){.agenda-wrap{grid-template-columns:1fr}}
+.day-tabs{display:flex;flex-direction:column;gap:8px;position:sticky;top:80px;align-self:start}
+@media(max-width:900px){.day-tabs{flex-direction:row;position:static;overflow:auto}}
+.day-tab{
+  padding:16px 18px;border-radius:var(--radius);
+  background:#fff;border:1px solid var(--doc-border);
+  text-align:right;cursor:pointer;font-family:var(--font);min-width:200px;
+  transition:all .15s;
+}
+.day-tab .d{font-weight:700;font-size:18px;color:var(--doc-text);line-height:1.1}
+.day-tab .sub{color:var(--doc-muted);font-size:12px;margin-top:4px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.day-tab.active{background:var(--purple);border-color:var(--purple)}
+.day-tab.active .d{color:#fff}
+.day-tab.active .sub{color:rgba(255,255,255,.7)}
+.sessions{display:flex;flex-direction:column;gap:10px}
+.session{
+  background:#fff;border:1px solid var(--doc-border);border-radius:var(--radius);
+  padding:18px 22px;display:grid;grid-template-columns:90px 1fr auto;gap:20px;align-items:center;
+  transition:border-color .15s,transform .15s;position:relative;overflow:hidden;
+}
+.session::before{
+  content:'';position:absolute;right:0;top:0;bottom:0;width:3px;background:var(--eilat-red-cta);
+  transform:scaleY(0);transform-origin:top;transition:transform .2s;
+}
+.session:hover{border-color:var(--eilat-red-cta)}
+.session:hover::before{transform:scaleY(1)}
+.session .time{font-weight:700;color:var(--eilat-red-cta);font-size:16px}
+.session .title{font-weight:700;font-size:15px;color:var(--doc-text)}
+.session .meta{color:var(--doc-muted);font-size:13px;margin-top:4px;font-weight:400}
+.tag{
+  font-weight:700;font-size:11px;padding:4px 10px;line-height:1.3;
+  border-radius:var(--radius);border:1px solid var(--purple);
+  color:var(--purple);background:rgba(84,5,189,.1);white-space:nowrap;
+  letter-spacing:.04em;
+}
+.tag.red{color:var(--eilat-red-cta);border-color:var(--eilat-red-cta);background:rgba(243,84,28,.1)}
+.tag.cyan{color:#0A7899;border-color:var(--eilat-cyan);background:rgba(33,200,252,.12)}
+@media(max-width:560px){.session{grid-template-columns:1fr}.tag{justify-self:start}}
+.day-panel{display:none}
+.day-panel.active{display:block}
+
+/* ── HOTELS ─────────────────────────────────────────────── */
+.hotels{background:var(--doc-bg)}
+.hotel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:900px){.hotel-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.hotel-grid{grid-template-columns:1fr}}
+.hotel{
+  border:1px solid var(--doc-border);border-radius:var(--radius);overflow:hidden;
+  background:#fff;display:flex;flex-direction:column;transition:transform .15s,border-color .15s;
+}
+.hotel:hover{transform:translateY(-2px);border-color:var(--eilat-cyan)}
+.hotel .cover{
+  aspect-ratio:16/10;position:relative;overflow:hidden;
+  background:var(--purple);color:#fff;
+  display:flex;align-items:flex-end;padding:20px;font-weight:700;font-size:22px;line-height:1;
+}
+.hotel .cover::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:5px;background:var(--eilat-cyan);
+}
+.hotel .cover::after{
+  content:'';position:absolute;bottom:0;right:0;width:5px;height:60%;background:var(--eilat-red-cta);
+}
+.hotel .cover.c2{background:linear-gradient(135deg,var(--eilat-red-cta),#B03815)}
+.hotel .cover.c3{background:linear-gradient(135deg,var(--purple),#2A0366)}
+.hotel .cover.c4{background:linear-gradient(135deg,#0A7899,#054056)}
+.hotel .cover.c5{background:linear-gradient(135deg,#8C044E,#4D022B)}
+.hotel .cover.c6{background:linear-gradient(135deg,#083D3D,#031A1A)}
+.hotel .body{padding:20px;background:#FAFAFA;flex:1;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--doc-border)}
+.hotel .body p{font-size:13px;color:var(--doc-muted);line-height:1.65}
+.hotel .price{font-weight:700;font-size:22px;color:var(--purple);line-height:1}
+.hotel .price small{display:block;font-weight:400;color:var(--doc-muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
+
+/* ── QUOTE BAND ─────────────────────────────────────────── */
+.quote-band{
+  position:relative;overflow:hidden;color:#fff;
+  background:var(--purple);padding:90px 0;text-align:center;
+}
+.quote-band::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:6px;background:var(--eilat-cyan);
+}
+.quote-band::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:6px;background:var(--eilat-red-cta);
+}
+.quote-band q{
+  display:block;font-weight:700;font-size:clamp(28px,3.8vw,44px);line-height:1.2;
+  max-width:960px;margin:0 auto;
+}
+.quote-band q::before{content:'„'}
+.quote-band q::after{content:'”'}
+.quote-band .by{
+  margin-top:20px;color:var(--eilat-cyan);font-size:12px;
+  letter-spacing:.22em;text-transform:uppercase;font-weight:700;
+}
+
+/* ── SPONSORS ───────────────────────────────────────────── */
+.sponsors-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+@media(max-width:900px){.sponsors-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:500px){.sponsors-row{grid-template-columns:repeat(2,1fr)}}
+.sponsor-tile{
+  aspect-ratio:3/2;border:1px solid var(--doc-border);border-radius:var(--radius);
+  background:#fff;display:grid;place-items:center;color:var(--doc-muted);
+  font-weight:700;letter-spacing:.04em;font-size:14px;text-align:center;padding:14px;
+  transition:transform .15s,border-color .15s,color .15s;
+}
+.sponsor-tile:hover{border-color:var(--purple);color:var(--purple);transform:translateY(-2px)}
+
+/* ── REGISTER ───────────────────────────────────────────── */
+.register{
+  background:var(--purple);color:#fff;position:relative;overflow:hidden;
+}
+.register::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:8px;background:var(--eilat-red-cta);
+}
+.register::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:8px;background:var(--eilat-cyan);
+}
+.register-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+@media(max-width:900px){.register-grid{grid-template-columns:1fr}}
+.register .section-label{color:var(--eilat-cyan)}
+.register h2{color:#fff;font-weight:700;font-size:clamp(36px,5vw,56px);line-height:.9;margin-bottom:20px;letter-spacing:-.01em}
+.register p{color:rgba(255,255,255,.85);font-size:17px;line-height:1.65}
+.register-contact{margin-top:28px;display:flex;flex-direction:column;gap:8px;color:rgba(255,255,255,.85);font-size:15px}
+.register-contact a{color:var(--eilat-cyan);font-weight:700}
+.form{
+  background:rgba(255,255,255,.08);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.16);border-radius:var(--radius);padding:28px;
+}
+.form .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:600px){.form .row{grid-template-columns:1fr}}
+.form label{
+  display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.7);margin-bottom:6px;font-weight:700;
+}
+.form input{
+  width:100%;padding:12px 14px;border-radius:var(--radius);
+  background:rgba(0,0,0,.22);color:#fff;
+  border:1px solid rgba(255,255,255,.18);font-family:inherit;font-size:15px;
+  transition:border-color .15s,background .15s;
+}
+.form input:focus{outline:none;border-color:var(--eilat-cyan);background:rgba(0,0,0,.4)}
+.form .btn-red{width:100%;justify-content:center;padding:14px 24px;margin-top:8px}
+.tiny{font-size:12px;color:rgba(255,255,255,.6);margin-top:12px;line-height:1.5}
+
+/* ── FOOTER ─────────────────────────────────────────────── */
+footer{background:#0D0C2A;color:rgba(255,255,255,.7);padding:56px 0 24px}
+.foot{display:grid;grid-template-columns:2fr 1fr 1fr;gap:32px}
+@media(max-width:800px){.foot{grid-template-columns:1fr}}
+footer h4{color:#fff;font-size:14px;font-weight:700;margin-bottom:14px;letter-spacing:.08em;text-transform:uppercase}
+footer p{font-size:14px;line-height:1.7}
+footer a{color:rgba(255,255,255,.7)}
+footer a:hover{color:var(--eilat-cyan)}
+ul.links{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.foot-bottom{
+  margin-top:40px;padding-top:20px;border-top:1px solid rgba(255,255,255,.12);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  font-size:12px;color:rgba(255,255,255,.5);letter-spacing:.06em;
+}
+
+/* Decorative crowd band */
+.crowd-band{
+  height:160px;position:relative;overflow:hidden;
+  background:var(--purple) url('uploads/crowd.png') center/cover no-repeat;
+  filter:grayscale(.3) contrast(1.05);
+}
+.crowd-band::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(84,5,189,.45),rgba(84,5,189,.85))}
+.crowd-band::after{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--eilat-red-cta)}
+.crowd-band-inner{
+  position:absolute;inset:0;display:grid;place-items:center;color:#fff;
+  font-weight:700;font-size:clamp(18px,2.2vw,28px);letter-spacing:.1em;text-transform:uppercase;
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav class="nav">
+  <a class="nav-cta" href="#register">הרשמה ←</a>
+  <div class="nav-links">
+    <a href="#about">על הוועידה</a>
+    <a href="#speakers">דוברים</a>
+    <a href="#agenda">לוח זמנים</a>
+    <a href="#hotels">מלונות</a>
+    <a href="#sponsors">שותפים</a>
+  </div>
+  <div class="nav-brand"><span>מרכז</span> הנדל״ן · <span style="color:var(--eilat-red-cta)">אילת 2027</span></div>
+</nav>
+
+<!-- ── HERO ── -->
+<header class="hero" id="top">
+  <div class="hero-strip-top"></div>
+  <div class="hero-strip-side"></div>
+  <div class="container">
+    <div class="hero-eyebrow">9–11.05.2027 · ועידת הנדל״ן · אילת</div>
+    <h1 class="hero-title">
+      ועידת<br/>
+      <span class="red">הנדל״ן</span><br/>
+      <span class="cyan">אילת 2027</span>
+    </h1>
+    <p class="hero-sub">האירוע החשוב והמקצועי ביותר של ענף הנדל״ן, מיועד לבכירים בלבד — תוכן חד, פאנלים עם שרים וראשי הענף, פגישות עסקיות ברמה הגבוהה ביותר ואירועי ערב בלתי נשכחים.</p>
+    <div class="hero-meta">
+      <span><span class="hero-meta-dot">●</span> 1,500+ בכירי ענף</span>
+      <span><span class="hero-meta-dot">●</span> 80+ דוברים</span>
+      <span><span class="hero-meta-dot">●</span> 3 ימים באילת</span>
+    </div>
+    <div class="hero-cta">
+      <a class="btn btn-lg btn-red" href="#register">הרשמה לוועידה</a>
+      <a class="btn btn-lg btn-outline" href="#agenda">הצג לוח זמנים</a>
+    </div>
+  </div>
+</header>
+
+<!-- ── STATS ── -->
+<section class="stats">
+  <div class="container stats-grid">
+    <div class="stat"><div class="n">1,500+</div><div class="l">בכירי הענף</div></div>
+    <div class="stat"><div class="n">80+</div><div class="l">דוברים וחברי פאנל</div></div>
+    <div class="stat"><div class="n">40+</div><div class="l">מושבים ופאנלים</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">ימים · 2 לילות מסיבה</div></div>
+  </div>
+</section>
+
+<!-- ── ABOUT ── -->
+<section class="ds" id="about">
+  <div class="container about-grid">
+    <div>
+      <div class="section-label">01 — על הוועידה</div>
+      <h2 class="section-title">המקום שבו ההחלטות שמזיזות את השוק נולדות.</h2>
+      <p class="section-lead">ועידת מרכז הנדל״ן באילת חוזרת ב־2027 עם אג׳נדה חדה ומעודכנת, דוברים חדשים והשפעה אמיתית על העשייה בענף — האירוע המקצועי המרכזי של שנת הנדל״ן, מיועד לבכירים בלבד.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-label">★ תוכן</div>
+        <h3>חד וממוקד</h3>
+        <p>פאנלים עם שרים, ראשי ועדות תכנון והדמויות שמובילות את השוק.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-label">◆ קשרים</div>
+        <h3>נטוורקינג ברמה הגבוהה</h3>
+        <p>פגישות עם מנכ״לי החברות המובילות, יזמים, גופי מימון וקרנות.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-label">♪ לילות</div>
+        <h3>אירועי ערב</h3>
+        <p>הופעות חיות של אומני ישראל הגדולים ומסיבות עד השעות הקטנות.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-label">✦ חוויה</div>
+        <h3>אירוח פרמיום</h3>
+        <p>רשת מלונות הדגל של אילת, חוויה קולינרית וסשנים על שפת הים.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CROWD BAND ── -->
+<div class="crowd-band"><div class="crowd-band-inner">כל הענף · שולחן אחד · 9–11.05.2027</div></div>
+
+<!-- ── SPEAKERS ── -->
+<section class="ds speakers" id="speakers">
+  <div class="container">
+    <div style="margin-bottom:48px">
+      <div class="section-label">02 — דוברים</div>
+      <h2 class="section-title">מהשרים, דרך הרגולטורים,<br/>ועד מובילי ההון בענף.</h2>
+      <p class="section-lead">מבחר מתוך הדוברים שעלו לבמה בוועידה האחרונה — הרכב הדוברים של 2027 יעודכן בחודשים הקרובים.</p>
+    </div>
+    <div class="speaker-grid">
+      <div class="speaker"><div class="avatar">חב</div><div class="name">חיים ביבס</div><div class="role">יו״ר מרכז השלטון המקומי · ראש עיריית מודיעין־מכבים־רעות</div></div>
+      <div class="speaker"><div class="avatar">בס</div><div class="name">בצלאל סמוטריץ׳</div><div class="role">שר האוצר</div></div>
+      <div class="speaker"><div class="avatar">חכ</div><div class="name">חיים כץ</div><div class="role">שר הבינוי והשיכון</div></div>
+      <div class="speaker"><div class="avatar">מר</div><div class="name">מירי רגב</div><div class="role">שרת התחבורה והבטיחות בדרכים</div></div>
+      <div class="speaker"><div class="avatar">ימ</div><div class="name">יהודה מורגנשטרן</div><div class="role">מנכ״ל משרד הבינוי והשיכון</div></div>
+      <div class="speaker"><div class="avatar">נא</div><div class="name">הרב נתן אלנתן</div><div class="role">יו״ר מטה התכנון הלאומי</div></div>
+      <div class="speaker"><div class="avatar">יק</div><div class="name">ינקי קוינט</div><div class="role">מנהל רשות מקרקעי ישראל היוצא</div></div>
+      <div class="speaker"><div class="avatar">כי</div><div class="name">עו״ד כרמית יוליס</div><div class="role">המשנה ליועצת המשפטית לממשלה למשפט אזרחי</div></div>
+      <div class="speaker"><div class="avatar">רא</div><div class="name">רפי אלמליח</div><div class="role">מנכ״ל מינהל התכנון</div></div>
+      <div class="speaker"><div class="avatar">שא</div><div class="name">עו״ד שי אהרונוביץ׳</div><div class="role">מנהל רשות המסים</div></div>
+      <div class="speaker"><div class="avatar">ממ</div><div class="name">משה ממרוד</div><div class="role">מנכ״ל ובעלים, תדיראן גרופ</div></div>
+      <div class="speaker"><div class="avatar">מי</div><div class="name">מתן יגל</div><div class="role">סגן הממונה על התקציבים, משרד האוצר</div></div>
+      <div class="speaker"><div class="avatar">רל</div><div class="name">רמי לוי</div><div class="role">מייסד ובעלים, רמי לוי נדל״ן</div></div>
+      <div class="speaker"><div class="avatar">על</div><div class="name">עמוס לוזון</div><div class="role">מנכ״ל קבוצת לוזון</div></div>
+      <div class="speaker"><div class="avatar">אב</div><div class="name">איתן בר זאב</div><div class="role">יו״ר ביג מרכזי קניות</div></div>
+      <div class="speaker"><div class="avatar">+</div><div class="name">ועוד עשרות דוברים</div><div class="role">הרכב הוועידה המלא יפורסם בחודשים הקרובים.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AGENDA ── -->
+<section class="ds" id="agenda">
+  <div class="container">
+    <div style="margin-bottom:48px">
+      <div class="section-label">03 — לוח זמנים</div>
+      <h2 class="section-title">שלושה ימים שנבנו לדיוק.</h2>
+      <p class="section-lead">מושבי בוקר, פאנלים מקצועיים, פגישות 1:1 ואירועי ערב. הלו״ז המלא יתעדכן בחודשים שלפני הוועידה.</p>
+    </div>
+    <div class="agenda-wrap">
+      <div class="day-tabs" role="tablist">
+        <button class="day-tab active" data-day="1"><div class="d">יום א׳</div><div class="sub">09.05 · פתיחה</div></button>
+        <button class="day-tab" data-day="2"><div class="d">יום ב׳</div><div class="sub">10.05 · שיא</div></button>
+        <button class="day-tab" data-day="3"><div class="d">יום ג׳</div><div class="sub">11.05 · סיכום</div></button>
+      </div>
+      <div>
+        <div class="day-panel active" data-day="1">
+          <div class="sessions">
+            <div class="session"><div class="time">14:00</div><div><div class="title">קבלת פנים · Check-in והרשמה</div><div class="meta">לובי המלון המארח</div></div><div class="tag">פתיחה</div></div>
+            <div class="session"><div class="time">16:30</div><div><div class="title">מושב הפתיחה · איך ייראה שוק הנדל״ן ב־2028?</div><div class="meta">אולם ראשי · מלון הרודס</div></div><div class="tag red">Keynote</div></div>
+            <div class="session"><div class="time">18:00</div><div><div class="title">פאנל שרים · תכנון, מימון ודיור בר־השגה</div><div class="meta">עם שרי האוצר, הבינוי והתחבורה</div></div><div class="tag">פאנל</div></div>
+            <div class="session"><div class="time">20:30</div><div><div class="title">ארוחת ערב פתיחה · גאלה</div><div class="meta">בחסות השותפים האסטרטגיים</div></div><div class="tag cyan">ערב</div></div>
+            <div class="session"><div class="time">22:30</div><div><div class="title">מופע פתיחה · אמן ישראלי מוביל</div><div class="meta">במה ראשית</div></div><div class="tag cyan">הופעה</div></div>
+          </div>
+        </div>
+        <div class="day-panel" data-day="2">
+          <div class="sessions">
+            <div class="session"><div class="time">08:30</div><div><div class="title">Power Breakfast · מפגש יזמים</div><div class="meta">מוזמנים בלבד</div></div><div class="tag">נטוורקינג</div></div>
+            <div class="session"><div class="time">10:00</div><div><div class="title">מושב רשויות · רמ״י ומינהל התכנון</div><div class="meta">עם ראשי הרשויות</div></div><div class="tag">רגולציה</div></div>
+            <div class="session"><div class="time">11:30</div><div><div class="title">פאנל מימון · בנקים, קרנות וגופים מוסדיים</div><div class="meta">הון פרטי, חוב ומימון יזמי</div></div><div class="tag red">פיננסים</div></div>
+            <div class="session"><div class="time">13:30</div><div><div class="title">ארוחת צהריים · פגישות 1:1</div><div class="meta">דקלים · מרפסת הים</div></div><div class="tag">Deals</div></div>
+            <div class="session"><div class="time">16:00</div><div><div class="title">מושב התחדשות עירונית · מפינוי־בינוי ל־TAMA חדש</div><div class="meta">ראשי ערים ויזמים</div></div><div class="tag red">התחדשות</div></div>
+            <div class="session"><div class="time">18:30</div><div><div class="title">Keynote · מגמות גלובליות בשוק הנדל״ן</div><div class="meta">דובר בינלאומי</div></div><div class="tag red">Global</div></div>
+            <div class="session"><div class="time">22:30</div><div><div class="title">Eilat Night · מסיבת השיא</div><div class="meta">הופעה חיה + After Party</div></div><div class="tag cyan">ערב</div></div>
+          </div>
+        </div>
+        <div class="day-panel" data-day="3">
+          <div class="sessions">
+            <div class="session"><div class="time">09:30</div><div><div class="title">בוקר שקט · Power Walk עם מנכ״לים</div><div class="meta">טיילת הים</div></div><div class="tag">פתיחה</div></div>
+            <div class="session"><div class="time">11:00</div><div><div class="title">פאנל מסחר ותעסוקה · עתיד ה־Retail בישראל</div><div class="meta">מרכזי קניות ומגמות צריכה</div></div><div class="tag">מסחר</div></div>
+            <div class="session"><div class="time">12:30</div><div><div class="title">פאנל מיסוי · רשות המסים והמשנה ליועמ״ש</div><div class="meta">שינויי חקיקה ודוגמאות מהשטח</div></div><div class="tag red">מיסוי</div></div>
+            <div class="session"><div class="time">14:00</div><div><div class="title">מושב הנעילה · הצהרת הוועידה ל־2027</div><div class="meta">אולם ראשי</div></div><div class="tag cyan">סיום</div></div>
+            <div class="session"><div class="time">15:00</div><div><div class="title">פרידה · קוקטייל סיום</div><div class="meta">מרפסת הים</div></div><div class="tag">סגירה</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── QUOTE ── -->
+<section class="quote-band">
+  <div class="container">
+    <q>אין עוד מקום אחד בשנה שבו כל הענף יושב יחד, חולק שולחן, ומסמן את הכיוון להמשך.</q>
+    <div class="by">— מרכז הנדל״ן · אילת 2026</div>
+  </div>
+</section>
+
+<!-- ── HOTELS ── -->
+<section class="ds hotels" id="hotels">
+  <div class="container">
+    <div style="margin-bottom:48px">
+      <div class="section-label">04 — חבילות אירוח</div>
+      <h2 class="section-title">חוויה מלונאית ברמה הגבוהה<br/>ביותר באילת.</h2>
+      <p class="section-lead">כל חבילה כוללת לינה, ארוחות מלאות והשתתפות בכל תכני הוועידה. המחירים הם הנחיות כלליות לאדם בחבילה המלאה.</p>
+    </div>
+    <div class="hotel-grid">
+      <div class="hotel"><div class="cover">הרודס אילת</div><div class="body"><p>מלון הדגל של הוועידה — מוקד כל המושבים הראשיים.</p><div class="price">מ־9,500 ₪<small>חדר סינגל · חבילה מלאה</small></div></div></div>
+      <div class="hotel"><div class="cover c2">ישרוטל רויאל ביץ׳</div><div class="body"><p>על שפת הים, לובי מורחב לפגישות עסקיות.</p><div class="price">מ־8,900 ₪<small>חדר דאבל · חבילה מלאה</small></div></div></div>
+      <div class="hotel"><div class="cover c3">דן אילת</div><div class="body"><p>קלאסיקה אילתית — שילוב של שירות ומיקום.</p><div class="price">מ־7,800 ₪<small>חדר סינגל · חבילה מלאה</small></div></div></div>
+      <div class="hotel"><div class="cover c4">אואזיס אילת</div><div class="body"><p>מלון בוטיק עם מתחם בריכות ומסעדות שף.</p><div class="price">מ־6,900 ₪<small>חדר דאבל · חבילה מלאה</small></div></div></div>
+      <div class="hotel"><div class="cover c5">לאונרדו פלאזה</div><div class="body"><p>מיקום מרכזי, חדרים מרווחים וגישה לטיילת.</p><div class="price">מ־5,800 ₪<small>חדר טריפל · חבילה מלאה</small></div></div></div>
+      <div class="hotel"><div class="cover c6">U Coral Beach</div><div class="body"><p>אירוח All Inclusive על שפת הקורל ריף.</p><div class="price">מ־4,900 ₪<small>חדר טריפל · חבילה מלאה</small></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SPONSORS ── -->
+<section class="ds" id="sponsors">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:48px">
+      <div class="section-label" style="display:inline-block">05 — שותפים אסטרטגיים</div>
+      <h2 class="section-title">מי שעומד מאחורי הוועידה.</h2>
+    </div>
+    <div class="sponsors-row">
+      <div class="sponsor-tile">בנק לאומי</div>
+      <div class="sponsor-tile">בנק הפועלים</div>
+      <div class="sponsor-tile">מזרחי טפחות</div>
+      <div class="sponsor-tile">אמות השקעות</div>
+      <div class="sponsor-tile">אזורים</div>
+      <div class="sponsor-tile">ביג מרכזי קניות</div>
+      <div class="sponsor-tile">תדיראן גרופ</div>
+      <div class="sponsor-tile">רמי לוי נדל״ן</div>
+      <div class="sponsor-tile">קבוצת לוזון</div>
+      <div class="sponsor-tile">קבוצת אשטרום</div>
+      <div class="sponsor-tile">בנק דיסקונט</div>
+      <div class="sponsor-tile">חברת החשמל</div>
+    </div>
+    <p style="text-align:center;margin-top:28px;color:var(--doc-muted);font-size:13px">חלק מרשימת השותפים משנים קודמות. רשימת שותפי 2027 תעודכן בקרוב.</p>
+  </div>
+</section>
+
+<!-- ── REGISTER ── -->
+<section class="register ds" id="register">
+  <div class="container register-grid">
+    <div>
+      <div class="section-label">06 — הרשמה</div>
+      <h2>שריינו את מקומכם<br/>בוועידת 2027.</h2>
+      <p>מספר המקומות מוגבל. השאירו פרטים לקבלת חבילות הרישום המוקדם או הצטרפו לרשימת ההמתנה — נציג מטעמנו יחזור אליכם.</p>
+      <div class="register-contact">
+        <div>📧 <a href="mailto:info@nadlancenter.co.il">info@nadlancenter.co.il</a></div>
+        <div>☎︎ 03-000-0000</div>
+        <div>📍 אילת · 9–11.05.2027</div>
+      </div>
+    </div>
+    <form class="form" onsubmit="event.preventDefault();alert('תודה! נציג מטעמנו יחזור אליכם בהקדם.');this.reset();">
+      <div class="row">
+        <div><label for="f-name">שם מלא</label><input id="f-name" required placeholder="ישראל ישראלי"></div>
+        <div><label for="f-role">תפקיד</label><input id="f-role" required placeholder="מנכ״ל / סמנכ״ל"></div>
+      </div>
+      <div class="row">
+        <div><label for="f-company">חברה</label><input id="f-company" required placeholder="שם החברה"></div>
+        <div><label for="f-phone">טלפון</label><input id="f-phone" required type="tel" placeholder="050-0000000"></div>
+      </div>
+      <div style="margin-bottom:14px">
+        <label for="f-mail">דוא״ל</label>
+        <input id="f-mail" required type="email" placeholder="you@company.co.il">
+      </div>
+      <button class="btn btn-lg btn-red" type="submit">שליחה ←</button>
+      <div class="tiny">ההרשמה כפופה לאישור הפקה. הוועידה מיועדת לבכירים בלבד.</div>
+    </form>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="container">
+    <div class="foot">
+      <div>
+        <h4>ועידת מרכז הנדל״ן אילת 2027</h4>
+        <p style="max-width:44ch">האירוע השנתי המרכזי של ענף הנדל״ן בישראל. שלושה ימים של תוכן, מפגשים והשפעה — על חופה של אילת.</p>
+      </div>
+      <div>
+        <h4>ניווט</h4>
+        <ul class="links">
+          <li><a href="#about">על הוועידה</a></li>
+          <li><a href="#speakers">דוברים</a></li>
+          <li><a href="#agenda">לוח זמנים</a></li>
+          <li><a href="#hotels">מלונות</a></li>
+          <li><a href="#register">הרשמה</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>צרו קשר</h4>
+        <ul class="links">
+          <li><a href="mailto:info@nadlancenter.co.il">info@nadlancenter.co.il</a></li>
+          <li><a href="tel:+97230000000">03-000-0000</a></li>
+          <li>אילת, ישראל</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div>© 2026–2027 מרכז הנדל״ן · כל הזכויות שמורות.</div>
+      <div>בנוי לפי Design System v1.2 של מרכז הנדל״ן</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Agenda tabs
+  const tabs = document.querySelectorAll('.day-tab');
+  const panels = document.querySelectorAll('.day-panel');
+  tabs.forEach(t=>{
+    t.addEventListener('click',()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      panels.forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      document.querySelector(`.day-panel[data-day="${t.dataset.day}"]`).classList.add('active');
+    });
+  });
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click',e=>{
+      const id=a.getAttribute('href');
+      if(id.length>1){
+        const el=document.querySelector(id);
+        if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth',block:'start'});}
+      }
+    });
+  });
+</script>
+</body>
+</html>
