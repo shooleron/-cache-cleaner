@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="utf-8">
+  <title>ווירפריים — אחד משלנו</title>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #fff; font-family: 'Caveat', cursive; direction: rtl;
+           -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    @media print {
+      @page { size: A4 landscape; margin: 0.6cm; }
+      .page-break { break-before: page; }
+      .no-print { display: none !important; }
+      body { background: #fff; }
+    }
+
+    /* ── primitives ── */
+    .sk-box    { border: 2px solid #2a2a2a; background: #fff; position: relative; }
+    .sk-blue   { background: #d4e4f7; border-color: #3a6fa8; }
+    .sk-yellow { background: #f9e44a; border-color: #c0a000; }
+    .sk-gray   { background: #f0f0f0; border-color: #bbb; }
+    .sk-green  { background: #e3f5e8; border-color: #3a9a5c; }
+    .sk-dashed { border-style: dashed !important; }
+
+    .sk-line   { height: 2px; background: #c8c8c8; border-radius: 1px; }
+    .sk-btn    { display: inline-flex; align-items: center; justify-content: center;
+                 border: 2px solid #2a2a2a; padding: 4px 10px; font-family: 'Caveat', cursive;
+                 font-size: 12px; border-radius: 3px; white-space: nowrap; }
+    .sk-btn-primary { background: #1b3f6e; color: #fff; border-color: #1b3f6e; }
+    .sk-btn-yellow  { background: #f9e44a; color: #2a2a2a; border-color: #c0a000; }
+    .sk-btn-outline { background: #fff; color: #2a2a2a; }
+
+    .img-ph { background: #e0dbd4; border: 2px dashed #aaa; display: flex; align-items: center;
+              justify-content: center; color: #888; font-family: 'Caveat', cursive; font-size: 11px;
+              overflow: hidden; position: relative; }
+    .img-ph::before, .img-ph::after { content: ''; position: absolute; width: 140%; height: 1.5px;
+              background: #bbb; left: -20%; }
+    .img-ph::before { transform: rotate(17deg); }
+    .img-ph::after  { transform: rotate(-17deg); }
+    .img-ph span    { position: relative; z-index: 1; background: #e0dbd4; padding: 1px 4px; border-radius: 2px; }
+
+    .note { font-family: 'Caveat', cursive; font-size: 10px; color: #e05a00;
+            border-right: 2px solid #e05a00; padding-right: 4px; margin-top: 3px; }
+    .tag  { display: inline-flex; align-items: center; border: 1.5px solid #aaa; border-radius: 10px;
+            padding: 1px 7px; font-family: 'Caveat', cursive; font-size: 10px; background: #fff; color: #444; }
+    .tag-blue { border-color: #3a6fa8; background: #d4e4f7; color: #1b3f6e; }
+
+    /* Page wrapper */
+    .page {
+      width: 267mm; min-height: 185mm;
+      padding: 8px; background: #ece8e1;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .page-title {
+      font-family: 'Caveat', cursive; font-size: 13px; font-weight: 700;
+      color: #1a1a1a; background: #f9e44a; padding: 4px 10px;
+      border: 2px solid #c0a000; border-radius: 3px; display: inline-block;
+      margin-bottom: 4px;
+    }
+    /* Browser chrome */
+    .browser { background: #fff; border: 2.5px solid #2a2a2a; border-radius: 5px;
+                overflow: hidden; box-shadow: 3px 3px 0 #2a2a2a; flex: 1; }
+    .b-bar   { background: #e8e4df; border-bottom: 2px solid #2a2a2a; padding: 5px 10px;
+               display: flex; align-items: center; gap: 6px; }
+    .b-dot   { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(0,0,0,.15); }
+    .b-url   { flex: 1; max-width: 380px; margin: 0 auto; height: 18px; background: #fff;
+               border: 1.5px solid #ccc; border-radius: 3px; display: flex; align-items: center;
+               padding: 0 8px; font-family: 'Caveat', cursive; font-size: 10px; color: #888; }
+    .section-sep { border-bottom: 1.5px dashed #d8d8d8; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState } = React;
+
+function Lines({ n=3, last=60, style={} }) {
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:3, ...style }}>
+      {Array.from({length:n}).map((_,i)=>(
+        <div key={i} className="sk-line" style={{ width: i===n-1?`${last}%`:'100%' }} />
+      ))}
+    </div>
+  );
+}
+function ImgPh({ w, h, text='📷', style={} }) {
+  return (
+    <div className="img-ph" style={{ width:w, height:h, flexShrink:0, ...style }}>
+      <span>{text}</span>
+    </div>
+  );
+}
+function Logo({ small }) {
+  const s = small ? .8 : 1;
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap:6*s }}>
+      <svg width={22*s} height={22*s} viewBox="0 0 26 26" fill="none">
+        <circle cx="13" cy="10" r="7" fill="#f9e44a" stroke="#fff" strokeWidth="2"/>
+        <line x1="9.5" y1="16" x2="7"  y2="24" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="16.5" y1="16" x2="19" y2="24" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+      <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13*s, lineHeight:1.1 }}>
+        <div style={{ color:'#f9e44a' }}>אחד משלנו</div>
+        <div style={{ color:'#b8d0ee', fontSize:9*s, fontWeight:400 }}>פורטל עסקי לקהילת השווים</div>
+      </div>
+    </div>
+  );
+}
+
+/* ══ PAGE A — דף הבית ══ */
+function PageHome() {
+  const cats = [
+    {icon:'🔧',label:'בית ותשתיות'},{icon:'⚖️',label:'משפט'},
+    {icon:'📚',label:'ספרים וחינוך'},{icon:'🍽️',label:'מזון ואירועים'},
+    {icon:'💻',label:'טכנולוגיה'},{icon:'🎨',label:'עיצוב'},
+    {icon:'🏋️',label:'בריאות'},{icon:'✂️',label:'יופי'},
+    {icon:'🧒',label:'ילדים'},{icon:'⋯',label:'עוד...'},
+  ];
+  return (
+    <div className="page">
+      <div className="page-title">א׳ — דף הבית</div>
+      <div className="browser">
+        <div className="b-bar">
+          <div style={{ display:'flex', gap:4 }}>
+            {['#ff5f57','#febc2e','#28c840'].map(c=>(
+              <div key={c} className="b-dot" style={{ background:c }} />
+            ))}
+          </div>
+          <div className="b-url">🔒 ahad-mishlanu.co.il</div>
+        </div>
+
+        {/* Promo banner */}
+        <div style={{ background:'#f9e44a', borderBottom:'2px solid #c0a000', padding:'5px 12px',
+                      display:'flex', alignItems:'center', gap:10 }}>
+          <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:12, flex:1 }}>
+            🆕 הצטרפו 12 עסקים חדשים החודש! &nbsp;|&nbsp; 🏷️ שבוע הספר — 20% הנחה
+          </div>
+          <button className="sk-btn sk-btn-primary" style={{ fontSize:10, padding:'2px 8px' }}>לכל המבצעים</button>
+          <div className="note" style={{ marginTop:0, borderRight:'none', paddingRight:0, color:'#666' }}>← באנר פרומו מתחלף</div>
+        </div>
+
+        {/* Navbar */}
+        <div style={{ background:'#1b3f6e', padding:'7px 12px', display:'flex', alignItems:'center',
+                      gap:8, borderBottom:'2.5px solid #f9e44a' }}>
+          <Logo />
+          <div style={{ flex:1 }} />
+          <button className="sk-btn" style={{ height:26, background:'transparent', color:'#fff',
+                  borderColor:'rgba(255,255,255,.4)', fontSize:11 }}>כניסה</button>
+          <button className="sk-btn sk-btn-yellow" style={{ height:26, fontSize:11 }}>הרשמה חינם</button>
+        </div>
+
+        {/* Megamenu bar */}
+        <div style={{ background:'#162f55', borderBottom:'1.5px solid #2a547a', padding:'0 12px',
+                      display:'flex', alignItems:'center' }}>
+          <span style={{ fontFamily:'Caveat', fontSize:12, color:'#fff', padding:'6px 10px',
+                borderLeft:'1px solid #2a547a' }}>☰ כל הקטגוריות</span>
+          {['בית ותשתיות','משפט','ספרים','מזון','טכנולוגיה','עיצוב','ועדי עובדים'].map(c=>(
+            <span key={c} style={{ fontFamily:'Caveat', fontSize:11, color:'#b8d0ee',
+                  padding:'6px 10px', borderLeft:'1px solid #2a547a', whiteSpace:'nowrap' }}>{c}</span>
+          ))}
+        </div>
+
+        {/* Hero */}
+        <div style={{ background:'#1b3f6e', padding:'16px 16px 14px', textAlign:'center' }} className="section-sep">
+          <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:20, color:'#f9e44a', marginBottom:2 }}>
+            מצא עסקים ושירותים מקהילת השווים
+          </div>
+          <div style={{ fontFamily:'Caveat', fontSize:12, color:'#b8d0ee', marginBottom:10 }}>
+            כל רכישה מחזקת משפחה ועסק
+          </div>
+          <div style={{ display:'flex', maxWidth:500, margin:'0 auto', height:36 }}>
+            <div className="sk-box" style={{ flex:1, display:'flex', alignItems:'center', padding:'0 10px',
+                  background:'#fff', borderRadius:'0 4px 4px 0', color:'#aaa', fontSize:12 }}>
+              🔍 שם עסק, מוצר, שירות...
+            </div>
+            <div className="sk-box" style={{ width:110, display:'flex', alignItems:'center', padding:'0 8px',
+                  background:'#fff', borderLeft:'1.5px solid #2a2a2a', color:'#777', fontSize:11 }}>
+              📍 כל הארץ ▾
+            </div>
+            <button className="sk-btn sk-btn-yellow" style={{ height:'100%', borderRadius:'4px 0 0 4px',
+                    fontSize:13, padding:'0 14px' }}>חפש</button>
+          </div>
+        </div>
+
+        {/* Category icons */}
+        <div style={{ background:'#fff', padding:'10px 12px' }} className="section-sep">
+          <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:14, color:'#1b3f6e', marginBottom:8 }}>
+            עיין לפי קטגוריה
+          </div>
+          <div style={{ display:'flex', gap:6 }}>
+            {cats.map(c=>(
+              <div key={c.label} className="sk-box" style={{ minWidth:64, padding:'6px 4px', textAlign:'center', flexShrink:0 }}>
+                <div style={{ fontSize:16, marginBottom:2 }}>{c.icon}</div>
+                <div style={{ fontFamily:'Caveat', fontSize:10 }}>{c.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Seasonal + Carousels row */}
+        <div style={{ display:'flex', gap:0 }}>
+          {/* Seasonal strip */}
+          <div style={{ background:'#fffbe5', borderTop:'1.5px solid #f9e44a', borderBottom:'1.5px solid #f9e44a',
+                        borderLeft:'1.5px dashed #ddd', padding:'8px 10px', width:'30%', flexShrink:0 }}>
+            <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:12, color:'#7a5c00', marginBottom:6 }}>
+              🍷 לקראת פסח
+            </div>
+            {['קייטרינג חגיגי','מוצרי מזון','הגדות ותוכן'].map(t=>(
+              <div key={t} className="sk-box sk-yellow" style={{ padding:'3px 8px', fontFamily:'Caveat',
+                    fontSize:10, marginBottom:3, borderRadius:2 }}>{t}</div>
+            ))}
+            <div className="note">פס עונתי מתחלף</div>
+          </div>
+
+          {/* Carousels */}
+          <div style={{ flex:1, padding:'8px 10px', display:'flex', flexDirection:'column', gap:8 }}>
+            {/* Business carousel */}
+            <div>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#1b3f6e', marginBottom:5 }}>
+                🆕 עסקים חדשים בפורטל
+              </div>
+              <div style={{ display:'flex', gap:6 }}>
+                {[1,2,3,4].map(i=>(
+                  <div key={i} className="sk-box" style={{ minWidth:90, padding:6, flexShrink:0 }}>
+                    <ImgPh w="100%" h={40} text="לוגו" />
+                    <div style={{ fontFamily:'Caveat', fontSize:11, fontWeight:700, marginTop:4 }}>שם העסק</div>
+                    <div style={{ display:'flex', gap:2, margin:'2px 0' }}>
+                      <span className="tag tag-blue" style={{ fontSize:9 }}>חשמלאי</span>
+                      <span className="tag" style={{ fontSize:9, background:'#e3f5e8', borderColor:'#3a9a5c', color:'#1e6b3a' }}>✅</span>
+                    </div>
+                    <div style={{ display:'flex', gap:3 }}>
+                      <button className="sk-btn sk-btn-yellow" style={{ flex:1, fontSize:9, padding:'2px 0' }}>לרכישה</button>
+                      <button className="sk-btn sk-btn-outline" style={{ flex:1, fontSize:9, padding:'2px 0' }}>פרטים</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Personal carousel */}
+            <div>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#1b3f6e', marginBottom:5 }}>
+                👤 פרופילים אישיים — קהילת השווים
+              </div>
+              <div style={{ display:'flex', gap:6 }}>
+                {[1,2,3,4].map(i=>(
+                  <div key={i} className="sk-box" style={{ minWidth:86, padding:6, flexShrink:0 }}>
+                    <ImgPh w="100%" h={40} text="תמונה" />
+                    <div style={{ fontFamily:'Caveat', fontSize:11, fontWeight:700, marginTop:4 }}>שם מלא</div>
+                    <div style={{ fontFamily:'Caveat', fontSize:9, color:'#e05a00', marginBottom:3 }}>👤 בן/בת של שווה</div>
+                    <div style={{ display:'flex', gap:3 }}>
+                      <button className="sk-btn sk-btn-primary" style={{ flex:1, fontSize:9, padding:'2px 0' }}>הזמן</button>
+                      <button className="sk-btn sk-btn-outline" style={{ flex:1, fontSize:9, padding:'2px 0' }}>פרופיל</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom sections row */}
+        <div style={{ display:'flex', gap:0, borderTop:'1.5px dashed #ddd' }}>
+          {/* Holistic */}
+          <div style={{ background:'#162f55', padding:'10px 12px', flex:1, borderLeft:'1.5px dashed #2a547a' }}>
+            <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#f9e44a', marginBottom:6 }}>
+              🏢 פתרונות הוליסטיים לארגונים
+            </div>
+            <div style={{ display:'flex', gap:6 }}>
+              {[{icon:'🎁',t:'מתנות לחגים'},{icon:'📋',t:'הדרכות'},{icon:'🛒',t:'רכש ארגוני'}].map(c=>(
+                <div key={c.t} className="sk-box sk-blue" style={{ flex:1, padding:'8px 6px', textAlign:'center' }}>
+                  <div style={{ fontSize:16 }}>{c.icon}</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:11, fontWeight:700, marginTop:3 }}>{c.t}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Quality seal */}
+          <div style={{ background:'#fff', padding:'10px 12px', flex:1, borderLeft:'1.5px dashed #ddd' }}>
+            <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#1b3f6e', marginBottom:6 }}>
+              🏅 חותם איכות וסולידריות
+            </div>
+            <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+              {['✅ מאומת','🔍 ביקורות','🤝 סולידריות','🛡️ הגנת רוכש'].map(s=>(
+                <div key={s} className="sk-box sk-green" style={{ padding:'5px 8px', fontFamily:'Caveat', fontSize:10 }}>{s}</div>
+              ))}
+            </div>
+          </div>
+          {/* Lead form */}
+          <div style={{ background:'#f0f4fa', padding:'10px 12px', flex:1 }}>
+            <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#1b3f6e', marginBottom:6 }}>
+              📬 צור קשר
+            </div>
+            {['שם מלא','טלפון','דוא"ל'].map(f=>(
+              <div key={f} className="sk-box" style={{ height:24, display:'flex', alignItems:'center',
+                    padding:'0 8px', marginBottom:4, color:'#aaa', fontFamily:'Caveat', fontSize:11 }}>{f}</div>
+            ))}
+            <button className="sk-btn sk-btn-primary" style={{ width:'100%', fontSize:12, padding:'4px 0', marginTop:2 }}>שלח ←</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Annotation */}
+      <div style={{ background:'#fff8e0', border:'1.5px solid #f9e44a', borderRadius:4, padding:'5px 10px',
+            fontFamily:'Caveat', fontSize:10, color:'#4a3800', lineHeight:1.5 }}>
+        <strong>סדר סקשנים:</strong> באנר פרומו מתחלף → Navbar כחול → Megamenu קטגוריות → Hero + חיפוש גדול →
+        אייקוני קטגוריות → פס עונתי || קרוסלת עסקים + קרוסלת פרופילים → פתרונות הוליסטיים || חותם איכות || טופס לידים → Footer
+      </div>
+    </div>
+  );
+}
+
+/* ══ PAGE B — קטגוריה ══ */
+function PageCategory() {
+  return (
+    <div className="page page-break">
+      <div className="page-title">ב׳ — עמוד קטגוריה (חשמלאים)</div>
+      <div className="browser">
+        <div className="b-bar">
+          <div style={{ display:'flex', gap:4 }}>
+            {['#ff5f57','#febc2e','#28c840'].map(c=>(
+              <div key={c} className="b-dot" style={{ background:c }} />
+            ))}
+          </div>
+          <div className="b-url">🔒 ahad-mishlanu.co.il/hashmalai</div>
+        </div>
+
+        {/* Slim navbar */}
+        <div style={{ background:'#1b3f6e', borderBottom:'2.5px solid #f9e44a', padding:'6px 12px',
+                      display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <Logo small />
+          <div style={{ display:'flex', flex:1, maxWidth:300, margin:'0 12px' }}>
+            <div className="sk-box" style={{ flex:1, height:28, display:'flex', alignItems:'center',
+                  padding:'0 8px', background:'#fff', borderRadius:'0 3px 3px 0', color:'#aaa', fontSize:11 }}>
+              🔍 חיפוש...
+            </div>
+            <button className="sk-btn sk-btn-yellow" style={{ height:28, fontSize:11, borderRadius:'3px 0 0 3px' }}>חפש</button>
+          </div>
+          <div style={{ display:'flex', gap:5 }}>
+            <button className="sk-btn" style={{ height:24, background:'transparent', color:'#fff',
+                    borderColor:'rgba(255,255,255,.4)', fontSize:10 }}>כניסה</button>
+            <button className="sk-btn sk-btn-yellow" style={{ height:24, fontSize:10 }}>הרשמה</button>
+          </div>
+        </div>
+
+        {/* Breadcrumb */}
+        <div style={{ background:'#f0f4fa', padding:'5px 12px', borderBottom:'1px solid #dce6f5',
+                      display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <div style={{ fontFamily:'Caveat', fontSize:11, color:'#666' }}>
+            דף הבית › <span style={{ color:'#1b3f6e' }}>בית ותשתיות</span> › <strong>חשמלאים</strong>
+          </div>
+          <div style={{ display:'flex', gap:8 }}>
+            <span style={{ fontFamily:'Caveat', fontSize:11, color:'#555' }}>📍 כל הארץ ▾</span>
+            <span style={{ fontFamily:'Caveat', fontSize:11, color:'#555' }}>מיין ▾</span>
+          </div>
+        </div>
+
+        {/* Sidebar + Grid */}
+        <div style={{ display:'flex' }}>
+          {/* Sidebar */}
+          <div style={{ width:148, flexShrink:0, borderLeft:'1.5px dashed #ddd', padding:'8px 8px',
+                        display:'flex', flexDirection:'column', gap:8 }}>
+            <div className="sk-box sk-blue" style={{ padding:8 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:12, marginBottom:5 }}>תת-קטגוריות</div>
+              {['חשמלאים ✓','שרברבים','מזגנים','צבעים','עיצוב פנים','גינון'].map((c,i)=>(
+                <div key={c} style={{ fontFamily:'Caveat', fontSize:11, padding:'2px 0', cursor:'pointer',
+                      color: i===0?'#1b3f6e':'#555', fontWeight: i===0?700:400,
+                      borderBottom:'1px dashed #c6d6ee' }}>{c}</div>
+              ))}
+            </div>
+            <div className="sk-box" style={{ padding:8 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:12, marginBottom:5 }}>אזור</div>
+              {['כל הארץ ✓','צפון','מרכז','ירושלים','דרום','שרון'].map((a,i)=>(
+                <div key={a} style={{ fontFamily:'Caveat', fontSize:11, display:'flex', gap:4,
+                      alignItems:'center', padding:'2px 0' }}>
+                  <div style={{ width:10, height:10, border: i===0?'none':'1px solid #888',
+                        borderRadius:2, background: i===0?'#1b3f6e':'#fff', flexShrink:0 }} />
+                  <span style={{ color: i===0?'#1b3f6e':'#555', fontWeight: i===0?700:400 }}>{a}</span>
+                </div>
+              ))}
+            </div>
+            <div className="sk-box sk-gray" style={{ padding:8 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:11, marginBottom:4 }}>מיון</div>
+              {['רלבנטי','חדש','מאומת'].map((s,i)=>(
+                <div key={s} style={{ fontFamily:'Caveat', fontSize:11, display:'flex', gap:4,
+                      alignItems:'center', padding:'2px 0' }}>
+                  <div style={{ width:10, height:10, borderRadius:'50%', border:'1px solid #888',
+                        background: i===0?'#1b3f6e':'#fff', flexShrink:0 }} />
+                  <span>{s}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Grid */}
+          <div style={{ flex:1, padding:'8px 10px' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
+              <div style={{ fontFamily:'Caveat', fontSize:11, color:'#888' }}>נמצאו <strong>24</strong> עסקים</div>
+              <div style={{ display:'flex', gap:4 }}>
+                <span className="tag tag-blue" style={{ fontSize:10 }}>רשת</span>
+                <span className="tag" style={{ fontSize:10 }}>רשימה</span>
+              </div>
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:7 }}>
+              {[1,2,3,4,5,6,7,8].map(i=>(
+                <div key={i} className="sk-box" style={{ padding:7 }}>
+                  <ImgPh w="100%" h={60} text="📷" />
+                  <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:12, marginTop:5 }}>שם עסק</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:10, color:'#e05a00', marginBottom:3 }}>
+                    👤 {i%2===0?'עסק משפחתי':'פרופיל אישי'}
+                  </div>
+                  <div style={{ display:'flex', gap:2, marginBottom:4, flexWrap:'wrap' }}>
+                    <span className="tag tag-blue" style={{ fontSize:9 }}>⚡ חשמלאי</span>
+                    <span className="tag" style={{ fontSize:9, background:'#e3f5e8', borderColor:'#3a9a5c', color:'#1e6b3a' }}>✅</span>
+                  </div>
+                  <div style={{ display:'flex', gap:3 }}>
+                    <button className="sk-btn sk-btn-primary" style={{ flex:1, fontSize:9, padding:'2px 0' }}>הזמן</button>
+                    <button className="sk-btn sk-btn-outline" style={{ flex:1, fontSize:9, padding:'2px 0' }}>פרופיל</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Pagination */}
+            <div style={{ display:'flex', justifyContent:'center', gap:4, marginTop:8 }}>
+              {[1,2,3,'...',8].map((p,i)=>(
+                <div key={i} className="sk-box" style={{ width:22,height:22,display:'flex',
+                      alignItems:'center',justifyContent:'center', fontFamily:'Caveat', fontSize:11,
+                      background: p===1?'#1b3f6e':'#fff', color: p===1?'#fff':'#333' }}>{p}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ background:'#fff8e0', border:'1.5px solid #f9e44a', borderRadius:4, padding:'5px 10px',
+            fontFamily:'Caveat', fontSize:10, color:'#4a3800' }}>
+        <strong>מבנה:</strong> Navbar slim → Breadcrumb + פילטרים → Sidebar (תת-קטגוריות / אזור / מיון) →
+        גריד 4 עמודות — כרטיסייה: תמונה + שם + קרבה + תגיות + CTA ראשי (הזמן) + פרופיל → Pagination
+      </div>
+    </div>
+  );
+}
+
+/* ══ PAGE C — פרופיל אישי ══ */
+function PageProfile() {
+  return (
+    <div className="page page-break">
+      <div className="page-title">ג׳ — פרופיל אישי</div>
+      <div className="browser">
+        <div className="b-bar">
+          <div style={{ display:'flex', gap:4 }}>
+            {['#ff5f57','#febc2e','#28c840'].map(c=>(
+              <div key={c} className="b-dot" style={{ background:c }} />
+            ))}
+          </div>
+          <div className="b-url">🔒 ahad-mishlanu.co.il/profile/israel-levi</div>
+        </div>
+
+        <div style={{ background:'#1b3f6e', borderBottom:'2.5px solid #f9e44a', padding:'6px 12px',
+                      display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <Logo small />
+          <div style={{ fontFamily:'Caveat', fontSize:11, color:'#aaa' }}>
+            דף הבית › חשמלאים › <strong style={{ color:'#fff' }}>ישראל לוי</strong>
+          </div>
+        </div>
+
+        <div style={{ display:'flex', gap:12, padding:12 }}>
+          {/* LEFT: profile */}
+          <div style={{ flex:1, display:'flex', flexDirection:'column', gap:8 }}>
+            {/* Header card */}
+            <div className="sk-box" style={{ padding:10, display:'flex', gap:10, alignItems:'flex-start' }}>
+              <ImgPh w={80} h={80} text="📷" style={{ borderRadius:5 }} />
+              <div style={{ flex:1 }}>
+                <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:18 }}>ישראל לוי</div>
+                <div style={{ fontFamily:'Caveat', fontSize:11, color:'#e05a00', margin:'2px 0 5px' }}>
+                  👤 בן של שווה — קהילת השווים
+                </div>
+                <div style={{ display:'flex', gap:4, flexWrap:'wrap', marginBottom:5 }}>
+                  <span className="tag tag-blue" style={{ fontSize:9 }}>⚡ חשמלאי מוסמך</span>
+                  <span className="tag" style={{ fontSize:9 }}>📍 מרכז</span>
+                  <span className="tag" style={{ fontSize:9, background:'#e3f5e8', borderColor:'#3a9a5c', color:'#1e6b3a' }}>✅ מאומת</span>
+                </div>
+                <Lines n={2} last={65} />
+              </div>
+              <div style={{ display:'flex', flexDirection:'column', gap:5, minWidth:90 }}>
+                <button className="sk-btn sk-btn-yellow" style={{ width:'100%', fontSize:11, padding:'5px 0' }}>📞 צור קשר</button>
+                <button className="sk-btn sk-btn-primary" style={{ width:'100%', fontSize:11, padding:'5px 0' }}>🛒 הזמן</button>
+              </div>
+            </div>
+
+            {/* Services */}
+            <div className="sk-box" style={{ padding:10 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:14, color:'#1b3f6e', marginBottom:6 }}>
+                השירותים והמוצרים שלי
+              </div>
+              <div className="note" style={{ marginBottom:5 }}>
+                רשימה זו מזינה את כרטיסיית העסק בכל קטגוריה רלבנטית
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:5 }}>
+                {['התקנת לוח חשמל','חיווט דירה','תיקוני חשמל','התקנת מזגן'].map(s=>(
+                  <div key={s} className="sk-box sk-gray" style={{ padding:'6px 8px', display:'flex',
+                        justifyContent:'space-between', alignItems:'center' }}>
+                    <span style={{ fontFamily:'Caveat', fontSize:11 }}>{s}</span>
+                    <button className="sk-btn sk-btn-yellow" style={{ fontSize:10, padding:'2px 6px' }}>הזמן</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Gallery */}
+            <div className="sk-box" style={{ padding:10 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:14, color:'#1b3f6e', marginBottom:6 }}>
+                גלריית עבודות
+              </div>
+              <div style={{ display:'flex', gap:6 }}>
+                {[1,2,3,4].map(i=>(
+                  <ImgPh key={i} w={72} h={55} text={`עבודה ${i}`} />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT: story + reviews */}
+          <div style={{ width:220, flexShrink:0, display:'flex', flexDirection:'column', gap:8 }}>
+            {/* Story optional */}
+            <div className="sk-box sk-dashed" style={{ padding:10, background:'#fffbe6', borderColor:'#e5c600' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:5 }}>
+                <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#7a5c00' }}>
+                  ✍️ הסיפור שלי
+                </div>
+                <span className="tag" style={{ fontSize:9, borderColor:'#e5c600' }}>אופציונלי</span>
+              </div>
+              <Lines n={4} last={45} />
+              <div className="note">מוצג רק אם בעל הפרופיל בחר לשתף</div>
+            </div>
+
+            {/* Reviews */}
+            <div className="sk-box" style={{ padding:10 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#1b3f6e', marginBottom:6 }}>
+                ⭐ ביקורות לקוחות
+              </div>
+              {[1,2].map(i=>(
+                <div key={i} style={{ display:'flex', gap:6, borderBottom:'1px dashed #ddd',
+                      paddingBottom:6, marginBottom:6 }}>
+                  <ImgPh w={28} h={28} text="" style={{ borderRadius:'50%', flexShrink:0 }} />
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontFamily:'Caveat', fontSize:11, fontWeight:700 }}>שם לקוח</div>
+                    <div style={{ color:'#f9c400', fontSize:12 }}>★★★★★</div>
+                    <Lines n={2} last={70} style={{ marginTop:3 }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ background:'#fff8e0', border:'1.5px solid #f9e44a', borderRadius:4, padding:'5px 10px',
+            fontFamily:'Caveat', fontSize:10, color:'#4a3800' }}>
+        <strong>מבנה:</strong> תמונה + שם + קרבה ("קהילת השווים") + חותם איכות + CTAs →
+        שירותים/מוצרים (מזינים את כרטיסיית העסק בקטגוריות) → גלריה עבודות →
+        <span style={{ color:'#e05a00' }}> סיפור אישי — אופציונלי לגמרי, החלטה של בעל הפרופיל </span>→ ביקורות לקוחות
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <div style={{ background:'#fff', direction:'rtl' }}>
+      <PageHome />
+      <PageCategory />
+      <PageProfile />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+// Auto-print after fonts + Babel load
+setTimeout(() => {
+  document.fonts.ready.then(() => {
+    setTimeout(() => window.print(), 500);
+  });
+}, 800);
+</script>
+</body>
+</html>

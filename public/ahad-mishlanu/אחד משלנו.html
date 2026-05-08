@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8">
+<title>אחד משלנו — פורטל עסקי</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="ds.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<style>
+body { background: #f7f8fa; }
+.page-shell { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ── HEADER ── */
+.site-header {
+  background: var(--navy); height: var(--header-h);
+  position: sticky; top: 0; z-index: 100;
+  border-bottom: 3px solid var(--yellow);
+  box-shadow: 0 2px 12px rgba(0,0,0,.18);
+}
+.promo-bar {
+  background: var(--yellow); padding: 6px 0;
+  font-size: 13px; font-weight: 600; color: var(--gray-800);
+  text-align: center; overflow: hidden;
+}
+.promo-bar a { color: var(--navy); text-decoration: underline; margin-right: 8px; }
+
+/* search */
+.search-wrap { display: flex; height: 40px; border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+.search-input { flex: 1; border: none; padding: 0 14px; font-family: var(--font); font-size: 14px; outline: none; color: var(--gray-800); min-width: 0; }
+.search-region { border-right: 1.5px solid var(--gray-100); padding: 0 12px; background: var(--white); font-size: 13px; color: var(--gray-600); display: flex; align-items: center; gap: 4px; cursor: pointer; white-space: nowrap; }
+.search-btn { background: var(--yellow); color: var(--gray-800); padding: 0 18px; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 4px; }
+.search-btn:hover { background: var(--yellow-dark); color: var(--white); }
+
+/* subnav */
+.subnav {
+  background: var(--navy-mid); height: var(--subnav-h);
+  border-bottom: 1px solid var(--navy-light);
+  overflow-x: auto;
+}
+.subnav-inner { display: flex; align-items: stretch; height: 100%; white-space: nowrap; }
+.subnav-item { padding: 0 16px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,.75); display: flex; align-items: center; cursor: pointer; border-left: 1px solid rgba(255,255,255,.08); transition: color .15s, background .15s; }
+.subnav-item:hover, .subnav-item.active { color: var(--yellow); background: rgba(255,255,255,.05); }
+.subnav-item:first-child { font-weight: 700; color: var(--white); }
+
+/* ── HERO ── */
+.hero { background: linear-gradient(140deg, var(--navy-dark) 0%, var(--navy) 60%, #1e4d8a 100%); padding: 52px 0 44px; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 50%, rgba(249,228,74,.08) 0%, transparent 60%); pointer-events: none; }
+.hero-title { font-size: 38px; font-weight: 800; color: var(--yellow); margin-bottom: 8px; line-height: 1.15; }
+.hero-sub   { font-size: 17px; color: rgba(255,255,255,.8); margin-bottom: 28px; }
+.hero-tags  { display: flex; gap: 8px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+.hero-tag   { padding: 5px 14px; border-radius: var(--r-full); font-size: 13px; font-weight: 500; background: rgba(255,255,255,.1); color: rgba(255,255,255,.85); border: 1px solid rgba(255,255,255,.2); cursor: pointer; transition: all .15s; }
+.hero-tag:hover { background: var(--yellow); color: var(--gray-800); border-color: var(--yellow); }
+
+/* ── CATEGORY ICONS ── */
+.cat-grid { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+.cat-item { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 12px; min-width: 90px; border-radius: var(--r-lg); cursor: pointer; transition: all .18s; border: 1.5px solid var(--gray-100); background: var(--white); }
+.cat-item:hover { border-color: var(--navy); background: var(--gray-50); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.cat-icon { width: 52px; height: 44px; background: var(--gray-50); border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.cat-label { font-size: 12px; font-weight: 500; color: var(--gray-600); text-align: center; line-height: 1.2; }
+.cat-item.active .cat-icon { background: var(--navy); }
+.cat-item.active .cat-label { color: var(--navy); font-weight: 700; }
+
+/* ── CAROUSEL ── */
+.carousel-wrap { overflow-x: auto; padding-bottom: 8px; display: flex; gap: 14px; }
+.carousel-wrap::-webkit-scrollbar { height: 4px; }
+
+/* ── BUSINESS CARD ── */
+.biz-card { width: 200px; flex-shrink: 0; border-radius: var(--r-lg); border: 1.5px solid var(--gray-100); background: var(--white); overflow: hidden; transition: all .18s; cursor: pointer; }
+.biz-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); border-color: var(--gray-200); }
+.biz-card-img { width: 100%; height: 110px; background: var(--gray-100); display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 13px; position: relative; overflow: hidden; }
+.biz-card-img::before, .biz-card-img::after { content: ''; position: absolute; width: 130%; height: 1.5px; background: var(--gray-200); left: -15%; }
+.biz-card-img::before { transform: rotate(15deg); }
+.biz-card-img::after  { transform: rotate(-15deg); }
+.biz-card-body { padding: 12px; }
+.biz-card-name { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.biz-card-kin  { font-size: 12px; color: var(--orange); margin-bottom: 6px; }
+.biz-card-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+.biz-card-ctas { display: flex; gap: 6px; }
+
+/* ── SECTION HEADER ── */
+.sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.sec-title   { font-size: 20px; font-weight: 700; color: var(--gray-800); }
+.sec-link    { font-size: 13px; font-weight: 600; color: var(--navy); cursor: pointer; }
+.sec-link:hover { text-decoration: underline; }
+
+/* ── SEASONAL STRIP ── */
+.seasonal { background: var(--yellow-light); border-top: 2px solid var(--yellow); border-bottom: 2px solid var(--yellow); padding: 10px 0; }
+
+/* ── HOLISTIC STRIP ── */
+.holistic-strip { background: linear-gradient(135deg, var(--navy-dark), var(--navy)); padding: 48px 0; }
+.hol-card { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); border-radius: var(--r-lg); padding: 24px; text-align: center; transition: all .2s; cursor: pointer; }
+.hol-card:hover { background: rgba(255,255,255,.12); transform: translateY(-3px); }
+.hol-icon { font-size: 36px; margin-bottom: 12px; }
+.hol-title { font-size: 16px; font-weight: 700; color: var(--yellow); margin-bottom: 6px; }
+.hol-sub   { font-size: 13px; color: rgba(255,255,255,.7); line-height: 1.5; }
+
+/* ── QUALITY SEAL ── */
+.seal-strip { background: var(--white); padding: 40px 0; border-top: 1px solid var(--gray-100); border-bottom: 1px solid var(--gray-100); }
+.seal-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.seal-icon { width: 56px; height: 56px; border-radius: var(--r-full); background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 26px; }
+
+/* ── LEAD FORM ── */
+.lead-form-wrap { background: var(--gray-50); padding: 48px 0; }
+.lead-form { background: var(--white); border-radius: var(--r-xl); padding: 36px; box-shadow: var(--shadow-md); max-width: 560px; margin: 0 auto; }
+
+/* ── FOOTER ── */
+.footer { background: var(--navy-dark); padding: 40px 0 20px; border-top: 3px solid var(--yellow); }
+.footer-logo { margin-bottom: 10px; }
+.footer-tagline { font-size: 13px; color: rgba(255,255,255,.5); }
+.footer-col-title { font-size: 13px; font-weight: 700; color: var(--yellow); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .5px; }
+.footer-link { font-size: 13px; color: rgba(255,255,255,.6); display: block; margin-bottom: 6px; cursor: pointer; transition: color .15s; }
+.footer-link:hover { color: var(--yellow); }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,.08); margin-top: 24px; padding-top: 16px; font-size: 12px; color: rgba(255,255,255,.35); text-align: center; }
+
+/* ── CATEGORY PAGE ── */
+.cat-page { display: flex; gap: 24px; padding: 24px 0; }
+.sidebar { width: 220px; flex-shrink: 0; }
+.sidebar-box { background: var(--white); border-radius: var(--r-lg); border: 1.5px solid var(--gray-100); padding: 16px; margin-bottom: 14px; }
+.sidebar-title { font-size: 14px; font-weight: 700; color: var(--gray-800); margin-bottom: 12px; }
+.sidebar-item { font-size: 13px; padding: 6px 0; cursor: pointer; border-bottom: 1px solid var(--gray-100); color: var(--gray-600); transition: color .12s; display: flex; align-items: center; justify-content: space-between; }
+.sidebar-item:hover { color: var(--navy); }
+.sidebar-item.active { color: var(--navy); font-weight: 700; }
+.filter-check { width: 16px; height: 16px; border: 1.5px solid var(--gray-200); border-radius: 3px; flex-shrink: 0; background: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.filter-check.checked { background: var(--navy); border-color: var(--navy); }
+.results-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+
+/* ── PROFILE PAGE ── */
+.profile-hero { background: linear-gradient(120deg, var(--navy-dark), var(--navy)); padding: 36px 0; }
+.profile-avatar { width: 100px; height: 100px; border-radius: var(--r-full); background: var(--gray-200); border: 4px solid var(--yellow); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--gray-400); overflow: hidden; }
+.service-item { border: 1.5px solid var(--gray-100); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 10px; transition: box-shadow .15s; }
+.service-item:hover { box-shadow: var(--shadow-sm); }
+.service-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; background: var(--white); }
+.service-header:hover { background: var(--gray-50); }
+.service-body { padding: 16px; background: var(--gray-50); border-top: 1px solid var(--gray-100); }
+.service-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+.service-meta-box { background: var(--white); border-radius: var(--r-md); padding: 12px; border: 1px solid var(--gray-100); }
+.service-meta-title { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+
+/* ── ITEM PAGE ── */
+.item-gallery { display: flex; gap: 8px; }
+.item-main-img { flex: 1; height: 320px; border-radius: var(--r-lg); background: var(--gray-100); display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 14px; position: relative; overflow: hidden; }
+.item-main-img::before, .item-main-img::after { content: ''; position: absolute; width: 130%; height: 1.5px; background: var(--gray-200); left: -15%; }
+.item-main-img::before { transform: rotate(12deg); }
+.item-main-img::after  { transform: rotate(-12deg); }
+.item-thumb { width: 70px; height: 60px; border-radius: var(--r-md); background: var(--gray-100); border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 11px; overflow: hidden; position: relative; }
+.item-thumb.active { border-color: var(--navy); }
+.item-thumb::before, .item-thumb::after { content: ''; position: absolute; width: 130%; height: 1.5px; background: var(--gray-200); left: -15%; }
+.item-thumb::before { transform: rotate(15deg); }
+.item-thumb::after  { transform: rotate(-15deg); }
+.item-thumbs { display: flex; flex-direction: column; gap: 6px; }
+.variant-btn { padding: 8px 16px; border-radius: var(--r-md); border: 1.5px solid var(--gray-200); background: var(--white); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; }
+.variant-btn:hover, .variant-btn.active { border-color: var(--navy); background: var(--navy); color: var(--white); }
+
+/* ── CONTACT PAGE ── */
+.contact-info-box { background: var(--navy); border-radius: var(--r-xl); padding: 28px; color: var(--white); }
+.contact-info-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
+.contact-info-icon { width: 40px; height: 40px; border-radius: var(--r-md); background: rgba(249,228,74,.15); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.faq-item { border-bottom: 1px solid var(--gray-100); padding: 14px 0; cursor: pointer; }
+.faq-q { font-size: 15px; font-weight: 600; color: var(--gray-800); display: flex; justify-content: space-between; align-items: center; }
+.faq-a { font-size: 14px; color: var(--gray-600); margin-top: 8px; line-height: 1.6; }
+
+/* ── HOLISTIC PAGE ── */
+.hol-page-hero { background: linear-gradient(140deg, var(--navy-dark), var(--navy) 60%, #1e4d8a); padding: 64px 0; text-align: center; }
+.hol-package { background: var(--white); border-radius: var(--r-xl); border: 2px solid var(--gray-100); padding: 28px; transition: all .2s; cursor: pointer; }
+.hol-package:hover { border-color: var(--navy); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.hol-package.featured { border-color: var(--yellow); background: linear-gradient(135deg, #fffdf0, var(--white)); }
+.hol-pack-icon { font-size: 40px; margin-bottom: 14px; }
+.hol-pack-title { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+.hol-pack-price { font-size: 28px; font-weight: 800; color: var(--navy); margin: 10px 0; }
+.hol-pack-list { list-style: none; }
+.hol-pack-list li { font-size: 14px; color: var(--gray-600); padding: 5px 0; display: flex; align-items: center; gap: 8px; }
+.hol-pack-list li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+.catalog-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 6px; }
+.catalog-card { min-width: 180px; flex-shrink: 0; background: var(--white); border-radius: var(--r-lg); border: 1.5px solid var(--gray-100); padding: 16px; text-align: center; transition: all .18s; cursor: pointer; }
+.catalog-card:hover { border-color: var(--navy); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.catalog-icon { font-size: 32px; margin-bottom: 8px; }
+.catalog-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.catalog-sub   { font-size: 12px; color: var(--gray-600); }
+
+/* ── ADMIN ── */
+.admin-shell { display: flex; min-height: 100vh; background: var(--off-white); }
+.admin-sidebar { width: 220px; background: var(--navy-dark); flex-shrink: 0; padding: 0; position: fixed; top: 0; bottom: 0; right: 0; z-index: 50; }
+.admin-logo-area { padding: 18px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.admin-nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 16px; font-size: 14px; color: rgba(255,255,255,.65); cursor: pointer; transition: all .15s; border-right: 3px solid transparent; }
+.admin-nav-item:hover { background: rgba(255,255,255,.06); color: var(--white); }
+.admin-nav-item.active { background: rgba(249,228,74,.08); color: var(--yellow); border-right-color: var(--yellow); font-weight: 600; }
+.admin-nav-section { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.3); text-transform: uppercase; letter-spacing: 1px; padding: 14px 16px 4px; }
+.admin-main { margin-right: 220px; padding: 24px; flex: 1; }
+.admin-topbar { background: var(--white); border-radius: var(--r-lg); padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); }
+.stat-card { background: var(--white); border-radius: var(--r-lg); padding: 20px; box-shadow: var(--shadow-sm); border: 1.5px solid var(--gray-100); }
+.stat-num  { font-size: 32px; font-weight: 800; color: var(--navy); }
+.stat-label { font-size: 13px; color: var(--gray-600); margin-top: 2px; }
+.data-table { background: var(--white); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+.table-header { background: var(--gray-50); border-bottom: 1px solid var(--gray-100); }
+.table-row { border-bottom: 1px solid var(--gray-100); transition: background .12s; }
+.table-row:hover { background: var(--gray-50); }
+th, td { padding: 11px 14px; font-size: 13px; text-align: right; }
+th { font-weight: 700; color: var(--gray-600); font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
+
+/* ── TAB NAV (for page switcher) ── */
+.page-nav { background: var(--gray-800); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; }
+.page-nav-tabs { display: flex; gap: 4px; overflow-x: auto; }
+.pn-tab { font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: var(--r-md); cursor: pointer; border: 1.5px solid transparent; white-space: nowrap; transition: all .15s; color: rgba(255,255,255,.55); }
+.pn-tab.active { background: var(--yellow); color: var(--gray-800); border-color: var(--yellow-dark); }
+.pn-tab:hover:not(.active) { background: rgba(255,255,255,.08); color: var(--white); }
+.pn-var { font-size: 11px; padding: 5px 10px; border-radius: var(--r-md); cursor: pointer; border: 1.5px solid; white-space: nowrap; }
+.pn-var.v1 { border-color: rgba(249,228,74,.4); color: var(--yellow); }
+.pn-var.v1.active { background: var(--yellow); color: var(--gray-800); }
+.pn-var.v2 { border-color: rgba(255,255,255,.2); color: rgba(255,255,255,.6); }
+.pn-var.v2.active { background: rgba(255,255,255,.15); color: var(--white); }
+
+/* ── PLACEHOLDER img ── */
+.ph { background: var(--gray-100); display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 13px; position: relative; overflow: hidden; }
+.ph::before, .ph::after { content: ''; position: absolute; width: 130%; height: 1.5px; background: var(--gray-200); left: -15%; }
+.ph::before { transform: rotate(12deg); }
+.ph::after  { transform: rotate(-12deg); }
+.ph span { position: relative; z-index: 1; background: var(--gray-100); padding: 2px 6px; border-radius: 3px; }
+
+/* V2 overrides */
+.v2 .hero { background: linear-gradient(160deg, #0a1628 0%, var(--navy) 100%); }
+.v2 .hero-title { color: var(--white); }
+.v2 .hero-title span { color: var(--yellow); }
+.v2 .site-header { background: var(--white); border-bottom: 2px solid var(--gray-100); box-shadow: var(--shadow-sm); }
+.v2 .subnav { background: var(--gray-50); border-bottom: 1px solid var(--gray-100); }
+.v2 .subnav-item { color: var(--gray-600); border-left-color: var(--gray-100); }
+.v2 .subnav-item:hover, .v2 .subnav-item.active { color: var(--navy); background: var(--gray-50); }
+
+/* line-clamp */
+.clamp2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+
+/* breadcrumb */
+.breadcrumb { font-size: 13px; color: var(--gray-400); display: flex; align-items: center; gap: 6px; padding: 12px 0; }
+.breadcrumb a { color: var(--navy); cursor: pointer; }
+.breadcrumb span { color: var(--gray-300); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ═══════════════════════════════════
+   SHARED COMPONENTS
+═══════════════════════════════════ */
+
+function LogoSVG({ size = 32, light = true }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="13" r="9" fill={light ? '#F9E44A' : '#1B3F6E'} />
+      <circle cx="16" cy="13" r="9" fill="none" stroke={light ? 'rgba(255,255,255,.3)' : 'none'} strokeWidth="1.5" />
+      <line x1="11" y1="21" x2="8"  y2="31" stroke={light ? '#fff' : '#1B3F6E'} strokeWidth="3" strokeLinecap="round"/>
+      <line x1="21" y1="21" x2="24" y2="31" stroke={light ? '#fff' : '#1B3F6E'} strokeWidth="3" strokeLinecap="round"/>
+      <circle cx="16" cy="13" r="4" fill={light ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.5)'} />
+    </svg>
+  );
+}
+
+function Logo({ light = true, size = 'md' }) {
+  const sz = size === 'sm' ? 26 : size === 'lg' ? 42 : 32;
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap: sz * 0.3 }}>
+      <LogoSVG size={sz} light={light} />
+    </div>
+  );
+}
+
+function PromoBanner() {
+  const msgs = [
+    '🆕 12 עסקים חדשים הצטרפו החודש!',
+    '🏷️ שבוע הספר — 20% הנחה על תוכן וספרים',
+    '🤝 חברות חדשה: קייטרינג "טעמים מהבית" — ת"א',
+    '🎉 500+ עסקים רשומים — הצטרפו גם אתם!',
+  ];
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setI(p => (p + 1) % msgs.length), 3000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="promo-bar">
+      {msgs[i]}
+      <a>לפרטים ←</a>
+    </div>
+  );
+}
+
+function SiteHeader({ variant, page, setPage }) {
+  const navItems = ['כל הקטגוריות','בית ותשתיות','משפט','ספרים וחינוך','מזון ואירועים','טכנולוגיה','עיצוב','ועדי עובדים'];
+  return (
+    <>
+      <PromoBanner />
+      <header className="site-header">
+        <div className="container flex items-center justify-between" style={{ height:'100%' }}>
+          <Logo light={variant !== 'v2'} />
+          <div className="search-wrap" style={{ flex:1, maxWidth:480, margin:'0 24px' }}>
+            <input className="search-input" placeholder="🔍  שם עסק, מוצר, שירות..." />
+            <div className="search-region">📍 כל הארץ ▾</div>
+            <button className="search-btn btn">חפש</button>
+          </div>
+          <div className="flex gap-2">
+            <button className="btn btn-ghost btn-sm" style={{ color: variant==='v2' ? 'var(--navy)' : 'rgba(255,255,255,.85)', borderColor: variant==='v2' ? 'var(--gray-200)' : 'rgba(255,255,255,.3)' }}>כניסה</button>
+            <button className="btn btn-yellow btn-sm">הרשמה חינם</button>
+          </div>
+        </div>
+      </header>
+      <nav className="subnav">
+        <div className="subnav-inner container">
+          {navItems.map((n,i) => (
+            <div key={n} className={`subnav-item${i===0?' active':''}`}>{i===0 ? '☰ '+n : n}</div>
+          ))}
+        </div>
+      </nav>
+    </>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="footer">
+      <div className="container">
+        <div className="flex gap-6" style={{ flexWrap:'wrap' }}>
+          <div style={{ flex:1, minWidth:180 }}>
+            <div className="footer-logo"><Logo light /></div>
+            <div className="footer-tagline" style={{ marginTop:8 }}>פורטל עסקי לקהילת השווים</div>
+            <div className="footer-tagline" style={{ marginTop:16, fontSize:12 }}>© 2024 אחד משלנו</div>
+          </div>
+          {[
+            { title:'ניווט', links:['דף הבית','קטגוריות','עסקים חדשים','פרופילים אישיים'] },
+            { title:'לארגונים', links:['פתרונות הוליסטיים','ועדי עובדים','רכש ארגוני','הדרכות'] },
+            { title:'אחד משלנו', links:['אודות','צור קשר','נגישות','תנאי שימוש','פרטיות'] },
+          ].map(col => (
+            <div key={col.title} style={{ minWidth:130 }}>
+              <div className="footer-col-title">{col.title}</div>
+              {col.links.map(l => <a key={l} className="footer-link">{l}</a>)}
+            </div>
+          ))}
+        </div>
+        <div className="footer-bottom">פורטל זה נבנה מתוך סולידריות עם משפחות השווים | כל הזכויות שמורות</div>
+      </div>
+    </footer>
+  );
+}
+
+function Breadcrumb({ items }) {
+  return (
+    <div className="breadcrumb container">
+      {items.map((item, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && <span>›</span>}
+          {i < items.length - 1 ? <a>{item}</a> : <span style={{ color:'var(--gray-800)', fontWeight:500 }}>{item}</span>}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+function BizcardSmall({ idx }) {
+  const types = ['חשמלאי','עורך דין','קייטרינג','מעצב','מוצרי ספר','הדרכות','פיזיותרפיה'];
+  const kins  = ['בן','בת','אח','אחות','דוד','דודה','בן דוד'];
+  return (
+    <div className="biz-card">
+      <div className="biz-card-img"><span>תמונה</span></div>
+      <div className="biz-card-body">
+        <div className="biz-card-name">שם העסק / נותן שירות</div>
+        <div className="biz-card-kin">👤 {kins[idx % kins.length]} של שווה</div>
+        <div className="biz-card-tags">
+          <span className="tag tag-blue">{types[idx % types.length]}</span>
+          <span className="tag tag-green">✅ מאומת</span>
+        </div>
+        <div className="biz-card-ctas">
+          <button className="btn btn-yellow btn-sm" style={{ flex:1 }}>הזמן</button>
+          <button className="btn btn-ghost btn-sm" style={{ flex:1 }}>פרופיל</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════
+   PAGE: HOME
+═══════════════════════════════════ */
+function PageHome({ variant }) {
+  const cats = [
+    {icon:'🔧',label:'בית ותשתיות'},{icon:'⚖️',label:'משפט'},
+    {icon:'📚',label:'ספרים וחינוך'},{icon:'🍽️',label:'מזון ואירועים'},
+    {icon:'💻',label:'טכנולוגיה'},{icon:'🎨',label:'עיצוב'},
+    {icon:'🏋️',label:'בריאות'},{icon:'✂️',label:'יופי'},
+    {icon:'🧒',label:'ילדים'},{icon:'⋯',label:'עוד...'},
+  ];
+  const [activeCat, setActiveCat] = useState(0);
+  const seals = [
+    {icon:'✅',label:'עסקים מאומתים'},{icon:'🔍',label:'ביקורות אמיתיות'},
+    {icon:'🤝',label:'הסכם סולידריות'},{icon:'🛡️',label:'הגנת רוכש'},
+  ];
+  return (
+    <div>
+      {/* HERO */}
+      <section className="hero">
+        <div className="container">
+          <div className="hero-title">
+            {variant === 'v2'
+              ? <><span>מצא</span> עסקים ושירותים<br/>מקהילת השווים</>
+              : 'מצא עסקים ושירותים מקהילת השווים'}
+          </div>
+          <div className="hero-sub">כל רכישה מחזקת משפחה ועסק — מעל 500 נותני שירות</div>
+          <div className="search-wrap" style={{ maxWidth:600, margin:'0 auto', height:52 }}>
+            <input className="search-input" style={{ fontSize:15 }} placeholder="🔍  שם עסק, מוצר, שירות, מקצוע..." />
+            <div className="search-region" style={{ width:160 }}>📍 כל הארץ ▾</div>
+            <button className="search-btn btn" style={{ fontSize:16, padding:'0 24px' }}>חפש</button>
+          </div>
+          <div className="hero-tags">
+            {['חשמלאי','עורך דין','קייטרינג','ספרים','הדרכות','עיצוב'].map(t => (
+              <span key={t} className="hero-tag">{t}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CATEGORIES */}
+      <section style={{ background:'var(--white)', padding:'24px 0', borderBottom:'1px solid var(--gray-100)' }}>
+        <div className="container">
+          <div className="sec-header">
+            <div className="sec-title">עיין לפי קטגוריה</div>
+          </div>
+          <div className="cat-grid">
+            {cats.map((c, i) => (
+              <div key={c.label} className={`cat-item${activeCat===i?' active':''}`} onClick={() => setActiveCat(i)}>
+                <div className="cat-icon">{c.icon}</div>
+                <div className="cat-label">{c.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SEASONAL */}
+      <div className="seasonal">
+        <div className="container flex items-center gap-4" style={{ flexWrap:'wrap' }}>
+          <div style={{ fontWeight:700, fontSize:14, color:'var(--gray-800)' }}>🍷 לקראת פסח:</div>
+          {['קייטרינג חגיגי','מוצרי מזון כשרים','הגדות ותוכן','עיצוב שולחן'].map(t => (
+            <span key={t} className="tag tag-yellow" style={{ cursor:'pointer' }}>{t}</span>
+          ))}
+          <span className="sec-link" style={{ marginRight:'auto' }}>ראה הכל ←</span>
+        </div>
+      </div>
+
+      {/* CAROUSEL — עסקים חדשים */}
+      <section style={{ padding:'32px 0', background:'var(--white)' }}>
+        <div className="container">
+          <div className="sec-header">
+            <div className="sec-title">🆕 עסקים חדשים בפורטל</div>
+            <span className="sec-link">ראה הכל ←</span>
+          </div>
+          <div className="carousel-wrap">
+            {[0,1,2,3,4,5].map(i => <BizcardSmall key={i} idx={i} />)}
+          </div>
+        </div>
+      </section>
+
+      {/* CAROUSEL — פרופילים אישיים */}
+      <section style={{ padding:'32px 0', background:'var(--off-white)', borderTop:'1px solid var(--gray-100)' }}>
+        <div className="container">
+          <div className="sec-header">
+            <div className="sec-title">👤 פרופילים אישיים — קהילת השווים</div>
+            <span className="sec-link">ראה הכל ←</span>
+          </div>
+          <div className="carousel-wrap">
+            {[6,7,8,9,10,11].map(i => <BizcardSmall key={i} idx={i} />)}
+          </div>
+        </div>
+      </section>
+
+      {/* HOLISTIC */}
+      <section className="holistic-strip">
+        <div className="container">
+          <div style={{ textAlign:'center', marginBottom:36 }}>
+            <div style={{ fontSize:28, fontWeight:800, color:'var(--yellow)', marginBottom:8 }}>🏢 פתרונות הוליסטיים לעסקים וארגונים</div>
+            <div style={{ fontSize:15, color:'rgba(255,255,255,.7)' }}>חבילות מותאמות לועדי עובדים, HR ורכש ארגוני</div>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
+            {[
+              {icon:'🎁',title:'מתנות לחגים',sub:'מארזים, ספרים, גיפט קארד ממותג'},
+              {icon:'📋',title:'הדרכות לצוותים',sub:'סדנאות, הרצאות, ייעוץ ארגוני'},
+              {icon:'🛒',title:'רכש ארגוני',sub:'חוזה מסגרת, חשבונית, מכסה שנתית'},
+            ].map(c => (
+              <div key={c.title} className="hol-card">
+                <div className="hol-icon">{c.icon}</div>
+                <div className="hol-title">{c.title}</div>
+                <div className="hol-sub">{c.sub}</div>
+                <button className="btn btn-yellow btn-sm" style={{ marginTop:14 }}>לפרטים</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* QUALITY SEAL */}
+      <section className="seal-strip">
+        <div className="container">
+          <div className="text-center" style={{ marginBottom:28 }}>
+            <div className="section-title">🏅 חותם איכות וסולידריות</div>
+            <div className="section-sub">כל עסק עובר בדיקה לפני קבלת החותם</div>
+          </div>
+          <div style={{ display:'flex', justifyContent:'center', gap:40, flexWrap:'wrap' }}>
+            {seals.map(s => (
+              <div key={s.label} className="seal-item">
+                <div className="seal-icon">{s.icon}</div>
+                <div style={{ fontSize:14, fontWeight:600, color:'var(--gray-800)' }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* LEAD FORM */}
+      <section className="lead-form-wrap">
+        <div className="container">
+          <div className="lead-form">
+            <div style={{ textAlign:'center', marginBottom:24 }}>
+              <div className="section-title">📬 צור קשר</div>
+              <div style={{ fontSize:14, color:'var(--gray-600)', marginTop:4 }}>רוצה להצטרף? יש שאלה? נחזור אליך</div>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              {['שם מלא','טלפון','דוא"ל'].map(f => (
+                <input key={f} className="input" placeholder={f} />
+              ))}
+              <textarea className="input" placeholder="הודעה (אופציונלי)" style={{ height:80, resize:'none' }} />
+              <button className="btn btn-primary" style={{ height:46, fontSize:16 }}>שלח ←</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════
+   PAGE: CATEGORY
+═══════════════════════════════════ */
+function PageCategory({ variant }) {
+  const [areas, setAreas] = useState(['כל הארץ']);
+  const areaList = ['כל הארץ','צפון','מרכז','ירושלים','דרום','שרון'];
+  const subCats = ['חשמלאים','שרברבים','טכנאי מזגנים','צביעה','עיצוב פנים','גינון'];
+  const [activeSub, setActiveSub] = useState(0);
+  const toggleArea = a => setAreas(p => p.includes(a) ? p.filter(x=>x!==a) : [...p, a]);
+  return (
+    <div>
+      <Breadcrumb items={['דף הבית','בית ותשתיות','חשמלאים']} />
+      <div className="container">
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
+          <h1 style={{ fontSize:24, fontWeight:800, color:'var(--navy)' }}>חשמלאים</h1>
+          <div className="flex gap-2 items-center">
+            <select className="input" style={{ width:'auto', padding:'6px 12px', fontSize:13 }}>
+              <option>מיון: רלבנטי</option><option>חדש באתר</option><option>מאומת</option>
+            </select>
+            <div className="flex gap-1">
+              {['רשת','רשימה'].map(v=><button key={v} className="btn btn-ghost btn-sm">{v}</button>)}
+            </div>
+          </div>
+        </div>
+        <div className="cat-page">
+          {/* Sidebar */}
+          <div className="sidebar">
+            <div className="sidebar-box">
+              <div className="sidebar-title">תת-קטגוריות</div>
+              {subCats.map((c,i) => (
+                <div key={c} className={`sidebar-item${activeSub===i?' active':''}`} onClick={()=>setActiveSub(i)}>
+                  <span>{c}</span>
+                  {activeSub===i && <span style={{ fontSize:12, color:'var(--navy)', background:'var(--gray-50)', borderRadius:4, padding:'1px 6px' }}>✓</span>}
+                </div>
+              ))}
+            </div>
+            <div className="sidebar-box">
+              <div className="sidebar-title">אזור גיאוגרפי</div>
+              {areaList.map(a => (
+                <div key={a} className="sidebar-item" style={{ borderBottom:'none', padding:'5px 0' }} onClick={()=>toggleArea(a)}>
+                  <span style={{ color: areas.includes(a)?'var(--navy)':'var(--gray-600)', fontWeight: areas.includes(a)?700:400 }}>{a}</span>
+                  <div className={`filter-check${areas.includes(a)?' checked':''}`}>
+                    {areas.includes(a) && <span style={{ color:'#fff', fontSize:10 }}>✓</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="sidebar-box">
+              <div className="sidebar-title">מיון</div>
+              {['רלבנטי','חדש באתר','מאומת'].map((s,i)=>(
+                <div key={s} className={`sidebar-item${i===0?' active':''}`} style={{ borderBottom:'none', padding:'5px 0' }}>
+                  <span>{s}</span>
+                  <div style={{ width:14, height:14, borderRadius:'50%', border:'1.5px solid var(--gray-300)', background: i===0?'var(--navy)':'var(--white)', flexShrink:0 }} />
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Grid */}
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:13, color:'var(--gray-600)', marginBottom:14 }}>נמצאו <strong>24</strong> נותני שירות</div>
+            <div className="results-grid">
+              {[0,1,2,3,4,5].map(i => (
+                <div key={i} className="card" style={{ cursor:'pointer' }}>
+                  <div className="ph" style={{ height:130 }}><span>תמונה</span></div>
+                  <div style={{ padding:14 }}>
+                    <div style={{ fontSize:15, fontWeight:700, marginBottom:3 }}>ישראל לוי</div>
+                    <div style={{ fontSize:12, color:'var(--orange)', marginBottom:8 }}>👤 {['בן','בת','אח','דוד'][i%4]} של שווה</div>
+                    <div style={{ display:'flex', gap:4, flexWrap:'wrap', marginBottom:10 }}>
+                      <span className="tag tag-blue">⚡ חשמלאי</span>
+                      <span className="tag tag-green">✅ מאומת</span>
+                      <span className="tag tag-blue">📍 מרכז</span>
+                    </div>
+                    <div style={{ fontSize:13, color:'var(--gray-600)', marginBottom:12 }} className="clamp2">
+                      חשמלאי מוסמך עם 10 שנות ניסיון. מומחה בהתקנות, חיווטים ותיקונים.
+                    </div>
+                    <div style={{ display:'flex', gap:6 }}>
+                      <button className="btn btn-primary btn-sm" style={{ flex:1 }}>הזמן עכשיו</button>
+                      <button className="btn btn-ghost btn-sm" style={{ flex:1 }}>פרופיל</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Pagination */}
+            <div style={{ display:'flex', justifyContent:'center', gap:6, marginTop:28 }}>
+              {[1,2,3,'...',8].map((p,i)=>(
+                <button key={i} className="btn btn-ghost btn-sm" style={{ minWidth:36, background: p===1?'var(--navy)':'', color: p===1?'var(--white)':'var(--gray-600)', borderColor: p===1?'var(--navy)':'' }}>{p}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════
+   PAGE: PROFILE
+═══════════════════════════════════ */
+function PageProfile({ variant, setPage }) {
+  const [openService, setOpenService] = useState(null);
+  const services = [
+    { type:'service', name:'התקנת לוח חשמל', price:'₪800–1,500', online:false, offline:true, areas:'מרכז, שרון', duration:'3-5 שעות', availability:'א׳-ה׳ 8–18' },
+    { type:'service', name:'ייעוץ חשמל מקוון', price:'₪150/שעה', online:true, offline:false, areas:'כל הארץ', duration:'60-90 דקות', availability:'גמיש' },
+    { type:'product', name:'ערכת כלי עבודה', price:'₪320', online:true, offline:true, shipping:true, stock:'10 יחידות', returns:'14 יום', warranty:'שנה' },
+    { type:'service', name:'חיווט דירה מלא', price:'לפי הצעה', online:false, offline:true, areas:'מרכז', duration:'יום שלם+', availability:'לפי לוח עבודה' },
+  ];
+  return (
+    <div>
+      {/* Profile hero */}
+      <div className="profile-hero">
+        <div className="container">
+          <Breadcrumb items={['דף הבית','חשמלאים','ישראל לוי']} />
+          <div style={{ display:'flex', gap:24, alignItems:'flex-start' }}>
+            <div className="profile-avatar"><span>📷</span></div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:28, fontWeight:800, color:'var(--white)', marginBottom:4 }}>ישראל לוי</div>
+              <div style={{ fontSize:14, color:'var(--yellow)', marginBottom:10 }}>👤 בן של שווה — קהילת השווים</div>
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:12 }}>
+                <span className="tag tag-yellow">⚡ חשמלאי מוסמך</span>
+                <span className="tag" style={{ background:'rgba(255,255,255,.15)', color:'var(--white)' }}>📍 מרכז</span>
+                <span className="tag tag-green">✅ מאומת</span>
+              </div>
+              <div style={{ fontSize:14, color:'rgba(255,255,255,.75)', maxWidth:500, lineHeight:1.6 }}>
+                חשמלאי מוסמך עם 10 שנות ניסיון. מתמחה בהתקנות, חיווטים ותיקונים. שירות אמין, מקצועי ובמחיר הוגן.
+              </div>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:8, minWidth:130 }}>
+              <button className="btn btn-yellow btn-lg">📞 צור קשר</button>
+              <button className="btn btn-outline btn-lg" style={{ color:'var(--white)', borderColor:'rgba(255,255,255,.4)' }}>🛒 הזמן</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Services */}
+      <div className="container" style={{ padding:'28px 16px' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:24 }}>
+          {/* Main column */}
+          <div>
+            <div className="sec-header"><div className="sec-title">השירותים והמוצרים שלי</div></div>
+            {/* Filter */}
+            <div style={{ display:'flex', gap:6, marginBottom:16, flexWrap:'wrap' }}>
+              {['הכל','🔧 שירותים','📦 מוצרים','🌐 מקוון','🏠 פיזי','🚚 משלוח'].map((f,i)=>(
+                <button key={f} className="btn btn-ghost btn-sm" style={{ borderRadius:'var(--r-full)', background: i===0?'var(--navy)':'', color: i===0?'var(--white)':'', borderColor: i===0?'var(--navy)':'' }}>{f}</button>
+              ))}
+            </div>
+            {services.map((s, i) => (
+              <div key={i} className="service-item">
+                <div className="service-header" onClick={()=>setOpenService(openService===i?null:i)}>
+                  <span className={`tag ${s.type==='product'?'tag-green':'tag-blue'}`}>{s.type==='product'?'📦 מוצר':'🔧 שירות'}</span>
+                  <div style={{ flex:1, fontWeight:600, fontSize:15 }}>{s.name}</div>
+                  <div style={{ display:'flex', gap:4 }}>
+                    {s.online   && <span className="tag tag-blue" style={{ fontSize:11 }}>🌐 מקוון</span>}
+                    {s.offline  && <span className="tag" style={{ fontSize:11, background:'var(--purple-light)', color:'var(--purple)' }}>🏠 פיזי</span>}
+                    {s.shipping && <span className="tag tag-yellow" style={{ fontSize:11 }}>🚚 משלוח</span>}
+                  </div>
+                  <div style={{ fontWeight:700, color:'var(--navy)', fontSize:15, minWidth:80, textAlign:'start' }}>{s.price}</div>
+                  <button className="btn btn-yellow btn-sm" onClick={e=>{e.stopPropagation();setPage('item');}}>
+                    {s.type==='product'?'לרכישה':'הזמן'}
+                  </button>
+                  <span style={{ color:'var(--gray-400)', fontSize:14 }}>{openService===i?'▲':'▼'}</span>
+                </div>
+                {openService===i && (
+                  <div className="service-body">
+                    <div className="service-grid">
+                      <div className="service-meta-box">
+                        <div className="service-meta-title">🚀 אופן אספקה</div>
+                        {s.online   && <div style={{ fontSize:13, marginBottom:3 }}>🌐 <strong>מקוון</strong></div>}
+                        {s.offline  && <div style={{ fontSize:13, marginBottom:3 }}>🏠 <strong>פיזי</strong> — {s.areas}</div>}
+                        {s.shipping && <div style={{ fontSize:13 }}>🚚 <strong>משלוח</strong> — כל הארץ</div>}
+                        {s.stock    && <div style={{ fontSize:12, color:'var(--green)', marginTop:4 }}>מלאי: {s.stock}</div>}
+                      </div>
+                      <div className="service-meta-box">
+                        <div className="service-meta-title">💳 מחיר ותנאים</div>
+                        <div style={{ fontSize:13, marginBottom:3 }}>💰 <strong>{s.price}</strong></div>
+                        {s.duration     && <div style={{ fontSize:12 }}>⏰ זמן: {s.duration}</div>}
+                        {s.availability && <div style={{ fontSize:12 }}>📅 זמינות: {s.availability}</div>}
+                        {s.returns      && <div style={{ fontSize:12 }}>🔄 החזרות: {s.returns}</div>}
+                        {s.warranty     && <div style={{ fontSize:12 }}>🛡️ אחריות: {s.warranty}</div>}
+                      </div>
+                      <div className="service-meta-box">
+                        <div className="service-meta-title">📍 אזורי פעילות</div>
+                        {s.areas ? s.areas.split(',').map(a=>(
+                          <div key={a} style={{ fontSize:12, marginBottom:2 }}>📌 {a.trim()}</div>
+                        )) : <div style={{ fontSize:12 }}>כל הארץ</div>}
+                      </div>
+                    </div>
+                    {s.type==='product' && (
+                      <div style={{ background:'var(--yellow-light)', borderRadius:'var(--r-md)', padding:12, marginTop:10, border:'1px solid var(--yellow-dark)' }}>
+                        <div style={{ fontSize:13, fontWeight:700, color:'var(--gray-800)', marginBottom:8 }}>🎛️ משתנים</div>
+                        <div style={{ display:'flex', gap:8 }}>
+                          {['צבע','גודל','כמות'].map(v=>(
+                            <select key={v} className="input" style={{ width:'auto', fontSize:12, padding:'5px 10px' }}>
+                              <option>בחר {v}</option>
+                            </select>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div style={{ display:'flex', gap:8, justifyContent:'flex-end', marginTop:12 }}>
+                      <button className="btn btn-ghost btn-sm">💬 שלח הודעה</button>
+                      <button className="btn btn-yellow btn-sm" onClick={()=>setPage('item')}>{s.type==='product'?'🛒 לרכישה':'📅 קבע תור'}</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Side column */}
+          <div>
+            {/* Gallery */}
+            <div style={{ marginBottom:20 }}>
+              <div className="sec-title" style={{ fontSize:16, marginBottom:12 }}>גלריית עבודות</div>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:6 }}>
+                {[1,2,3,4].map(i=>(
+                  <div key={i} className="ph" style={{ height:90, borderRadius:'var(--r-md)' }}><span>📷 {i}</span></div>
+                ))}
+              </div>
+            </div>
+            {/* Story optional */}
+            <div style={{ background:'var(--yellow-light)', border:'1.5px dashed var(--yellow-dark)', borderRadius:'var(--r-lg)', padding:16, marginBottom:20 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', marginBottom:8 }}>
+                <div style={{ fontWeight:700, fontSize:15 }}>✍️ הסיפור שלי</div>
+                <span className="tag tag-yellow">אופציונלי</span>
+              </div>
+              <div style={{ fontSize:13, color:'var(--gray-600)', lineHeight:1.6 }}>
+                סקשן זה מוצג רק אם בעל הפרופיל בחר לשתף את סיפורו — החלטה אישית לחלוטין.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════
+   PAGE: ITEM (מוצר/שירות)
+═══════════════════════════════════ */
+function PageItem({ variant }) {
+  const [activeThumb, setActiveThumb] = useState(0);
+  const [variant1, setVariant1] = useState({ צבע:'שחור', גודל:'M' });
+  return (
+    <div>
+      <Breadcrumb items={['דף הבית','חשמלאים','ישראל לוי','ערכת כלי עבודה חשמלאי']} />
+      <div className="container" style={{ paddingBottom:40 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:32, alignItems:'start', marginBottom:32 }}>
+          {/* Gallery */}
+          <div>
+            <div style={{ display:'flex', gap:10, marginBottom:16 }}>
+              <div className="item-thumbs">
+                {[0,1,2,3].map(i=>(
+                  <div key={i} className={`item-thumb${activeThumb===i?' active':''}`} onClick={()=>setActiveThumb(i)}>
+                    <span>📷{i+1}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="item-main-img" style={{ flex:1 }}><span>תמונה ראשית</span></div>
+            </div>
+          </div>
+          {/* Details */}
+          <div>
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
+              <span className="tag tag-green">📦 מוצר</span>
+              <span className="tag tag-green">✅ מאומת</span>
+            </div>
+            <h1 style={{ fontSize:26, fontWeight:800, color:'var(--gray-800)', marginBottom:8 }}>ערכת כלי עבודה חשמלאי</h1>
+            <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:14 }}>
+              <span className="tag tag-blue">🌐 מקוון</span>
+              <span className="tag" style={{ background:'var(--purple-light)', color:'var(--purple)' }}>🏠 פיזי</span>
+              <span className="tag tag-yellow">🚚 משלוח — כל הארץ, 3-5 ימים</span>
+              <span className="tag tag-blue">📍 מרכז, שרון</span>
+            </div>
+            <div style={{ display:'flex', alignItems:'baseline', gap:12, marginBottom:16 }}>
+              <div style={{ fontSize:32, fontWeight:800, color:'var(--navy)' }}>₪320</div>
+              <span className="tag tag-green">✅ 10 יחידות במלאי</span>
+            </div>
+            {/* Variants */}
+            <div style={{ background:'var(--yellow-light)', borderRadius:'var(--r-lg)', padding:16, marginBottom:16, border:'1px solid var(--yellow-dark)' }}>
+              <div style={{ fontWeight:700, fontSize:14, marginBottom:12, color:'var(--gray-800)' }}>🎛️ בחר משתנים</div>
+              {[{k:'צבע',opts:['שחור','כסף','אדום']},{k:'גודל',opts:['S','M','L']}].map(({k,opts})=>(
+                <div key={k} style={{ marginBottom:10 }}>
+                  <div style={{ fontSize:12, color:'var(--gray-600)', marginBottom:5 }}>{k}:</div>
+                  <div style={{ display:'flex', gap:6 }}>
+                    {opts.map(o=>(
+                      <button key={o} className={`variant-btn${variant1[k]===o?' active':''}`} onClick={()=>setVariant1(p=>({...p,[k]:o}))}>{o}</button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* CTAs */}
+            <div style={{ display:'flex', gap:8, marginBottom:12 }}>
+              <button className="btn btn-yellow btn-xl" style={{ flex:2 }}>🛒 הוסף לסל</button>
+              <button className="btn btn-primary btn-xl" style={{ flex:2 }}>⚡ קנה עכשיו</button>
+              <button className="btn btn-ghost" style={{ flex:1 }}>💬</button>
+            </div>
+            {/* Meta grid */}
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8 }}>
+              {[
+                {icon:'🔄', label:'החזרות', val:'14 יום'},
+                {icon:'🛡️', label:'אחריות', val:'שנה'},
+                {icon:'💳', label:'תשלום', val:'כרטיס / PayBox'},
+              ].map(m=>(
+                <div key={m.label} style={{ background:'var(--gray-50)', borderRadius:'var(--r-md)', padding:'10px 12px', textAlign:'center', border:'1px solid var(--gray-100)' }}>
+                  <div style={{ fontSize:18, marginBottom:3 }}>{m.icon}</div>
+                  <div style={{ fontSize:11, color:'var(--gray-400)' }}>{m.label}</div>
+                  <div style={{ fontSize:13, fontWeight:600 }}>{m.val}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Details tabs */}
+        <div style={{ background:'var(--white)', borderRadius:'var(--r-xl)', border:'1.5px solid var(--gray-100)', padding:24, marginBottom:24 }}>
+          <div style={{ fontWeight:700, fontSize:17, marginBottom:12 }}>📝 תיאור מפורט</div>
+          <div style={{ fontSize:14, color:'var(--gray-600)', lineHeight:1.7 }}>
+            ערכה מקצועית הכוללת את כל הכלים הנחוצים לחשמלאי מתחיל ומנוסה כאחד.
+            הערכה כוללת מולטימטר, מהדק, חוטים, שקעים ועוד. אריזה ממותגת, מתאימה למתנה.
+          </div>
+        </div>
+
+        {/* Provider mini-profile */}
+        <div style={{ background:'var(--gray-50)', borderRadius:'var(--r-xl)', border:'1.5px solid var(--gray-100)', padding:20, marginBottom:24, display:'flex', gap:16, alignItems:'center' }}>
+          <div className="profile-avatar" style={{ width:60, height:60 }}><span>📷</span></div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontWeight:700, fontSize:16 }}>ישראל לוי</div>
+            <div style={{ fontSize:13, color:'var(--orange)' }}>👤 בן של שווה — קהילת השווים</div>
+            <div style={{ display:'flex', gap:4, marginTop:6 }}>
+              <span className="tag tag-green">✅ מאומת</span>
+              <span className="tag tag-blue">⚡ חשמלאי</span>
+            </div>
+          </div>
+          <button className="btn btn-outline">לפרופיל המלא ←</button>
+        </div>
+
+        {/* Related */}
+        <div>
+          <div className="sec-header"><div className="sec-title">🔗 מוצרים ושירותים נוספים</div></div>
+          <div className="carousel-wrap">
+            {[0,1,2,3].map(i=><BizcardSmall key={i} idx={i} />)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════
+   PAGE: CONTACT
+═══════════════════════════════════ */
+function PageContact() {
+  const [openFaq, setOpenFaq] = useState(null);
+  const faqs = [
+    { q:'איך מצטרפים כעסק?', a:'לחצו על "הרשמה חינם", מלאו את הפרטים ועברו תהליך אימות קצר.' },
+    { q:'מי נחשב "קהילת השווים"?', a:'בני משפחה של החטופים — חלק חזרו הביתה וחלק לא. אנו מכנים אותם כולם "קהילת השווים".' },
+    { q:'האם השירות בחינם?', a:'ההרשמה חינמית. בעתיד יהיו אפשרויות premium לחשיפה מוגברת.' },
+    { q:'איך פועל חותם האיכות?', a:'כל עסק עובר בדיקת זהות ובדיקת שייכות למשפחות לפני קבלת החותם.' },
+  ];
+  return (
+    <div>
+      <div style={{ background:'var(--navy)', padding:'40px 0 32px' }}>
+        <div className="container text-center">
+          <div style={{ fontSize:32, fontWeight:800, color:'var(--yellow)', marginBottom:8 }}>צור קשר</div>
+          <div style={{ fontSize:16, color:'rgba(255,255,255,.75)' }}>נשמח לשמוע ממך — נחזור בהקדם</div>
+        </div>
+      </div>
+      <div className="container" style={{ padding:'40px 16px' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:32, marginBottom:40 }}>
+          {/* Form */}
+          <div>
+            <div style={{ fontWeight:700, fontSize:20, marginBottom:20 }}>📬 שלח הודעה</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              <div style={{ display:'flex', gap:10 }}>
+                <input className="input" placeholder="שם פרטי" style={{ flex:1 }} />
+                <input className="input" placeholder="שם משפחה" style={{ flex:1 }} />
+              </div>
+              <input className="input" placeholder="טלפון" />
+              <input className="input" placeholder='דוא"ל' />
+              <select className="input">
+                <option>נושא הפנייה</option>
+                <option>הצטרפות כעסק</option>
+                <option>שאלה טכנית</option>
+                <option>דיווח על בעיה</option>
+                <option>שיתוף פעולה</option>
+              </select>
+              <textarea className="input" placeholder="הודעה" style={{ height:100, resize:'none' }} />
+              <button className="btn btn-primary btn-lg">שלח הודעה ←</button>
+            </div>
+            <div style={{ marginTop:20, display:'flex', gap:12 }}>
+              <button className="btn btn-ghost" style={{ flex:1, gap:6 }}>
+                💬 WhatsApp
+              </button>
+              <button className="btn btn-ghost" style={{ flex:1, gap:6 }}>
+                📞 טלפון ישיר
+              </button>
+            </div>
+          </div>
+          {/* Contact info */}
+          <div>
+            <div className="contact-info-box">
+              <div style={{ fontWeight:700, fontSize:18, color:'var(--yellow)', marginBottom:20 }}>פרטי יצירת קשר</div>
+              {[
+                {icon:'📍', title:'כתובת', val:'תל אביב-יפו, ישראל'},
+                {icon:'📞', title:'טלפון', val:'03-XXX-XXXX'},
+                {icon:'✉️', title:'דוא"ל', val:'info@ahad-mishlanu.co.il'},
+                {icon:'💬', title:'WhatsApp', val:'050-XXX-XXXX'},
+              ].map(c=>(
+                <div key={c.title} className="contact-info-item">
+                  <div className="contact-info-icon">{c.icon}</div>
+                  <div>
+                    <div style={{ fontSize:12, color:'rgba(255,255,255,.5)', marginBottom:2 }}>{c.title}</div>
+                    <div style={{ fontSize:14, fontWeight:600 }}>{c.val}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Map placeholder */}
+            <div className="ph" style={{ height:180, borderRadius:'var(--r-lg)', marginTop:16 }}>
+              <span>🗺️ מפה</span>
+            </div>
+          </div>
+        </div>
+        {/* FAQ */}
+        <div style={{ maxWidth:700, margin:'0 auto' }}>
+          <div style={{ fontWeight:700, fontSize:20, marginBottom:16 }}>❓ שאלות נפוצות</div>
+          {faqs.map((f,i)=>(
+            <div key={i} className="faq-item" onClick={()=>setOpenFaq(openFaq===i?null:i)}>
+              <div className="faq-q">
+                <span>{f.q}</span>
+                <span style={{ color:'var(--navy)', fontSize:18 }}>{openFaq===i?'−':'+'}</span>
+              </div>
+              {openFaq===i && <div className="faq-a">{f.a}</div>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════
+   PAGE: HOLISTIC / B2B
+═══════════════════════════════════ */
+function PageHolistic() {
+  const packages = [
+    { icon:'🎁', title:'חבילת מתנות', price:'החל מ-₪50/עובד', featured:false, items:['קטלוג מותאם אישית','אריזה ממותגת','משלוח לכל הארץ','תמיכה בהזמנות גדולות'] },
+    { icon:'🌟', title:'חבילה מקיפה', price:'בהתאמה אישית', featured:true, items:['כל שירותי הפורטל','חשבונית מס מסודרת','איש קשר ייעודי','עדיפות בתמיכה','דוחות רכש'] },
+    { icon:'📋', title:'הדרכות ארגוניות', price:'החל מ-₪800/הדרכה', featured:false, items:['הדרכות מותאמות','וידאו-קונפרנס','תוכן דיגיטלי','תעודות השתתפות'] },
+  ];
+  const catalog = [
+    {icon:'🎁',title:'מתנות לחגים',sub:'פסח, ר"ה, חנוכה'},
+    {icon:'📚',title:'ספרים ותוכן',sub:'לספריית הארגון'},
+    {icon:'🍽️',title:'קייטרינג',sub:'ארועים ואספקה'},
+    {icon:'💻',title:'שירותי IT',sub:'תמיכה ועיצוב'},
+    {icon:'🏋️',title:'בריאות ורווחה',sub:'הדרכות, יוגה'},
+    {icon:'📋',title:'ייעוץ מקצועי',sub:'משפט, פיננסים'},
+  ];
+  return (
+    <div>
+      <div className="hol-page-hero">
+        <div className="container">
+          <div style={{ fontSize:36, fontWeight:800, color:'var(--yellow)', marginBottom:10 }}>פתרונות הוליסטיים<br/>לעסקים וארגונים</div>
+          <div style={{ fontSize:17, color:'rgba(255,255,255,.8)', marginBottom:32, maxWidth:600, margin:'0 auto 32px' }}>
+            חבילות מותאמות לועדי עובדים, מחלקות HR ורכש ארגוני — קנו מהקהילה, חזקו משפחות
+          </div>
+          <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap' }}>
+            <button className="btn btn-yellow btn-xl">לפרטים ותמחור</button>
+            <button className="btn btn-outline btn-xl" style={{ color:'var(--white)', borderColor:'rgba(255,255,255,.4)' }}>דבר איתנו</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Packages */}
+      <section className="section">
+        <div className="container">
+          <div className="text-center" style={{ marginBottom:36 }}>
+            <div className="section-title">חבילות לארגונים</div>
+            <div className="section-sub">בחרו את החבילה המתאימה לצרכי הארגון שלכם</div>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20 }}>
+            {packages.map(p=>(
+              <div key={p.title} className={`hol-package${p.featured?' featured':''}`}>
+                {p.featured && <div className="tag tag-yellow" style={{ marginBottom:12 }}>⭐ הכי פופולרי</div>}
+                <div className="hol-pack-icon">{p.icon}</div>
+                <div className="hol-pack-title">{p.title}</div>
+                <div className="hol-pack-price">{p.price}</div>
+                <ul className="hol-pack-list" style={{ marginBottom:20 }}>
+                  {p.items.map(item=><li key={item}>{item}</li>)}
+                </ul>
+                <button className={`btn w-full ${p.featured?'btn-yellow':'btn-outline'}`}>צרו קשר לתמחור</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Catalog */}
+      <section className="section" style={{ background:'var(--off-white)', borderTop:'1px solid var(--gray-100)' }}>
+        <div className="container">
+          <div className="sec-header" style={{ marginBottom:24 }}>
+            <div className="section-title">קטלוג שירותים לארגונים</div>
+            <span className="sec-link">לכל הקטגוריות ←</span>
+          </div>
+          <div className="catalog-row">
+            {catalog.map(c=>(
+              <div key={c.title} className="catalog-card">
+                <div className="catalog-icon">{c.icon}</div>
+                <div className="catalog-title">{c.title}</div>
+                <div className="catalog-sub">{c.sub}</div>
+                <button className="btn btn-ghost btn-sm" style={{ marginTop:10, width:'100%' }}>לפרטים</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* B2B CTA */}
+      <section style={{ background:'var(--navy)', padding:'48px 0', textAlign:'center' }}>
+        <div className="container">
+          <div style={{ fontSize:24, fontWeight:700, color:'var(--white)', marginBottom:8 }}>
+            רוצים לקנות מהקהילה עבור הארגון שלכם?
+          </div>
+          <div style={{ fontSize:15, color:'rgba(255,255,255,.7)', marginBottom:24 }}>
+            השאירו פרטים ונחזור אליכם עם הצעה מותאמת
+          </div>
+          <div style={{ display:'flex', gap:10, maxWidth:400, margin:'0 auto' }}>
+            <input className="input" placeholder='דוא"ל ארגוני' />
+            <button className="btn btn-yellow">שלח ←</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════
+   PAGE: ADMIN
+═══════════════════════════════════ */
+function PageAdmin() {
+  const [adminTab, setAdminTab] = useState('dashboard');
+  const [cats, setCats] = useState([
+    { id:1, name:'בית ותשתיות', subs:6, active:true },
+    { id:2, name:'משפט ופיננסים', subs:4, active:true },
+    { id:3, name:'ספרים וחינוך', subs:5, active:true },
+    { id:4, name:'מזון ואירועים', subs:7, active:false },
+    { id:5, name:'טכנולוגיה', subs:4, active:true },
+  ]);
+  const [editId, setEditId] = useState(null);
+  const [newCat, setNewCat] = useState('');
+  const navItems = [
+    { id:'dashboard', icon:'📊', label:'לוח בקרה' },
+    { id:'categories', icon:'🗂️', label:'קטגוריות' },
+    { id:'businesses', icon:'🏢', label:'עסקים ופרופילים' },
+    { id:'promo', icon:'📢', label:'באנר פרומו' },
+    { id:'users', icon:'👥', label:'משתמשים' },
+    { id:'settings', icon:'⚙️', label:'הגדרות' },
+  ];
+
+  return (
+    <div className="admin-shell" style={{ direction:'rtl' }}>
+      {/* Admin Sidebar */}
+      <div className="admin-sidebar">
+        <div className="admin-logo-area">
+          <Logo light />
+          <div style={{ fontSize:11, color:'rgba(255,255,255,.4)', marginTop:4 }}>ממשק ניהול</div>
+        </div>
+        <div className="admin-nav-section">ניהול</div>
+        {navItems.map(n=>(
+          <div key={n.id} className={`admin-nav-item${adminTab===n.id?' active':''}`} onClick={()=>setAdminTab(n.id)}>
+            <span>{n.icon}</span>
+            <span>{n.label}</span>
+          </div>
+        ))}
+        <div className="admin-nav-section" style={{ marginTop:20 }}>כללי</div>
+        <div className="admin-nav-item" onClick={()=>{}}>🔙 חזרה לאתר</div>
+        <div className="admin-nav-item" style={{ marginTop:'auto' }}>🚪 יציאה</div>
+      </div>
+
+      {/* Admin Main */}
+      <div className="admin-main">
+        <div className="admin-topbar">
+          <div style={{ fontWeight:700, fontSize:16, color:'var(--gray-800)' }}>
+            {navItems.find(n=>n.id===adminTab)?.label || 'ניהול'}
+          </div>
+          <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+            <span style={{ fontSize:13, color:'var(--gray-600)' }}>שלום, מנהל</span>
+            <div style={{ width:34, height:34, borderRadius:'50%', background:'var(--navy)', color:'var(--white)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, fontWeight:700 }}>מ</div>
+          </div>
+        </div>
+
+        {/* DASHBOARD */}
+        {adminTab === 'dashboard' && (
+          <div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:20 }}>
+              {[
+                { icon:'🏢', num:'524', label:'עסקים רשומים', color:'var(--navy)' },
+                { icon:'👤', num:'312', label:'פרופילים אישיים', color:'var(--green)' },
+                { icon:'🛒', num:'1,284', label:'הזמנות החודש', color:'var(--orange)' },
+                { icon:'🆕', num:'28', label:'הצטרפו השבוע', color:'var(--purple)' },
+              ].map(s=>(
+                <div key={s.label} className="stat-card">
+                  <div style={{ fontSize:26, marginBottom:4 }}>{s.icon}</div>
+                  <div className="stat-num" style={{ color:s.color }}>{s.num}</div>
+                  <div className="stat-label">{s.label}</div>
+                </div>
+              ))}
+            </div>
+            <div className="data-table">
+              <div className="table-header"><tr><th>שם עסק</th><th>קטגוריה</th><th>סטטוס</th><th>תאריך</th><th>פעולות</th></tr></div>
+              <tbody>
+                {['עסק כהן','עסק לוי','עסק מזרחי','עסק פרץ'].map((b,i)=>(
+                  <tr key={b} className="table-row">
+                    <td style={{ fontWeight:500 }}>{b}</td>
+                    <td><span className="tag tag-blue">חשמלאים</span></td>
+                    <td><span className={`tag ${i===2?'tag-orange':'tag-green'}`}>{i===2?'ממתין לאימות':'מאומת'}</span></td>
+                    <td style={{ color:'var(--gray-600)' }}>01/05/2024</td>
+                    <td><button className="btn btn-ghost btn-sm">ערוך</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </div>
+          </div>
+        )}
+
+        {/* CATEGORIES */}
+        {adminTab === 'categories' && (
+          <div>
+            <div style={{ background:'var(--white)', borderRadius:'var(--r-lg)', padding:20, marginBottom:16, boxShadow:'var(--shadow-sm)' }}>
+              <div style={{ fontWeight:700, fontSize:15, marginBottom:14 }}>+ הוסף קטגוריה חדשה</div>
+              <div style={{ display:'flex', gap:10 }}>
+                <input className="input" placeholder="שם הקטגוריה" value={newCat} onChange={e=>setNewCat(e.target.value)} style={{ flex:1 }} />
+                <button className="btn btn-primary" onClick={()=>{
+                  if(newCat.trim()) { setCats(p=>[...p,{id:Date.now(),name:newCat.trim(),subs:0,active:true}]); setNewCat(''); }
+                }}>הוסף</button>
+              </div>
+            </div>
+            <div className="data-table">
+              <table style={{ width:'100%', borderCollapse:'collapse' }}>
+                <thead className="table-header">
+                  <tr><th>שם קטגוריה</th><th>תת-קטגוריות</th><th>סטטוס</th><th>פעולות</th></tr>
+                </thead>
+                <tbody>
+                  {cats.map(c=>(
+                    <tr key={c.id} className="table-row">
+                      <td>
+                        {editId===c.id ? (
+                          <input className="input" defaultValue={c.name} onBlur={e=>{
+                            setCats(p=>p.map(x=>x.id===c.id?{...x,name:e.target.value}:x));
+                            setEditId(null);
+                          }} autoFocus style={{ width:'auto', padding:'4px 8px', fontSize:13 }} />
+                        ) : (
+                          <span style={{ fontWeight:500 }}>{c.name}</span>
+                        )}
+                      </td>
+                      <td><span className="tag tag-blue">{c.subs} תת-קטגוריות</span></td>
+                      <td>
+                        <button onClick={()=>setCats(p=>p.map(x=>x.id===c.id?{...x,active:!x.active}:x))}
+                          className={`tag ${c.active?'tag-green':'tag-orange'}`} style={{ cursor:'pointer', border:'none', font:'inherit' }}>
+                          {c.active?'✅ פעיל':'⏸️ מושהה'}
+                        </button>
+                      </td>
+                      <td style={{ display:'flex', gap:6 }}>
+                        <button className="btn btn-ghost btn-sm" onClick={()=>setEditId(c.id)}>✏️ ערוך</button>
+                        <button className="btn btn-ghost btn-sm" style={{ color:'var(--red)', borderColor:'var(--red)' }}
+                          onClick={()=>setCats(p=>p.filter(x=>x.id!==c.id))}>🗑️ מחק</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* OTHER TABS */}
+        {!['dashboard','categories'].includes(adminTab) && (
+          <div style={{ background:'var(--white)', borderRadius:'var(--r-xl)', padding:32, textAlign:'center', boxShadow:'var(--shadow-sm)' }}>
+            <div style={{ fontSize:40, marginBottom:14 }}>{navItems.find(n=>n.id===adminTab)?.icon}</div>
+            <div style={{ fontSize:18, fontWeight:700, color:'var(--gray-800)', marginBottom:6 }}>
+              {navItems.find(n=>n.id===adminTab)?.label}
+            </div>
+            <div style={{ fontSize:14, color:'var(--gray-600)' }}>מסך זה יפותח בגרסה הבאה</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════
+   ROOT APP
+═══════════════════════════════════ */
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "variant": "v1",
+  "primaryColor": "#1B3F6E",
+  "accentColor": "#F9E44A"
+}/*EDITMODE-END*/;
+
+function App() {
+  const [tweaks, setTweakState] = useState(TWEAK_DEFAULTS);
+  const setTweak = (key, val) => setTweakState(p => ({ ...p, [key]: val }));
+  const [page, setPage] = useState('home');
+  const variant = tweaks.variant;
+
+  const pages = [
+    { id:'home',      label:'דף הבית' },
+    { id:'category',  label:'קטגוריה' },
+    { id:'profile',   label:'פרופיל אישי' },
+    { id:'item',      label:'מוצר/שירות' },
+    { id:'contact',   label:'צור קשר' },
+    { id:'holistic',  label:'לעסקים' },
+    { id:'admin',     label:'⚙️ ניהול' },
+  ];
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--navy', tweaks.primaryColor);
+    document.documentElement.style.setProperty('--yellow', tweaks.accentColor);
+  }, [tweaks.primaryColor, tweaks.accentColor]);
+
+  const isAdmin = page === 'admin';
+
+  return (
+    <div className={`page-shell ${variant}`} dir="rtl">
+      {/* Page switcher nav */}
+      <div className="page-nav">
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <Logo light size="sm" />
+          <span style={{ fontSize:12, color:'rgba(255,255,255,.4)' }}>Hi-Fi Design</span>
+        </div>
+        <div className="page-nav-tabs">
+          {pages.map(p=>(
+            <button key={p.id} onClick={()=>setPage(p.id)}
+              className={`pn-tab${page===p.id?' active':''}`}>{p.label}</button>
+          ))}
+        </div>
+        <div style={{ display:'flex', gap:4 }}>
+          <button onClick={()=>setTweak('variant','v1')} className={`pn-var v1${variant==='v1'?' active':''}`}>V1</button>
+          <button onClick={()=>setTweak('variant','v2')} className={`pn-var v2${variant==='v2'?' active':''}`}>V2</button>
+        </div>
+      </div>
+
+      {/* Content */}
+      {isAdmin ? (
+        <PageAdmin />
+      ) : (
+        <>
+          <SiteHeader variant={variant} page={page} setPage={setPage} />
+          <main style={{ flex:1 }}>
+            {page==='home'     && <PageHome variant={variant} />}
+            {page==='category' && <PageCategory variant={variant} />}
+            {page==='profile'  && <PageProfile variant={variant} setPage={setPage} />}
+            {page==='item'     && <PageItem variant={variant} />}
+            {page==='contact'  && <PageContact />}
+            {page==='holistic' && <PageHolistic />}
+          </main>
+          <Footer />
+        </>
+      )}
+
+      {/* Tweaks */}
+      <TweaksPanel tweaks={tweaks} setTweak={setTweak}>
+        <TweakSection title="וריאנט">
+          <TweakRadio id="variant" label="גרסה" value={tweaks.variant} onChange={v=>setTweak('variant',v)} options={[{value:'v1',label:'V1 כהה'},{value:'v2',label:'V2 בהיר'}]} />
+        </TweakSection>
+        <TweakSection title="צבעים">
+          <TweakColor id="primaryColor" label="Navy (ראשי)" value={tweaks.primaryColor} onChange={v=>setTweak('primaryColor',v)} />
+          <TweakColor id="accentColor"  label="Yellow (הדגשה)" value={tweaks.accentColor} onChange={v=>setTweak('accentColor',v)} />
+        </TweakSection>
+      </TweaksPanel>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
