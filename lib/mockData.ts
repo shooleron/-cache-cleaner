@@ -1,0 +1,550 @@
+import { AppState, Task, Group, Project, User, Notification, Contact, Deal, AutomationRule, Event, Campaign, Speaker, Panel, SponsorshipProduct, Brand, ContactType, ProjectCategory } from './types';
+
+export const MOCK_USERS: User[] = [
+  { id: 'user-1', name: 'יורי אלט', email: 'yuri@atelier.co.il', avatar: 'יא', color: '#0073ea', role: 'owner', status: 'active', jobTitle: 'מנכ"ל', department: 'management' },
+  { id: 'user-2', name: 'דנה כהן', email: 'dana@atelier.co.il', avatar: 'דכ', color: '#9c27b0', role: 'member', status: 'active', jobTitle: 'מפיקת תוכן', department: 'content' },
+  { id: 'user-3', name: 'אילן מזרחי', email: 'ilan@atelier.co.il', avatar: 'אמ', color: '#f44336', role: 'member', status: 'active', jobTitle: 'מנהל תפעול', department: 'operations' },
+  { id: 'user-4', name: 'שרה לוי', email: 'sara@atelier.co.il', avatar: 'של', color: '#4caf50', role: 'member', status: 'active', jobTitle: 'מעצבת גרפית', department: 'design' },
+  { id: 'user-5', name: 'חגית פרידמן', email: 'hagit@atelier.co.il', avatar: 'חפ', color: '#ff9800', role: 'member', status: 'active', jobTitle: 'מנהלת תפעול', department: 'operations' },
+  { id: 'user-6', name: 'רמי שלומי', email: 'rami@atelier.co.il', avatar: 'רש', color: '#00bcd4', role: 'member', status: 'active', jobTitle: 'סמנכ"ל פיתוח עסקי', department: 'sales' },
+  { id: 'user-7', name: 'מיכל ברק', email: 'michal@atelier.co.il', avatar: 'מב', color: '#e91e63', role: 'member', status: 'active', jobTitle: 'מנהלת שיווק', department: 'marketing' },
+];
+
+export const MOCK_BRANDS: Brand[] = [
+  { id: 'brand-1', name: 'מרכז הנדל״ן', color: '#0073ea', icon: '🏗️', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'brand-2', name: 'בית ונוי', color: '#00c875', icon: '🏡', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'brand-3', name: 'מולטיפליי קפיטל', color: '#9c27b0', icon: '💼', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+];
+
+export const MOCK_EVENTS: Event[] = [
+  {
+    id: 'event-1',
+    name: 'ועידת הנדל״ן אילת 2026',
+    description: 'הכנס השנתי של תעשיית הנדל״ן בישראל',
+    date: '2026-04-15',
+    endDate: '2026-04-16',
+    location: 'אילת',
+    status: 'active',
+    color: '#0073ea',
+    icon: '🏗️',
+    parentEventId: 'event-archived-1',
+    brandId: 'brand-1',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'event-2',
+    name: 'כנס טכנולוגיה אפריל 2026',
+    description: 'כנס חדשנות וטכנולוגיה',
+    date: '2026-04-28',
+    endDate: null,
+    location: 'תל אביב',
+    status: 'active',
+    color: '#9c27b0',
+    icon: '💻',
+    parentEventId: null,
+    brandId: 'brand-3',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'event-archived-1',
+    name: 'ועידת הנדל״ן אילת 2025',
+    description: 'הכנס השנתי של תעשיית הנדל״ן בישראל',
+    date: '2025-04-10',
+    endDate: '2025-04-11',
+    location: 'אילת',
+    status: 'archived',
+    color: '#0073ea',
+    icon: '🏗️',
+    parentEventId: null,
+    brandId: 'brand-1',
+    createdAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
+export const MOCK_PROJECTS: Project[] = [
+  // תפעול — מתחת לאירועים
+  { id: 'proj-1', name: 'Website Redesign', description: 'Complete overhaul of the company website', color: '#0073ea', icon: '🌐', memberIds: ['user-1', 'user-2', 'user-3'], defaultView: 'table', eventId: 'event-1', category: null, createdAt: '2026-01-15T10:00:00Z', updatedAt: '2026-03-10T12:00:00Z' },
+  { id: 'proj-2', name: 'Mobile App Launch', description: 'Product launch plan for Q2', color: '#e2445c', icon: '📱', memberIds: ['user-1', 'user-2', 'user-4'], defaultView: 'kanban', eventId: 'event-1', category: null, createdAt: '2026-02-01T09:00:00Z', updatedAt: '2026-03-15T08:00:00Z' },
+  { id: 'proj-3', name: 'Marketing Campaign', description: 'Q2 marketing initiatives', color: '#fdab3d', icon: '📣', memberIds: ['user-1', 'user-3'], defaultView: 'roadmap', eventId: 'event-2', category: null, createdAt: '2026-03-01T11:00:00Z', updatedAt: '2026-03-17T14:00:00Z' },
+  // שיווק — פרויקטים לפי קטגוריה
+  { id: 'proj-mkt-1', name: 'שיווק — כנס נדל"ן', description: 'אסטרטגיית שיווק לכנס הנדל"ן 2026', color: '#00c875', icon: '📣', memberIds: ['user-1', 'user-3'], defaultView: 'table', eventId: 'event-1', category: 'marketing', createdAt: '2026-01-20T09:00:00Z', updatedAt: '2026-03-12T09:00:00Z' },
+  { id: 'proj-mkt-2', name: 'שיווק שנתי', description: 'אסטרטגיית שיווק כללית לשנת 2026', color: '#0073ea', icon: '📊', memberIds: ['user-1', 'user-2'], defaultView: 'table', eventId: null, category: 'marketing', createdAt: '2026-01-05T09:00:00Z', updatedAt: '2026-03-01T09:00:00Z' },
+  { id: 'proj-promo-1', name: 'קידום ממומן — כנס נדל"ן', description: 'Google Ads, Meta, LinkedIn לכנס', color: '#fdab3d', icon: '🎯', memberIds: ['user-1', 'user-4'], defaultView: 'table', eventId: 'event-1', category: 'promotion', createdAt: '2026-01-22T09:00:00Z', updatedAt: '2026-03-14T09:00:00Z' },
+  { id: 'proj-social-1', name: 'סושיאל — כנס נדל"ן', description: 'אינסטגרם, לינקדאין, פייסבוק לכנס', color: '#9c27b0', icon: '📱', memberIds: ['user-2', 'user-3'], defaultView: 'kanban', eventId: 'event-1', category: 'social', createdAt: '2026-02-05T09:00:00Z', updatedAt: '2026-03-16T09:00:00Z' },
+  { id: 'proj-social-2', name: 'סושיאל שוטף', description: 'ניהול ערוצי הסושיאל השוטפים', color: '#e91e63', icon: '🔥', memberIds: ['user-2'], defaultView: 'kanban', eventId: null, category: 'social', createdAt: '2026-01-01T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z' },
+  { id: 'proj-design-1', name: 'עיצוב — כנס נדל"ן', description: 'חומרי עיצוב לכנס הנדל"ן', color: '#ff5722', icon: '🎨', memberIds: ['user-2', 'user-5'], defaultView: 'table', eventId: 'event-1', category: 'design', createdAt: '2026-01-18T09:00:00Z', updatedAt: '2026-03-18T09:00:00Z' },
+  { id: 'proj-design-2', name: 'מיתוג 2026', description: 'חידוש זהות מותג וחומרי עיצוב שנתיים', color: '#795548', icon: '✏️', memberIds: ['user-2'], defaultView: 'table', eventId: null, category: 'design', createdAt: '2026-01-10T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z' },
+  { id: 'proj-bizdev-1', name: 'פיתוח עסקי Q2', description: 'שותפויות, נותני חסות ולידים עסקיים', color: '#607d8b', icon: '🤝', memberIds: ['user-1', 'user-4'], defaultView: 'table', eventId: null, category: 'bizdev', createdAt: '2026-02-01T09:00:00Z', updatedAt: '2026-03-22T09:00:00Z' },
+];
+
+export const MOCK_CAMPAIGNS: Campaign[] = [
+  {
+    id: 'campaign-1',
+    projectId: 'proj-1',
+    name: 'גיוס דוברים',
+    description: '',
+    color: '#0073ea',
+    status: 'active',
+    order: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'campaign-2',
+    projectId: 'proj-1',
+    name: 'שיווק רשתות חברתיות',
+    description: '',
+    color: '#e2445c',
+    status: 'active',
+    order: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+export const MOCK_GROUPS: Group[] = [
+  { id: 'grp-1', projectId: 'proj-1', name: 'Planning', color: '#0073ea', order: 0 },
+  { id: 'grp-2', projectId: 'proj-1', name: 'Design', color: '#e2445c', order: 1 },
+  { id: 'grp-3', projectId: 'proj-1', name: 'Development', color: '#fdab3d', order: 2 },
+  { id: 'grp-4', projectId: 'proj-2', name: 'Research', color: '#00c875', order: 0 },
+  { id: 'grp-5', projectId: 'proj-2', name: 'Development', color: '#9c27b0', order: 1 },
+  { id: 'grp-6', projectId: 'proj-3', name: 'Strategy', color: '#fdab3d', order: 0 },
+  { id: 'grp-7', projectId: 'proj-3', name: 'Execution', color: '#e2445c', order: 1 },
+  // שיווק — כנס נדל"ן
+  { id: 'grp-mkt1-1', projectId: 'proj-mkt-1', name: 'אסטרטגיה', color: '#00c875', order: 0 },
+  { id: 'grp-mkt1-2', projectId: 'proj-mkt-1', name: 'ביצוע', color: '#0073ea', order: 1 },
+  // שיווק שנתי
+  { id: 'grp-mkt2-1', projectId: 'proj-mkt-2', name: 'תכנון שנתי', color: '#0073ea', order: 0 },
+  { id: 'grp-mkt2-2', projectId: 'proj-mkt-2', name: 'תוכן שיווקי', color: '#9c27b0', order: 1 },
+  // קידום ממומן — כנס נדל"ן
+  { id: 'grp-promo1-1', projectId: 'proj-promo-1', name: 'קמפיינים', color: '#fdab3d', order: 0 },
+  { id: 'grp-promo1-2', projectId: 'proj-promo-1', name: 'אנליטיקה', color: '#e2445c', order: 1 },
+  // סושיאל — כנס נדל"ן
+  { id: 'grp-social1-1', projectId: 'proj-social-1', name: 'תוכן', color: '#9c27b0', order: 0 },
+  { id: 'grp-social1-2', projectId: 'proj-social-1', name: 'פרסום ופצ\'ינג', color: '#e91e63', order: 1 },
+  // סושיאל שוטף
+  { id: 'grp-social2-1', projectId: 'proj-social-2', name: 'פוסטים שוטפים', color: '#e91e63', order: 0 },
+  { id: 'grp-social2-2', projectId: 'proj-social-2', name: 'סטוריז ורילז', color: '#9c27b0', order: 1 },
+  // עיצוב — כנס נדל"ן
+  { id: 'grp-design1-1', projectId: 'proj-design-1', name: 'חומרי שיווק', color: '#ff5722', order: 0 },
+  { id: 'grp-design1-2', projectId: 'proj-design-1', name: 'עיצוב דיגיטלי', color: '#fdab3d', order: 1 },
+  // מיתוג 2026
+  { id: 'grp-design2-1', projectId: 'proj-design-2', name: 'זהות מותג', color: '#795548', order: 0 },
+  { id: 'grp-design2-2', projectId: 'proj-design-2', name: 'חומרי הדפסה', color: '#ff5722', order: 1 },
+  // פיתוח עסקי Q2
+  { id: 'grp-bizdev1-1', projectId: 'proj-bizdev-1', name: 'שותפויות', color: '#607d8b', order: 0 },
+  { id: 'grp-bizdev1-2', projectId: 'proj-bizdev-1', name: 'לידים עסקיים', color: '#0073ea', order: 1 },
+];
+
+const T = (t: Omit<Task, 'recurring' | 'recurringInterval' | 'department' | 'contactId' | 'checkboxValue' | 'linkUrl' | 'phoneValue' | 'locationValue' | 'attachments' | 'notes' | 'comments' | 'subItems'> & Partial<Pick<Task, 'recurring' | 'recurringInterval' | 'department' | 'contactId' | 'checkboxValue' | 'linkUrl' | 'phoneValue' | 'locationValue' | 'attachments' | 'notes' | 'comments' | 'subItems'>>): Task => ({
+  attachments: [], notes: [], comments: [], subItems: [],
+  recurring: false, recurringInterval: null, department: null, contactId: null,
+  checkboxValue: false, linkUrl: null, phoneValue: null, locationValue: null,
+  ...t,
+});
+
+export const MOCK_TASKS: Task[] = [
+  // ועידת הנדל״ן אילת 2026 — ניהול אתר כנס
+  T({ id: 'task-1', projectId: 'proj-1', groupId: 'grp-1', title: 'תיאום לוגיסטיקה — הגעת דוברים', description: 'לתאם טיסות ומלון לכל הדוברים', status: 'in_progress', priority: 'critical', assigneeIds: ['user-5'], startDate: '2026-03-20', dueDate: '2026-04-01', order: 0, tags: ['דוברים'], timeTracked: 60, campaignId: null, department: 'operations', createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z' }),
+  T({ id: 'task-2', projectId: 'proj-1', groupId: 'grp-1', title: 'קבלת קו"ח ותמונות מהדוברים', description: 'לאסוף מכל הדוברים שאושרו', status: 'in_progress', priority: 'high', assigneeIds: ['user-5'], startDate: '2026-03-15', dueDate: '2026-03-30', order: 1, tags: ['דוברים'], timeTracked: 30, campaignId: null, department: 'operations', createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-03-18T09:00:00Z' }),
+  T({ id: 'task-3', projectId: 'proj-1', groupId: 'grp-1', title: 'יצירת קשר עם נאור בקר — עדיין לא שלח חומרים', description: 'לחכות לפרטים מהדובר', status: 'stuck', priority: 'high', assigneeIds: ['user-5'], startDate: '2026-03-10', dueDate: '2026-03-28', order: 2, tags: ['דוברים', 'ממתין'], timeTracked: 0, campaignId: null, department: 'operations', createdAt: '2026-03-10T09:00:00Z', updatedAt: '2026-03-10T09:00:00Z' }),
+  T({ id: 'task-4', projectId: 'proj-1', groupId: 'grp-2', title: 'עריכת כתבה שבועית — ועידת אילת', description: 'כתבה שיווקית להכנסת תוכן לאתר הכנס', status: 'todo', priority: 'medium', assigneeIds: ['user-2'], startDate: '2026-04-01', dueDate: '2026-04-07', order: 0, tags: ['תוכן'], timeTracked: 0, campaignId: null, department: 'content', recurring: true, recurringInterval: 'weekly', createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-03-01T09:00:00Z' }),
+  T({ id: 'task-5', projectId: 'proj-1', groupId: 'grp-2', title: 'עדכון אתר הכנס — לוח דוברים', description: 'לעדכן את רשימת הדוברים באתר', status: 'todo', priority: 'high', assigneeIds: ['user-4'], startDate: '2026-04-01', dueDate: '2026-04-05', order: 1, tags: ['עיצוב', 'אתר'], timeTracked: 0, campaignId: null, department: 'design', createdAt: '2026-03-05T09:00:00Z', updatedAt: '2026-03-05T09:00:00Z' }),
+  T({ id: 'task-6', projectId: 'proj-1', groupId: 'grp-2', title: 'עיצוב באנרים לרשתות חברתיות', description: 'עיצוב 10 באנרים שיווקיים', status: 'in_progress', priority: 'high', assigneeIds: ['user-4'], startDate: '2026-03-20', dueDate: '2026-04-01', order: 2, tags: ['עיצוב', 'שיווק'], timeTracked: 120, campaignId: null, department: 'design', createdAt: '2026-03-15T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z' }),
+  // ועידת הנדל״ן אילת 2026 — מכירות ושיווק
+  T({ id: 'task-7', projectId: 'proj-2', groupId: 'grp-4', title: 'הכנת חוזה חסות — קבוצת הנגב', description: 'לשלוח חוזה חתום לנאור בקר', status: 'done', priority: 'critical', assigneeIds: ['user-6'], startDate: '2026-02-20', dueDate: '2026-02-28', order: 0, tags: ['חוזה', 'חסות'], timeTracked: 60, campaignId: null, department: 'sales', createdAt: '2026-02-15T09:00:00Z', updatedAt: '2026-02-28T09:00:00Z' }),
+  T({ id: 'task-8', projectId: 'proj-2', groupId: 'grp-4', title: 'שליחת הצעת מחיר — פירמת שפירא', description: 'הצעה לפאנל + עמדה', status: 'in_progress', priority: 'high', assigneeIds: ['user-6'], startDate: '2026-03-15', dueDate: '2026-03-30', order: 1, tags: ['הצעה'], timeTracked: 30, campaignId: null, department: 'sales', createdAt: '2026-03-10T09:00:00Z', updatedAt: '2026-03-18T09:00:00Z' }),
+  T({ id: 'task-9', projectId: 'proj-2', groupId: 'grp-5', title: 'פוסט פייסבוק שבועי — ועידת אילת', description: 'תוכן שיווקי לפייסבוק', status: 'todo', priority: 'medium', assigneeIds: ['user-7'], startDate: '2026-04-07', dueDate: '2026-04-14', order: 0, tags: ['שיווק', 'סושיאל'], timeTracked: 0, campaignId: null, department: 'marketing', recurring: true, recurringInterval: 'weekly', createdAt: '2026-03-05T09:00:00Z', updatedAt: '2026-03-05T09:00:00Z' }),
+  T({ id: 'task-10', projectId: 'proj-2', groupId: 'grp-5', title: 'הפקת פודקאסט שבועי — נדל"ן ישראל', description: 'הקלטה, עריכה ופרסום', status: 'todo', priority: 'high', assigneeIds: ['user-2'], startDate: '2026-04-07', dueDate: '2026-04-11', order: 1, tags: ['פודקאסט', 'תוכן'], timeTracked: 0, campaignId: null, department: 'content', recurring: true, recurringInterval: 'weekly', createdAt: '2026-03-05T09:00:00Z', updatedAt: '2026-03-05T09:00:00Z' }),
+  // כנס טכנולוגיה
+  T({ id: 'task-11', projectId: 'proj-3', groupId: 'grp-6', title: 'גיוס דוברים לכנס טכנולוגיה', description: 'למצוא 5 דוברים רלוונטיים', status: 'in_progress', priority: 'critical', assigneeIds: ['user-5', 'user-1'], startDate: '2026-03-15', dueDate: '2026-04-10', order: 0, tags: ['דוברים'], timeTracked: 90, campaignId: null, department: 'operations', createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-03-15T09:00:00Z' }),
+  T({ id: 'task-12', projectId: 'proj-3', groupId: 'grp-6', title: 'עיצוב זהות ויזואלית לכנס', description: 'לוגו, צבעים, פונטים', status: 'todo', priority: 'high', assigneeIds: ['user-4'], startDate: '2026-03-20', dueDate: '2026-04-05', order: 1, tags: ['עיצוב'], timeTracked: 0, campaignId: null, department: 'design', createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-03-01T09:00:00Z' }),
+  T({ id: 'task-13', projectId: 'proj-3', groupId: 'grp-7', title: 'קמפיין לינקדאין לכנס', description: '4 שבועות של תוכן ממומן', status: 'todo', priority: 'medium', assigneeIds: ['user-7'], startDate: '2026-04-07', dueDate: '2026-04-28', order: 0, tags: ['שיווק', 'לינקדאין'], timeTracked: 0, campaignId: null, department: 'marketing', createdAt: '2026-03-05T09:00:00Z', updatedAt: '2026-03-05T09:00:00Z' }),
+  T({ id: 'task-14', projectId: 'proj-3', groupId: 'grp-7', title: 'כתיבת מאמרי תוכן — כנס טכנולוגיה', description: '3 מאמרים לפרסום לפני הכנס', status: 'backlog', priority: 'medium', assigneeIds: ['user-2'], startDate: null, dueDate: '2026-04-20', order: 1, tags: ['תוכן'], timeTracked: 0, campaignId: null, department: 'content', createdAt: '2026-03-05T09:00:00Z', updatedAt: '2026-03-05T09:00:00Z' }),
+
+  // ─── שיווק — כנס נדל"ן (proj-mkt-1) ───────────────────────────────────────
+  T({ id: 'task-mkt1-1', projectId: 'proj-mkt-1', groupId: 'grp-mkt1-1', title: 'בניית אסטרטגיית שיווק לכנס', description: 'הגדרת קהלי יעד, ערוצים, תקציב ומסרים מרכזיים', status: 'done', priority: 'critical', assigneeIds: ['user-1'], startDate: '2026-01-20', dueDate: '2026-02-10', order: 0, tags: ['אסטרטגיה'], timeTracked: 180, campaignId: null, department: 'marketing', createdAt: '2026-01-20T09:00:00Z', updatedAt: '2026-02-10T09:00:00Z' }),
+  T({ id: 'task-mkt1-2', projectId: 'proj-mkt-1', groupId: 'grp-mkt1-1', title: 'תכנון תקציב שיווק לכנס', description: 'פירוט תקציב לפי ערוץ: דיגיטל, פרינט, PR', status: 'done', priority: 'high', assigneeIds: ['user-1'], startDate: '2026-01-22', dueDate: '2026-02-05', order: 1, tags: ['תקציב'], timeTracked: 90, campaignId: null, department: 'marketing', createdAt: '2026-01-22T09:00:00Z', updatedAt: '2026-02-05T09:00:00Z' }),
+  T({ id: 'task-mkt1-3', projectId: 'proj-mkt-1', groupId: 'grp-mkt1-2', title: 'תיאום ערוצי הפצה — אימייל ו-SMS', description: 'שליחת הזמנות למאגר הלקוחות וניהול רשימת התפוצה', status: 'in_progress', priority: 'high', assigneeIds: ['user-3'], startDate: '2026-03-01', dueDate: '2026-04-01', order: 0, tags: ['הפצה', 'CRM'], timeTracked: 60, campaignId: null, department: 'operations', createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-03-25T09:00:00Z' }),
+  T({ id: 'task-mkt1-4', projectId: 'proj-mkt-1', groupId: 'grp-mkt1-2', title: 'תיאום PR — הוצאת הודעות לעיתונות', description: '3 הודעות לעיתונות לפני הכנס', status: 'in_progress', priority: 'medium', assigneeIds: ['user-3'], startDate: '2026-03-10', dueDate: '2026-04-10', order: 1, tags: ['PR'], timeTracked: 45, campaignId: null, department: 'operations', createdAt: '2026-03-10T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z' }),
+
+  // ─── שיווק שנתי (proj-mkt-2) ───────────────────────────────────────────────
+  T({ id: 'task-mkt2-1', projectId: 'proj-mkt-2', groupId: 'grp-mkt2-1', title: 'בניית תוכנית שיווק שנתית 2026', description: 'תכנון מלא של כלל פעילויות השיווק לשנה', status: 'done', priority: 'critical', assigneeIds: ['user-1'], startDate: '2026-01-05', dueDate: '2026-01-31', order: 0, tags: ['תכנון', 'שנתי'], timeTracked: 240, campaignId: null, department: 'marketing', createdAt: '2026-01-05T09:00:00Z', updatedAt: '2026-01-31T09:00:00Z' }),
+  T({ id: 'task-mkt2-2', projectId: 'proj-mkt-2', groupId: 'grp-mkt2-1', title: 'הגדרת KPIs שיווקיים לשנת 2026', description: 'מדדי ביצוע: לידים, המרות, נוכחות כנסים', status: 'done', priority: 'high', assigneeIds: ['user-1'], startDate: '2026-01-10', dueDate: '2026-02-01', order: 1, tags: ['מדדים'], timeTracked: 120, campaignId: null, department: 'marketing', createdAt: '2026-01-10T09:00:00Z', updatedAt: '2026-02-01T09:00:00Z' }),
+  T({ id: 'task-mkt2-3', projectId: 'proj-mkt-2', groupId: 'grp-mkt2-2', title: 'כתיבת ניוזלטר חודשי — אפריל', description: 'ניוזלטר לרשימת הלקוחות והמנויים', status: 'in_progress', priority: 'medium', assigneeIds: ['user-2'], startDate: '2026-04-01', dueDate: '2026-04-15', order: 0, tags: ['ניוזלטר', 'תוכן'], timeTracked: 45, campaignId: null, department: 'content', recurring: true, recurringInterval: 'monthly', createdAt: '2026-01-20T09:00:00Z', updatedAt: '2026-04-02T09:00:00Z' }),
+  T({ id: 'task-mkt2-4', projectId: 'proj-mkt-2', groupId: 'grp-mkt2-2', title: 'כתיבת בלוג — 2 מאמרים לחודש', description: 'מאמרי SEO בנושא נדל"ן וכנסים', status: 'todo', priority: 'medium', assigneeIds: ['user-2'], startDate: '2026-04-15', dueDate: '2026-04-30', order: 1, tags: ['בלוג', 'SEO'], timeTracked: 0, campaignId: null, department: 'content', recurring: true, recurringInterval: 'monthly', createdAt: '2026-01-20T09:00:00Z', updatedAt: '2026-01-20T09:00:00Z' }),
+
+  // ─── קידום ממומן — כנס נדל"ן (proj-promo-1) ────────────────────────────────
+  T({ id: 'task-promo1-1', projectId: 'proj-promo-1', groupId: 'grp-promo1-1', title: 'הקמת קמפיין Google Ads לכנס', description: 'Search + Display — מילות מפתח נדל"ן', status: 'done', priority: 'high', assigneeIds: ['user-4'], startDate: '2026-02-15', dueDate: '2026-03-01', order: 0, tags: ['Google', 'PPC'], timeTracked: 90, campaignId: null, department: 'design', createdAt: '2026-02-15T09:00:00Z', updatedAt: '2026-03-01T09:00:00Z' }),
+  T({ id: 'task-promo1-2', projectId: 'proj-promo-1', groupId: 'grp-promo1-1', title: 'הקמת קמפיין Meta (פייסבוק + אינסטגרם)', description: 'קמפיין לידים + Retargeting', status: 'in_progress', priority: 'high', assigneeIds: ['user-4'], startDate: '2026-03-01', dueDate: '2026-04-10', order: 1, tags: ['Meta', 'פייסבוק'], timeTracked: 60, campaignId: null, department: 'design', createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z' }),
+  T({ id: 'task-promo1-3', projectId: 'proj-promo-1', groupId: 'grp-promo1-1', title: 'קמפיין LinkedIn — קהל מקצועי', description: 'Sponsored Content לקהל נדל"ן ועסקים', status: 'todo', priority: 'medium', assigneeIds: ['user-4'], startDate: '2026-03-15', dueDate: '2026-04-10', order: 2, tags: ['LinkedIn'], timeTracked: 0, campaignId: null, department: 'design', createdAt: '2026-03-05T09:00:00Z', updatedAt: '2026-03-05T09:00:00Z' }),
+  T({ id: 'task-promo1-4', projectId: 'proj-promo-1', groupId: 'grp-promo1-2', title: 'ניתוח ביצועי קמפיינים — שבועי', description: 'דוח CTR, CPC, CPL לכל ערוץ', status: 'in_progress', priority: 'medium', assigneeIds: ['user-1'], startDate: '2026-03-01', dueDate: '2026-04-15', order: 0, tags: ['אנליטיקה', 'דוחות'], timeTracked: 30, campaignId: null, department: 'marketing', recurring: true, recurringInterval: 'weekly', createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-04-01T09:00:00Z' }),
+
+  // ─── סושיאל — כנס נדל"ן (proj-social-1) ────────────────────────────────────
+  T({ id: 'task-social1-1', projectId: 'proj-social-1', groupId: 'grp-social1-1', title: 'כתיבת לוח תוכן סושיאל לכנס', description: '30 פוסטים מתוזמנים לפני + במהלך הכנס', status: 'done', priority: 'high', assigneeIds: ['user-2'], startDate: '2026-02-05', dueDate: '2026-03-01', order: 0, tags: ['תוכן', 'תכנון'], timeTracked: 120, campaignId: null, department: 'content', createdAt: '2026-02-05T09:00:00Z', updatedAt: '2026-03-01T09:00:00Z' }),
+  T({ id: 'task-social1-2', projectId: 'proj-social-1', groupId: 'grp-social1-1', title: 'פוסט שבועי לינקדאין — ספירה לאחור', description: 'סדרת פוסטים לספירה לאחור לכנס', status: 'in_progress', priority: 'high', assigneeIds: ['user-2'], startDate: '2026-03-01', dueDate: '2026-04-14', order: 1, tags: ['לינקדאין', 'תוכן'], timeTracked: 45, campaignId: null, department: 'content', recurring: true, recurringInterval: 'weekly', createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-04-01T09:00:00Z' }),
+  T({ id: 'task-social1-3', projectId: 'proj-social-1', groupId: 'grp-social1-2', title: 'תשלום ופצ\'ינג פוסטים לאינסטגרם', description: 'Boost לפוסטים עם ביצועים גבוהים', status: 'in_progress', priority: 'medium', assigneeIds: ['user-3'], startDate: '2026-03-10', dueDate: '2026-04-14', order: 0, tags: ['אינסטגרם', 'פצ\'ינג'], timeTracked: 30, campaignId: null, department: 'operations', createdAt: '2026-03-10T09:00:00Z', updatedAt: '2026-04-01T09:00:00Z' }),
+  T({ id: 'task-social1-4', projectId: 'proj-social-1', groupId: 'grp-social1-2', title: 'תיאום לייב מהכנס — אינסטגרם ופייסבוק', description: 'לייב מהכנס עם הדוברים ומהשטח', status: 'todo', priority: 'high', assigneeIds: ['user-3'], startDate: '2026-04-10', dueDate: '2026-04-16', order: 1, tags: ['לייב', 'אינסטגרם'], timeTracked: 0, campaignId: null, department: 'operations', createdAt: '2026-03-05T09:00:00Z', updatedAt: '2026-03-05T09:00:00Z' }),
+
+  // ─── סושיאל שוטף (proj-social-2) ────────────────────────────────────────────
+  T({ id: 'task-social2-1', projectId: 'proj-social-2', groupId: 'grp-social2-1', title: 'פוסט שבועי לפייסבוק', description: 'תוכן שוטף לדף הפייסבוק של החברה', status: 'in_progress', priority: 'medium', assigneeIds: ['user-2'], startDate: '2026-04-07', dueDate: '2026-04-14', order: 0, tags: ['פייסבוק', 'שוטף'], timeTracked: 20, campaignId: null, department: 'content', recurring: true, recurringInterval: 'weekly', createdAt: '2026-01-01T09:00:00Z', updatedAt: '2026-04-07T09:00:00Z' }),
+  T({ id: 'task-social2-2', projectId: 'proj-social-2', groupId: 'grp-social2-1', title: '3 פוסטים שבועיים לאינסטגרם', description: 'פוסטים, Carousel, ו-Quote Cards', status: 'in_progress', priority: 'medium', assigneeIds: ['user-2'], startDate: '2026-04-07', dueDate: '2026-04-14', order: 1, tags: ['אינסטגרם', 'שוטף'], timeTracked: 30, campaignId: null, department: 'content', recurring: true, recurringInterval: 'weekly', createdAt: '2026-01-01T09:00:00Z', updatedAt: '2026-04-07T09:00:00Z' }),
+  T({ id: 'task-social2-3', projectId: 'proj-social-2', groupId: 'grp-social2-2', title: 'סטורי יומי — תוכן קצר', description: 'סטוריז יומיים לאינסטגרם ופייסבוק', status: 'todo', priority: 'low', assigneeIds: ['user-2'], startDate: '2026-04-14', dueDate: '2026-04-21', order: 0, tags: ['סטורי', 'שוטף'], timeTracked: 0, campaignId: null, department: 'content', recurring: true, recurringInterval: 'weekly', createdAt: '2026-01-01T09:00:00Z', updatedAt: '2026-01-01T09:00:00Z' }),
+  T({ id: 'task-social2-4', projectId: 'proj-social-2', groupId: 'grp-social2-2', title: 'רילז חודשי — עריכת וידאו', description: 'רילז עם תוכן מאחורי הקלעים מהכנסים', status: 'todo', priority: 'medium', assigneeIds: ['user-2'], startDate: '2026-04-20', dueDate: '2026-04-30', order: 1, tags: ['רילז', 'וידאו'], timeTracked: 0, campaignId: null, department: 'content', createdAt: '2026-01-01T09:00:00Z', updatedAt: '2026-01-01T09:00:00Z' }),
+
+  // ─── עיצוב — כנס נדל"ן (proj-design-1) ─────────────────────────────────────
+  T({ id: 'task-design1-1', projectId: 'proj-design-1', groupId: 'grp-design1-1', title: 'עיצוב כרזה ראשית לכנס', description: 'כרזה A1 לאולם הכנס — Hebrew RTL', status: 'done', priority: 'critical', assigneeIds: ['user-2'], startDate: '2026-01-18', dueDate: '2026-02-20', order: 0, tags: ['עיצוב', 'כרזה'], timeTracked: 150, campaignId: null, department: 'design', createdAt: '2026-01-18T09:00:00Z', updatedAt: '2026-02-20T09:00:00Z' }),
+  T({ id: 'task-design1-2', projectId: 'proj-design-1', groupId: 'grp-design1-1', title: 'הדפסת חומרים — תוכניות ועמדות', description: 'תוכניות הכנס, מפות, לוחות שמות', status: 'in_progress', priority: 'high', assigneeIds: ['user-5'], startDate: '2026-03-20', dueDate: '2026-04-10', order: 1, tags: ['הדפסה'], timeTracked: 60, campaignId: null, department: 'operations', createdAt: '2026-03-20T09:00:00Z', updatedAt: '2026-03-25T09:00:00Z' }),
+  T({ id: 'task-design1-3', projectId: 'proj-design-1', groupId: 'grp-design1-2', title: 'עיצוב 15 באנרים לסושיאל', description: 'פורמטים: 1:1, 9:16, 16:9 — לכל הפלטפורמות', status: 'in_progress', priority: 'high', assigneeIds: ['user-2'], startDate: '2026-03-01', dueDate: '2026-04-01', order: 0, tags: ['באנרים', 'סושיאל'], timeTracked: 180, campaignId: null, department: 'design', createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-03-28T09:00:00Z' }),
+  T({ id: 'task-design1-4', projectId: 'proj-design-1', groupId: 'grp-design1-2', title: 'עיצוב תבנית ניוזלטר', description: 'HTML Email Template — ממותג לכנס', status: 'todo', priority: 'medium', assigneeIds: ['user-5'], startDate: '2026-04-01', dueDate: '2026-04-10', order: 1, tags: ['ניוזלטר', 'HTML'], timeTracked: 0, campaignId: null, department: 'operations', createdAt: '2026-03-05T09:00:00Z', updatedAt: '2026-03-05T09:00:00Z' }),
+
+  // ─── מיתוג 2026 (proj-design-2) ─────────────────────────────────────────────
+  T({ id: 'task-design2-1', projectId: 'proj-design-2', groupId: 'grp-design2-1', title: 'עיצוב לוגו מחודש — אטלייה 2026', description: 'עדכון לוגו עם Wordmark בעברית', status: 'in_progress', priority: 'critical', assigneeIds: ['user-2'], startDate: '2026-01-10', dueDate: '2026-03-01', order: 0, tags: ['לוגו', 'מיתוג'], timeTracked: 360, campaignId: null, department: 'design', createdAt: '2026-01-10T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z' }),
+  T({ id: 'task-design2-2', projectId: 'proj-design-2', groupId: 'grp-design2-1', title: 'בניית Brand Book 2026', description: 'מדריך מותג מלא: צבעים, פונטים, עקרונות', status: 'todo', priority: 'high', assigneeIds: ['user-2'], startDate: '2026-03-01', dueDate: '2026-04-15', order: 1, tags: ['Brand Book', 'מיתוג'], timeTracked: 0, campaignId: null, department: 'design', createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-03-01T09:00:00Z' }),
+  T({ id: 'task-design2-3', projectId: 'proj-design-2', groupId: 'grp-design2-2', title: 'עיצוב כרטיסי ביקור חדשים', description: 'כרטיסי ביקור לכל הצוות — 7 עיצובים', status: 'todo', priority: 'medium', assigneeIds: ['user-2'], startDate: '2026-04-01', dueDate: '2026-04-20', order: 0, tags: ['כרטיסי ביקור', 'הדפסה'], timeTracked: 0, campaignId: null, department: 'design', createdAt: '2026-03-10T09:00:00Z', updatedAt: '2026-03-10T09:00:00Z' }),
+  T({ id: 'task-design2-4', projectId: 'proj-design-2', groupId: 'grp-design2-2', title: 'הדפסת מוצרי מיתוג — גופיות ומחברות', description: 'ציוד ממותג לכנסים ולצוות', status: 'backlog', priority: 'low', assigneeIds: ['user-2'], startDate: null, dueDate: '2026-05-01', order: 1, tags: ['הדפסה', 'מוצרים'], timeTracked: 0, campaignId: null, department: 'design', createdAt: '2026-03-15T09:00:00Z', updatedAt: '2026-03-15T09:00:00Z' }),
+
+  // ─── פיתוח עסקי Q2 (proj-bizdev-1) ─────────────────────────────────────────
+  T({ id: 'task-bizdev1-1', projectId: 'proj-bizdev-1', groupId: 'grp-bizdev1-1', title: 'מיפוי שותפים פוטנציאליים Q2', description: 'רשימת 20 שותפים פוטנציאליים לחסויות ושיתופי פעולה', status: 'done', priority: 'high', assigneeIds: ['user-1'], startDate: '2026-02-01', dueDate: '2026-02-20', order: 0, tags: ['שותפויות', 'מיפוי'], timeTracked: 120, campaignId: null, department: 'sales', createdAt: '2026-02-01T09:00:00Z', updatedAt: '2026-02-20T09:00:00Z' }),
+  T({ id: 'task-bizdev1-2', projectId: 'proj-bizdev-1', groupId: 'grp-bizdev1-1', title: 'פגישה עם שותף אסטרטגי — בנק לאומי', description: 'פגישת המשך לדיון על חסות ראשית 2027', status: 'in_progress', priority: 'critical', assigneeIds: ['user-1'], startDate: '2026-04-10', dueDate: '2026-04-20', order: 1, tags: ['פגישה', 'לאומי'], timeTracked: 60, campaignId: null, department: 'sales', createdAt: '2026-04-01T09:00:00Z', updatedAt: '2026-04-10T09:00:00Z' }),
+  T({ id: 'task-bizdev1-3', projectId: 'proj-bizdev-1', groupId: 'grp-bizdev1-2', title: 'הכנת מצגת חסויות 2027', description: 'Deck מכירתי להצגה בפני חברות חסות', status: 'in_progress', priority: 'high', assigneeIds: ['user-4'], startDate: '2026-03-20', dueDate: '2026-04-15', order: 0, tags: ['מצגת', 'חסויות'], timeTracked: 90, campaignId: null, department: 'design', createdAt: '2026-03-20T09:00:00Z', updatedAt: '2026-04-01T09:00:00Z' }),
+  T({ id: 'task-bizdev1-4', projectId: 'proj-bizdev-1', groupId: 'grp-bizdev1-2', title: 'פנייה ל-10 לידים עסקיים חדשים', description: 'Cold outreach — אימייל + לינקדאין', status: 'todo', priority: 'high', assigneeIds: ['user-4'], startDate: '2026-04-15', dueDate: '2026-04-30', order: 1, tags: ['לידים', 'outreach'], timeTracked: 0, campaignId: null, department: 'sales', createdAt: '2026-04-01T09:00:00Z', updatedAt: '2026-04-01T09:00:00Z' }),
+];
+
+export const MOCK_NOTIFICATIONS: Notification[] = [
+  { id: 'notif-1', userId: 'user-1', type: 'assigned', message: 'Dana Cohen assigned you to "Design homepage mockup"', taskId: 'task-3', projectId: 'proj-1', read: false, createdAt: '2026-03-17T14:00:00Z' },
+  { id: 'notif-2', userId: 'user-1', type: 'commented', message: 'Ilan Mizrahi commented on "Set up Next.js project"', taskId: 'task-5', projectId: 'proj-1', read: false, createdAt: '2026-03-16T10:00:00Z' },
+  { id: 'notif-3', userId: 'user-1', type: 'status_changed', message: '"User interviews" status changed to Done', taskId: 'task-7', projectId: 'proj-2', read: true, createdAt: '2026-03-15T08:00:00Z' },
+];
+
+const C = (c: Omit<Contact, 'avatar'>): Contact => ({
+  ...c,
+  avatar: c.name.split(' ').map(n => n[0]).join('').substring(0, 2),
+});
+
+export const MOCK_CONTACTS: Contact[] = [
+  C({ id: 'contact-1', name: 'נאור בקר', email: 'naor@hanegev.co.il', phone: '050-1234567', company: 'קבוצת נגב נדל״ן', position: 'מנכ"ל ובעלים', status: 'customer', contactType: 'developer', tags: ['יזם ותיק', 'VIP', 'נדל"ן'], ownerId: 'user-6', notes: 'לקוח קבוע מ-2023. משתתף בכל הכנסים. מגיע עם עוזר אישי.', linkedDealIds: ['deal-1'], city: 'באר שבע', budget: '200K–500K ₪', createdAt: '2026-01-10T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z', lastActivityAt: '2026-03-20T09:00:00Z' }),
+  C({ id: 'contact-2', name: 'מיכל שפירא', email: 'michal@shapira-law.co.il', phone: '052-9876543', company: 'שפירא ושות׳ — עורכי דין', position: 'שותפה בכירה', status: 'customer', contactType: 'lawyer', tags: ['מקרקעין', 'חוזים', 'VIP'], ownerId: 'user-6', notes: 'מומחית דיני מקרקעין. קנתה הרצאה + פאנל בכנס אילת.', linkedDealIds: ['deal-2'], city: 'תל אביב', budget: '100K–250K ₪', website: 'shapira-law.co.il', createdAt: '2026-01-12T10:00:00Z', updatedAt: '2026-03-18T14:00:00Z', lastActivityAt: '2026-03-18T14:00:00Z' }),
+  C({ id: 'contact-3', name: 'אריה גלוטמן', email: 'arie@glutman-infra.co.il', phone: '054-3334455', company: 'גלוטמן תשתיות בע"מ', position: 'סמנכ"ל פיתוח עסקי', status: 'active', contactType: 'infrastructure', tags: ['תשתיות', 'ממשל'], ownerId: 'user-1', notes: 'ענקית תשתיות. מעוניין בחסות עמדה + ברים בכנס הנדל"ן.', linkedDealIds: ['deal-3'], city: 'חיפה', budget: '100K–300K ₪', createdAt: '2026-02-20T08:00:00Z', updatedAt: '2026-03-22T11:00:00Z', lastActivityAt: '2026-03-22T11:00:00Z' }),
+  C({ id: 'contact-4', name: 'ד"ר רונית לוי', email: 'ronit@shama-appraisals.co.il', phone: '053-6667788', company: 'שמא הערכות נדל"ן', position: 'שמאית מקרקעין ראשית', status: 'prospect', contactType: 'appraiser', tags: ['שמאות', 'הערכות שווי'], ownerId: 'user-6', notes: 'פגישה ראשונה בוועידת הנדל"ן. מעוניינת בעמדה ב-2026.', linkedDealIds: [], city: 'ירושלים', budget: '30K–80K ₪', createdAt: '2026-02-01T09:00:00Z', updatedAt: '2026-03-10T16:00:00Z', lastActivityAt: '2026-03-10T16:00:00Z' }),
+  C({ id: 'contact-5', name: 'יוסי אברמוב', email: 'yossi@avramov-dev.co.il', phone: '050-9998877', company: 'אברמוב יזמות ובנייה', position: 'יו"ר הדירקטוריון', status: 'customer', contactType: 'developer', tags: ['יזם', 'ותיק', 'רב-פרויקטי'], ownerId: 'user-1', notes: 'יזם בכיר. משתתף מ-2020. דורש מקום VIP בכל כנס.', linkedDealIds: ['deal-4'], city: 'תל אביב', budget: '300K–600K ₪', createdAt: '2025-09-01T09:00:00Z', updatedAt: '2026-03-15T09:00:00Z', lastActivityAt: '2026-03-15T09:00:00Z' }),
+  C({ id: 'contact-6', name: 'עו"ד גיא פרידמן', email: 'guy@friedman-law.co.il', phone: '052-1113344', company: 'פרידמן ושות׳', position: 'עורך דין בכיר', status: 'prospect', contactType: 'lawyer', tags: ['מקרקעין', 'ליטיגציה'], ownerId: 'user-6', notes: 'ליטיגטור מקרקעין ידוע. יצר קשר אחרי ועידת הנדל"ן.', linkedDealIds: [], city: 'תל אביב', budget: '60K–150K ₪', createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-03-25T13:00:00Z', lastActivityAt: '2026-03-25T13:00:00Z' }),
+  C({ id: 'contact-7', name: 'שי קוהן', email: 'shai@solel-boneh.co.il', phone: '054-5556677', company: 'סולל בונה תשתיות', position: 'מנהל שיווק ומכירות', status: 'active', contactType: 'infrastructure', tags: ['תשתיות', 'ביצוע', 'ממשלתי'], ownerId: 'user-1', notes: 'ממצגות מרשימות. מחפש חסות אולם ראשי.', linkedDealIds: ['deal-5'], city: 'רמת גן', budget: '150K–400K ₪', createdAt: '2026-02-10T09:00:00Z', updatedAt: '2026-03-28T10:00:00Z', lastActivityAt: '2026-03-28T10:00:00Z' }),
+  C({ id: 'contact-8', name: 'מנחם ברג', email: 'menachem@berg-shama.co.il', phone: '053-2223344', company: 'ברג שמאות', position: 'שמאי מוסמך', status: 'inactive', contactType: 'appraiser', tags: ['שמאות', 'מגורים'], ownerId: 'user-6', notes: 'לא חידש חסות לאחרון. ייתכן פניה מחדש לכנס 2027.', linkedDealIds: [], city: 'חיפה', budget: '20K–50K ₪', createdAt: '2025-05-01T09:00:00Z', updatedAt: '2025-11-30T09:00:00Z', lastActivityAt: '2025-11-30T09:00:00Z' }),
+  C({ id: 'contact-9', name: 'אורית מזרחי', email: 'orit@leumi.co.il', phone: '050-4445566', company: 'בנק לאומי למשכנתאות', position: 'סמנכ"לית שיווק', status: 'customer', contactType: 'other', tags: ['בנק', 'מימון', 'ותיק'], ownerId: 'user-1', notes: 'שותפה אסטרטגית. ספונסר ראשי בכנסי 2024–2025.', linkedDealIds: ['deal-1', 'deal-3'], city: 'תל אביב', budget: '400K–800K ₪', website: 'leumi.co.il', createdAt: '2025-08-01T09:00:00Z', updatedAt: '2026-04-01T09:00:00Z', lastActivityAt: '2026-04-01T09:00:00Z' }),
+  C({ id: 'contact-10', name: 'עמי כרמי', email: 'ami@karmi-dev.co.il', phone: '052-7778899', company: 'כרמי נדל"ן', position: 'מנכ"ל', status: 'prospect', contactType: 'developer', tags: ['יזם', 'מגורים', 'צפון'], ownerId: 'user-6', notes: 'יזם בצפון הארץ. ראשית קשר דרך כנס בית ונוי.', linkedDealIds: [], city: 'חיפה', budget: '80K–200K ₪', createdAt: '2026-03-15T09:00:00Z', updatedAt: '2026-04-05T09:00:00Z', lastActivityAt: '2026-04-05T09:00:00Z' }),
+];
+
+export const MOCK_DEALS: Deal[] = [
+  { id: 'deal-1', title: 'קבוצת הנגב — חסות מרכזית + הרצאה', contactId: 'contact-1', stage: 'closed_won', value: 310000, currency: 'ILS', probability: 100, ownerId: 'user-1', expectedCloseDate: '2026-02-28', notes: 'חתמו חוזה. יש להעביר לתפעול.', tags: ['חסות-מרכזית'], lineItems: [{ productId: 'prod-6', productName: 'חסות מרכזית', quantity: 1, unitPrice: 250000, speakerIds: [], notes: '' }, { productId: 'prod-1', productName: 'הרצאה', quantity: 1, unitPrice: 60000, speakerIds: ['speaker-1'], notes: 'נאור בקר' }], eventId: 'event-1', operationsProjectId: null, activities: [{ id: 'act-1', dealId: 'deal-1', type: 'stage_changed', description: 'עסקה נסגרה! חוזה נחתם.', userId: 'user-1', createdAt: '2026-02-28T15:00:00Z' }], createdAt: '2026-01-15T09:00:00Z', updatedAt: '2026-02-28T15:00:00Z' },
+  { id: 'deal-2', title: 'פירמת שפירא — פאנל + עמדה', contactId: 'contact-2', stage: 'proposal', value: 110000, currency: 'ILS', probability: 60, ownerId: 'user-1', expectedCloseDate: '2026-04-01', notes: 'שלחנו הצעה. ממתינים לחתימה.', tags: ['הצעה-פעילה'], lineItems: [{ productId: 'prod-2', productName: 'השתתפות בפאנל', quantity: 1, unitPrice: 50000, speakerIds: ['speaker-2'], notes: '' }, { productId: 'prod-3', productName: 'עמדה', quantity: 1, unitPrice: 60000, speakerIds: [], notes: 'מיקום — כניסה ראשית' }], eventId: 'event-1', operationsProjectId: null, activities: [{ id: 'act-2', dealId: 'deal-2', type: 'email', description: 'שלחנו הצעת מחיר.', userId: 'user-1', createdAt: '2026-03-18T10:00:00Z' }], createdAt: '2026-02-20T09:00:00Z', updatedAt: '2026-03-18T10:00:00Z' },
+  { id: 'deal-3', title: 'PropTech ישראל — הרצאה דיגיטלית + אולפן שקוף', contactId: 'contact-3', stage: 'negotiation', value: 50000, currency: 'ILS', probability: 75, ownerId: 'user-2', expectedCloseDate: '2026-04-10', notes: 'במשא ומתן על מחיר חבילה.', tags: [], lineItems: [{ productId: 'prod-4', productName: 'הרצאה דיגיטלית', quantity: 1, unitPrice: 35000, speakerIds: ['speaker-5'], notes: '' }, { productId: 'prod-5', productName: 'אולפן שקוף', quantity: 1, unitPrice: 15000, speakerIds: [], notes: '' }], eventId: 'event-1', operationsProjectId: null, activities: [{ id: 'act-3', dealId: 'deal-3', type: 'meeting', description: 'שיחת משא ומתן — מסכימים על החבילה.', userId: 'user-2', createdAt: '2026-03-22T14:00:00Z' }], createdAt: '2026-02-25T09:00:00Z', updatedAt: '2026-03-22T14:00:00Z' },
+  { id: 'deal-4', title: 'לקוח חדש — טרקלין עסקים', contactId: 'contact-6', stage: 'qualified', value: 300000, currency: 'ILS', probability: 30, ownerId: 'user-1', expectedCloseDate: '2026-05-01', notes: 'מתאים מאוד לטרקלין. פגישה שנייה בשבוע הבא.', tags: ['hot-lead'], lineItems: [{ productId: 'prod-7', productName: 'טרקלין עסקים', quantity: 1, unitPrice: 300000, speakerIds: [], notes: '' }], eventId: 'event-1', operationsProjectId: null, activities: [], createdAt: '2026-03-05T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z' },
+  { id: 'deal-5', title: 'ספונסר — חסויות מיוחדות', contactId: 'contact-4', stage: 'lead', value: 130000, currency: 'ILS', probability: 20, ownerId: 'user-2', expectedCloseDate: '2026-06-01', notes: 'מעוניין בכמה חסויות מיוחדות.', tags: [], lineItems: [{ productId: 'prod-10', productName: 'עמדות קפה', quantity: 1, unitPrice: 30000, speakerIds: [], notes: '' }, { productId: 'prod-11', productName: 'מתחם בר', quantity: 1, unitPrice: 30000, speakerIds: [], notes: '' }, { productId: 'prod-14', productName: 'עמדות מזון', quantity: 1, unitPrice: 30000, speakerIds: [], notes: '' }, { productId: 'prod-13', productName: 'מקרר גלידות', quantity: 1, unitPrice: 30000, speakerIds: [], notes: '' }, { productId: 'prod-15', productName: 'עמדות טעינה', quantity: 1, unitPrice: 30000, speakerIds: [], notes: '' }], eventId: 'event-1', operationsProjectId: null, activities: [], createdAt: '2026-03-15T09:00:00Z', updatedAt: '2026-03-15T09:00:00Z' },
+  { id: 'deal-6', title: 'ניסיון חידוש — לא סגר', contactId: 'contact-5', stage: 'closed_lost', value: 60000, currency: 'ILS', probability: 0, ownerId: 'user-1', expectedCloseDate: '2026-01-31', notes: 'חרג מהתקציב. אולי Q3.', tags: [], lineItems: [], eventId: 'event-1', operationsProjectId: null, activities: [{ id: 'act-6', dealId: 'deal-6', type: 'note', description: 'עסקה אבדה — חריגת תקציב.', userId: 'user-1', createdAt: '2026-01-30T12:00:00Z' }], createdAt: '2026-01-10T09:00:00Z', updatedAt: '2026-01-30T12:00:00Z' },
+];
+
+export const MOCK_SPEAKERS: Speaker[] = [
+  {
+    id: 'speaker-1', name: 'נאור בקר', jobTitle: 'מנכ"ל', organization: 'קבוצת נדל"ן הנגב',
+    bio: 'יזם ומשקיע נדל"ן עם ניסיון של מעל 20 שנה בשוק הישראלי. מייסד קבוצת הנגב.', email: 'naor@hanegev.co.il', phone: '050-1234567',
+    avatar: 'נב', photoUrl: null, cvUrl: null,
+    approvalStatus: 'approved', cvStatus: 'received', photoStatus: 'uploaded',
+    panelIds: ['panel-1', 'panel-2'], eventIds: ['event-1'], tags: ['נדל"ן', 'יזמות'], notes: 'מגיע עם עוזר אישי. יש לשריין חניה VIP.', createdAt: '2026-01-10T09:00:00Z', updatedAt: '2026-03-15T09:00:00Z',
+  },
+  {
+    id: 'speaker-2', name: 'מיכל שפירא', jobTitle: 'שותפה בכירה', organization: 'פירמת עורכי דין שפירא ושות\'',
+    bio: 'מומחית בדיני מקרקעין ומיסוי נדל"ן. מרצה בקורסים מקצועיים ברחבי הארץ.', email: 'michal@shapira-law.co.il', phone: '052-9876543',
+    avatar: 'מש', photoUrl: null, cvUrl: null,
+    approvalStatus: 'approved', cvStatus: 'received', photoStatus: 'missing',
+    panelIds: ['panel-1'], eventIds: ['event-1'], tags: ['משפט', 'מיסוי'], notes: '', createdAt: '2026-01-12T10:00:00Z', updatedAt: '2026-03-10T10:00:00Z',
+  },
+  {
+    id: 'speaker-3', name: 'אבי כהן', jobTitle: 'סמנכ"ל שיווק', organization: 'בנק לאומי למשכנתאות',
+    bio: 'בכיר בתחום המימון הנדל"ני. מוביל את אסטרטגיית המשכנתאות בלאומי.', email: 'avi.cohen@leumi.co.il', phone: '054-1112233',
+    avatar: 'אכ', photoUrl: null, cvUrl: null,
+    approvalStatus: 'pending', cvStatus: 'pending', photoStatus: 'missing',
+    panelIds: ['panel-2'], eventIds: ['event-1'], tags: ['מימון', 'בנקאות'], notes: 'מחכה לאישור מהדוברת ראשית של הבנק.', createdAt: '2026-02-01T09:00:00Z', updatedAt: '2026-03-20T09:00:00Z',
+  },
+  {
+    id: 'speaker-4', name: 'רות לוי', jobTitle: 'יועצת כלכלית', organization: 'משרד האוצר',
+    bio: 'כלכלנית ראשית במשרד האוצר, מנהלת מחלקת מדיניות דיור וקרקעות.', email: 'ruth.levy@mof.gov.il', phone: '053-4445566',
+    avatar: 'רל', photoUrl: null, cvUrl: null,
+    approvalStatus: 'approved', cvStatus: 'received', photoStatus: 'uploaded',
+    panelIds: ['panel-3'], eventIds: ['event-1'], tags: ['ממשלה', 'מדיניות', 'כלכלה'], notes: '', createdAt: '2026-01-20T09:00:00Z', updatedAt: '2026-03-18T09:00:00Z',
+  },
+  {
+    id: 'speaker-5', name: 'דני ברק', jobTitle: 'מייסד ומנכ"ל', organization: 'PropTech ישראל',
+    bio: 'יזם טק סדרתי. מייסד פלטפורמת PropTech המובילה בישראל לניהול נכסים דיגיטלי.', email: 'danny@proptech.co.il', phone: '050-7778899',
+    avatar: 'דב', photoUrl: null, cvUrl: null,
+    approvalStatus: 'approved', cvStatus: 'received', photoStatus: 'uploaded',
+    panelIds: ['panel-3', 'panel-4'], eventIds: ['event-1', 'event-2'], tags: ['טכנולוגיה', 'PropTech', 'סטארטאפ'], notes: 'יכול להציג demo של הפלטפורמה.', createdAt: '2026-01-25T09:00:00Z', updatedAt: '2026-03-22T09:00:00Z',
+  },
+  {
+    id: 'speaker-6', name: 'שרון מזרחי', jobTitle: 'ראש עיריית אילת', organization: 'עיריית אילת',
+    bio: 'ראש עיר אילת. מוביל פרויקטי פיתוח מהגדולים בנגב ובאזור הדרום.', email: 'mayor@eilat.muni.il', phone: '08-6361444',
+    avatar: 'שמ', photoUrl: null, cvUrl: null,
+    approvalStatus: 'pending', cvStatus: 'pending', photoStatus: 'missing',
+    panelIds: [], eventIds: ['event-1'], tags: ['ממשל', 'פיתוח', 'דרום'], notes: 'ממתינים לאישור לוח זמנים מהלשכה.', createdAt: '2026-02-10T09:00:00Z', updatedAt: '2026-03-25T09:00:00Z',
+  },
+];
+
+export const MOCK_PANELS: Panel[] = [
+  {
+    id: 'panel-1', eventId: 'event-1', name: 'אתגרי הנדל"ן בעשור הקרוב', description: 'דיון פאנל על מגמות ואתגרי שוק הנדל"ן בישראל עד 2035',
+    format: 'panel', duration: 45, day: 'יום א\'', hall: 'אולם ראשי', startTime: '10:00',
+    speakerIds: ['speaker-1', 'speaker-2'], moderatorId: 'speaker-1',
+    status: 'confirmed', order: 1, notes: '',
+    createdAt: '2026-01-15T09:00:00Z', updatedAt: '2026-03-10T09:00:00Z',
+  },
+  {
+    id: 'panel-2', eventId: 'event-1', name: 'מימון ומשכנתאות — פתרונות חדשניים', description: 'סקירת מוצרי מימון ופתרונות לרוכשים ויזמים',
+    format: 'panel', duration: 45, day: 'יום א\'', hall: 'אולם B', startTime: '11:00',
+    speakerIds: ['speaker-1', 'speaker-3'], moderatorId: null,
+    status: 'draft', order: 2, notes: 'ממתינים לאישור דובר נוסף',
+    createdAt: '2026-01-16T09:00:00Z', updatedAt: '2026-03-12T09:00:00Z',
+  },
+  {
+    id: 'panel-3', eventId: 'event-1', name: 'מדיניות ממשלתית ודיור בר השגה', description: 'הצגת תוכנית הממשלה לפתרון משבר הדיור',
+    format: 'lecture', duration: 30, day: 'יום ב\'', hall: 'אולם ראשי', startTime: '09:00',
+    speakerIds: ['speaker-4', 'speaker-5'], moderatorId: 'speaker-4',
+    status: 'confirmed', order: 1, notes: '',
+    createdAt: '2026-01-17T09:00:00Z', updatedAt: '2026-03-14T09:00:00Z',
+  },
+  {
+    id: 'panel-4', eventId: 'event-1', name: 'PropTech — העתיד של ניהול נכסים', description: 'כיצד הטכנולוגיה משנה את עולם הנדל"ן',
+    format: 'lecture', duration: 20, day: 'יום ב\'', hall: 'אולם טכנולוגיה', startTime: '11:30',
+    speakerIds: ['speaker-5'], moderatorId: null,
+    status: 'confirmed', order: 2, notes: '',
+    createdAt: '2026-01-18T09:00:00Z', updatedAt: '2026-03-15T09:00:00Z',
+  },
+];
+
+export const MOCK_PRODUCTS: SponsorshipProduct[] = [
+  {
+    id: 'prod-1', name: 'הרצאה', category: 'stage', price: 60000, icon: 'mic',
+    description: 'הרצאה בכנס — 20-45 דקות על הבמה הראשית',
+    requiresSpeaker: true,
+    taskTemplates: [
+      'תיאום עם הדובר — תאריך ושעה',
+      'קבלת תוכן ומצגת מהדובר',
+      'בדיקת טכנאי קול ואור',
+      'הכנת שלט ברקע עם לוגו נותן החסות',
+      'הפקת מזכר תודה לדובר',
+    ],
+  },
+  {
+    id: 'prod-2', name: 'השתתפות בפאנל', category: 'stage', price: 50000, icon: 'groups',
+    description: 'מקום בפאנל — 45-60 דקות עם מנחה ודוברים נוספים',
+    requiresSpeaker: true,
+    taskTemplates: [
+      'תיאום עם הדובר — כניסה לפאנל',
+      'שליחת שאלות מנחה מראש',
+      'הכנת שלט שם על שולחן הפאנל',
+      'קבלת ביו ותמונה מהדובר',
+    ],
+  },
+  {
+    id: 'prod-3', name: 'עמדה', category: 'sponsorship', price: 60000, icon: 'store',
+    description: 'עמדה תצוגה בשטח הכנס — כולל ריהוט ומיתוג',
+    requiresSpeaker: false,
+    taskTemplates: [
+      'אישור מיקום עמדה עם מפת הכנס',
+      'קבלת קבצי מיתוג מהלקוח',
+      'תיאום הקמה עם צוות לוגיסטיקה',
+      'בדיקת חשמל ותאורה בעמדה',
+      'פירוק עמדה בסיום הכנס',
+    ],
+  },
+  {
+    id: 'prod-4', name: 'הרצאה דיגיטלית', category: 'digital', price: 35000, icon: 'videocam',
+    description: 'הרצאה מוקלטת לשידור / עריכה ופרסום ברשת',
+    requiresSpeaker: true,
+    taskTemplates: [
+      'הזמנת אולפן הקלטה — תאריך ושעה',
+      'תיאום עם דובר — הגעה לסטודיו',
+      'עריכת וידאו — קבלה מצלם',
+      'הוספת גרפיקה ולוגו לסרטון',
+      'פרסום בפלטפורמות הדיגיטל',
+    ],
+  },
+  {
+    id: 'prod-5', name: 'אולפן שקוף', category: 'digital', price: 15000, icon: 'radio',
+    description: 'אולפן שידור/הקלטה גלוי בתוך הכנס',
+    requiresSpeaker: false,
+    taskTemplates: [
+      'הגדרת מיקום האולפן השקוף',
+      'תיאום ציוד הקלטה ופרודקשן',
+      'מיתוג האולפן — לוגו נותן חסות',
+      'לו"ז ראיונות והקלטות',
+    ],
+  },
+  {
+    id: 'prod-6', name: 'חסות מרכזית', category: 'sponsorship', price: 250000, icon: 'stars',
+    description: 'חסות ראשית על הכנס כולו — נוכחות מרבית בכל אזורי האירוע',
+    requiresSpeaker: false,
+    taskTemplates: [
+      'הכנת חוזה חסות מרכזית',
+      'קבלת חבילת מיתוג מהלקוח',
+      'מיתוג בכניסה הראשית',
+      'לוגו על כל חומרי הדפוס',
+      'מקום VIP — 10 פגישות עסקיות',
+      'הכנת טרקלין לפגישות',
+      'נוכחות לוגו בשידור הדיגיטלי',
+      'דו"ח סיכום חשיפה ללקוח לאחר הכנס',
+    ],
+  },
+  {
+    id: 'prod-7', name: 'טרקלין עסקים', category: 'sponsorship', price: 300000, icon: 'business_center',
+    description: 'טרקלין עסקים פרטי בלעדי לנותן החסות — ריהוט, כיבוד, ניהול פגישות',
+    requiresSpeaker: false,
+    taskTemplates: [
+      'תכנון ועיצוב הטרקלין',
+      'קבלת מיתוג ולוגו מהלקוח',
+      'תיאום ריהוט וכיבוד',
+      'הסדרת כרטיסי גישה VIP',
+      'הצבת קמפיין של הלקוח',
+      'תיאום מארח/ת לטרקלין',
+      'דו"ח פגישות ואינטראקציות לאחר הכנס',
+    ],
+  },
+  // חסויות מיוחדות
+  {
+    id: 'prod-8', name: 'אירוע פרטי ערב', category: 'special', price: 100000, icon: 'celebration',
+    description: 'ארוחת שף במסעדה ל-50 איש — ללא הוצאות נוספות ללקוח',
+    requiresSpeaker: false,
+    taskTemplates: [
+      'הזמנת מסעדה ותאריך',
+      'תיאום תפריט שף עם מסעדה',
+      'רשימת מוזמנים מהלקוח — עד 50 איש',
+      'מיתוג שולחנות ותפריטים',
+      'סידור הסעות',
+    ],
+  },
+  {
+    id: 'prod-9', name: 'כסאות ממותגים', category: 'special', price: 30000, icon: 'chair',
+    description: 'כ-10 ₪ לגופייה — על הלקוח. עבודה עלינו.',
+    requiresSpeaker: false,
+    taskTemplates: [
+      'קבלת לוגו ועיצוב מהלקוח',
+      'הזמנת הדפסה / גופיות',
+      'חלוקה בכניסה לכנס',
+    ],
+  },
+  {
+    id: 'prod-10', name: 'עמדות קפה', category: 'special', price: 30000, icon: 'local_cafe',
+    description: '5 עמדות קפה — קפה והקמה עלינו. מיתוג וכוסות על הלקוח.',
+    requiresSpeaker: false,
+    taskTemplates: [
+      'תיאום ספק קפה — 5 עמדות',
+      'קבלת מיתוג וכוסות ממותגות מהלקוח',
+      'מיפוי מיקומי עמדות',
+      'הקמה וצוות הגשה',
+    ],
+  },
+  {
+    id: 'prod-11', name: 'מתחם בר', category: 'special', price: 30000, icon: 'sports_bar',
+    description: 'מיתוג, קוקטיילים, ריהוט אלטרנטיבי — על הלקוח. אלכוהול עלינו.',
+    requiresSpeaker: false,
+    taskTemplates: [
+      'קבלת עיצוב מתחם הבר מהלקוח',
+      'הזמנת אלכוהול ומוצרים',
+      'תיאום ריהוט אלטרנטיבי',
+      'צוות ברמנים',
+    ],
+  },
+  {
+    id: 'prod-12', name: 'ברים בכנס', category: 'special', price: 30000, icon: 'local_bar',
+    description: '4 ברים בכנס — מיתוג בלבד על הלקוח',
+    requiresSpeaker: false,
+    taskTemplates: [
+      'קבלת מיתוג 4 ברים מהלקוח',
+      'תיאום הקמה ופירוק',
+    ],
+  },
+  {
+    id: 'prod-13', name: 'מקרר גלידות', category: 'special', price: 30000, icon: 'icecream',
+    description: 'גלידות ומיתוג — על הלקוח',
+    requiresSpeaker: false,
+    taskTemplates: [
+      'קבלת גלידות ממותגות מהלקוח',
+      'מיקום מקרר בכנס',
+      'צוות חלוקה',
+    ],
+  },
+  {
+    id: 'prod-14', name: 'עמדות מזון', category: 'special', price: 30000, icon: 'restaurant',
+    description: '2 ארוחות צהרים — כ-30 עמדות. מיתוג ~8,000 ₪ על הלקוח.',
+    requiresSpeaker: false,
+    taskTemplates: [
+      'הזמנת קייטרינג 2 ארוחות צהרים',
+      'קבלת מיתוג עמדות מהלקוח',
+      'תיאום 30 עמדות מזון',
+      'תיאום צוות הגשה',
+    ],
+  },
+  {
+    id: 'prod-15', name: 'עמדות טעינה', category: 'special', price: 30000, icon: 'battery_charging_full',
+    description: '2-3 עמדות טעינה — העמדות והמיתוג על הלקוח (~30,000 ₪)',
+    requiresSpeaker: false,
+    taskTemplates: [
+      'קבלת עמדות טעינה ממותגות מהלקוח',
+      'מיפוי מיקומים בכנס',
+      'חיבור חשמל ותיאום עם לוגיסטיקה',
+    ],
+  },
+];
+
+export const MOCK_AUTOMATIONS: AutomationRule[] = [
+  { id: 'auto-1', name: 'Notify on task done', enabled: true, trigger: 'status_changed', triggerValue: 'done', action: 'send_notification', actionValue: 'Task marked as done!', projectId: null, timesTriggered: 14, createdAt: '2026-01-20T09:00:00Z' },
+  { id: 'auto-2', name: 'Assign stuck tasks to owner', enabled: true, trigger: 'status_changed', triggerValue: 'stuck', action: 'assign_to', actionValue: 'user-1', projectId: 'proj-1', timesTriggered: 3, createdAt: '2026-02-01T09:00:00Z' },
+  { id: 'auto-3', name: 'Alert on deal won', enabled: true, trigger: 'deal_stage_changed', triggerValue: 'closed_won', action: 'send_notification', actionValue: '🎉 Deal closed!', projectId: null, timesTriggered: 1, createdAt: '2026-02-15T09:00:00Z' },
+  { id: 'auto-4', name: 'Create follow-up on overdue', enabled: false, trigger: 'due_date_passed', triggerValue: '', action: 'create_task', actionValue: 'Follow up on overdue task', projectId: null, timesTriggered: 0, createdAt: '2026-03-01T09:00:00Z' },
+];
+
+export const INITIAL_STATE: AppState = {
+  currentUser: MOCK_USERS[0],
+  users: MOCK_USERS,
+  brands: MOCK_BRANDS,
+  events: MOCK_EVENTS,
+  campaigns: MOCK_CAMPAIGNS,
+  speakers: MOCK_SPEAKERS,
+  panels: MOCK_PANELS,
+  products: MOCK_PRODUCTS,
+  projects: MOCK_PROJECTS,
+  tasks: MOCK_TASKS,
+  groups: MOCK_GROUPS,
+  notifications: MOCK_NOTIFICATIONS,
+  contacts: MOCK_CONTACTS,
+  deals: MOCK_DEALS,
+  automations: MOCK_AUTOMATIONS,
+  aiMessages: [],
+  chats: [],
+  activeEventId: 'event-1',
+  activeProjectId: 'proj-1',
+  activeView: 'table',
+  activeSection: 'events',
+  activeCRMView: 'contacts',
+  notificationsPanelOpen: false,
+  chatPanelOpen: false,
+  activeChatUserId: null,
+  taskModalId: null,
+  newProjectModalOpen: false,
+  newProjectCategory: null,
+  newEventModalOpen: false,
+  inviteModalOpen: false,
+  aiPanelOpen: false,
+  contactModalId: null,
+  dealModalId: null,
+  speakerModalId: null,
+  onboardingComplete: false,
+  workspaceName: 'אטלייה',
+  appLocked: false,
+  profileModalOpen: false,
+  activityLogs: [],
+  welcomeTaskId: null,
+  celebrationTaskId: null,
+};

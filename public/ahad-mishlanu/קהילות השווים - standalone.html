@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>העסק של כולנו</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<meta name="ext-resource-dependency" content="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1400&q=80" data-resource-id="coverImg" />
+<template id="__bundler_thumbnail" data-bg-color="#111111">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#111111"/>
+    <rect x="0" y="0" width="1200" height="8" fill="#FFD600"/>
+    <!-- Ribbon icon -->
+    <g transform="translate(540,260)">
+      <path d="M60 20C37 20 18 37 18 58C18 76 31 91 49 96L36 190" stroke="#FFD600" stroke-width="12" stroke-linecap="round" fill="none"/>
+      <path d="M60 20C83 20 102 37 102 58C102 76 89 91 71 96L84 190" stroke="#FFD600" stroke-width="12" stroke-linecap="round" fill="none"/>
+      <ellipse cx="60" cy="58" rx="42" ry="38" fill="#FFD600"/>
+    </g>
+    <rect x="340" y="330" width="520" height="14" rx="7" fill="#FFD600" opacity="0.9"/>
+    <rect x="420" y="360" width="360" height="10" rx="5" fill="#ffffff" opacity="0.25"/>
+    <rect x="460" y="385" width="280" height="10" rx="5" fill="#ffffff" opacity="0.15"/>
+  </svg>
+</template>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Heebo',sans-serif;background:#fff;color:#111;direction:rtl}
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-thumb{background:#FFD600;border-radius:3px}
+  a,button{cursor:pointer;font-family:'Heebo',sans-serif}
+  img{display:block;max-width:100%}
+  input,textarea{font-family:'Heebo',sans-serif}
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const { useState, useEffect, useRef } = React;
+
+// ── TOKENS ──────────────────────────────────────────────────────────
+const Y   = '#FFD600';
+const Y10 = 'rgba(255,214,0,0.10)';
+const Y20 = 'rgba(255,214,0,0.20)';
+const BK  = '#111111';
+const WH  = '#FFFFFF';
+const GR  = '#F6F6F6';
+const GM  = '#E2E2E2';
+const GD  = '#888';
+const NV  = '#003466';
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accentColor": "#FFD600",
+  "cardStyle": "shadowed",
+  "fontSize": 16,
+  "heroStyle": "dark"
+}/*EDITMODE-END*/;
+
+// ── RIBBON SVG ──────────────────────────────────────────────────────
+const Ribbon = ({ size = 28, color = WH, style: s = {} }) => (
+  <svg width={size} height={Math.round(size * 1.6)} viewBox="0 0 32 52"
+    fill="none" xmlns="http://www.w3.org/2000/svg" style={s}>
+    <path d="M16 3C9.4 3 4 8.1 4 14.5C4 20.1 8.3 24.8 14 26.4L10 49" stroke={color} strokeWidth="3.5" strokeLinecap="round"/>
+    <path d="M16 3C22.6 3 28 8.1 28 14.5C28 20.1 23.7 24.8 18 26.4L22 49" stroke={color} strokeWidth="3.5" strokeLinecap="round"/>
+    <path d="M16 3C9.4 3 4 8.1 4 14.5C4 20.9 9.4 26 16 26C22.6 26 28 20.9 28 14.5C28 8.1 22.6 3 16 3Z" fill={color}/>
+  </svg>
+);
+
+// ── SEAL BADGE ──────────────────────────────────────────────────────
+const Seal = ({ sm }) => (
+  <span style={{
+    display:'inline-flex', alignItems:'center', gap:5,
+    background:Y, borderRadius:99, padding: sm ? '3px 10px' : '5px 14px',
+    fontSize: sm ? 10 : 11, fontWeight:800, color:BK,
+    letterSpacing:'0.5px', whiteSpace:'nowrap',
+  }}>✓ THE ONE OF US SEAL</span>
+);
+
+// ── BTN ─────────────────────────────────────────────────────────────
+const Btn = ({ children, variant='primary', onClick, full, sm }) => {
+  const [hov,setHov] = useState(false);
+  const base = {
+    display:'inline-flex', alignItems:'center', justifyContent:'center', gap:6,
+    border:'none', cursor:'pointer', fontFamily:'Heebo', fontWeight:800,
+    borderRadius:6, transition:'all .15s', width: full ? '100%' : undefined,
+    padding: sm ? '9px 18px' : '13px 28px',
+    fontSize: sm ? 14 : 16,
+  };
+  const styles = {
+    primary:  { background: hov ? '#e8c200' : Y, color: BK },
+    dark:     { background: hov ? '#333' : BK, color: WH },
+    outline:  { background:'transparent', color: BK, border:`2px solid ${hov ? BK : GM}` },
+    ghost:    { background:'transparent', color: hov ? Y : WH, border:`2px solid ${hov ? Y : 'rgba(255,255,255,.3)'}` },
+  };
+  return (
+    <button style={{...base,...styles[variant]}} onClick={onClick}
+      onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
+      {children}
+    </button>
+  );
+};
+
+// ── NAV ─────────────────────────────────────────────────────────────
+const Nav = ({ page, nav }) => {
+  const links = [
+    {l:'מוצרים נבחרים', p:'home'},
+    {l:'אנשי מקצוע', p:'home'},
+    {l:'שירותים נוספים', p:'home'},
+    {l:'הסיפורים מאחורי', p:'home'},
+    {l:'צור קשר', p:'contact'},
+  ];
+  return (
+    <nav style={{
+      position:'sticky', top:0, zIndex:200, background:BK,
+      borderBottom:`3px solid ${Y}`, padding:'0 64px', height:64,
+      display:'flex', alignItems:'center', gap:0,
+    }}>
+      {/* Social */}
+      <div style={{display:'flex',gap:10}}>
+        {['IG','FB'].map(s=>(
+          <div key={s} style={{width:32,height:32,borderRadius:'50%',border:'1px solid rgba(255,255,255,.25)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+            <span style={{color:WH,fontSize:10,fontWeight:700}}>{s}</span>
+          </div>
+        ))}
+      </div>
+      {/* Links */}
+      <div style={{display:'flex',gap:32,flex:1,justifyContent:'center'}}>
+        {links.map(({l,p})=>(
+          <a key={l} onClick={()=>nav(p)} style={{
+            color: page===p && l==='מוצרים נבחרים' ? Y : 'rgba(255,255,255,.8)',
+            fontSize:14, fontWeight:500, textDecoration:'none', cursor:'pointer',
+            transition:'color .15s',
+          }}
+          onMouseEnter={e=>e.target.style.color=Y}
+          onMouseLeave={e=>e.target.style.color='rgba(255,255,255,.8)'}>{l}</a>
+        ))}
+      </div>
+      {/* Logo */}
+      <div onClick={()=>nav('home')} style={{display:'flex',alignItems:'center',gap:10,cursor:'pointer',flexShrink:0}}>
+        <Ribbon size={20} color={Y}/>
+        <span style={{color:WH,fontSize:20,fontWeight:900,letterSpacing:'-0.5px',whiteSpace:'nowrap'}}>מחזקים את משפחות החטופים</span>
+      </div>
+    </nav>
+  );
+};
+
+// ── FOOTER ──────────────────────────────────────────────────────────
+const Footer = ({ nav }) => (
+  <footer style={{background:BK,padding:'56px 80px 36px',color:WH}}>
+    <div style={{display:'flex',gap:80,marginBottom:48,flexWrap:'wrap'}}>
+      <div style={{minWidth:240}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
+          <Ribbon size={24} color={Y}/>
+          <span style={{fontSize:20,fontWeight:900}}>העסק של כולנו</span>
+        </div>
+        <p style={{fontSize:14,color:'rgba(255,255,255,.55)',lineHeight:1.8,maxWidth:220}}>
+          מחזקים את הבית, תומכים בעסקי משפחות השבים.
+        </p>
+      </div>
+      {[
+        {title:'ניווט', links:['בית','קהילת העסקים','צור קשר']},
+        {title:'מידע', links:['הצהרת נגישות','תנאי שימוש','מדיניות פרטיות']},
+      ].map(col=>(
+        <div key={col.title}>
+          <p style={{fontSize:11,fontWeight:800,color:Y,letterSpacing:'1.5px',textTransform:'uppercase',marginBottom:18}}>{col.title}</p>
+          {col.links.map(l=>(
+            <p key={l} onClick={()=>l==='צור קשר'&&nav('contact')} style={{fontSize:15,color:'rgba(255,255,255,.6)',marginBottom:10,cursor:'pointer'}}>{l}</p>
+          ))}
+        </div>
+      ))}
+    </div>
+    <div style={{borderTop:'1px solid rgba(255,255,255,.1)',paddingTop:24,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+      <span style={{fontSize:13,color:'rgba(255,255,255,.3)'}}>© 2024 העסק של כולנו. כל הזכויות שמורות.</span>
+      <div style={{display:'flex',alignItems:'center',gap:8}}>
+        <Ribbon size={14} color={Y}/>
+        <span style={{fontSize:13,color:Y,fontWeight:700}}>#מחזקים_את_הבית</span>
+      </div>
+    </div>
+  </footer>
+);
+
+// ── SECTION HEADER ───────────────────────────────────────────────────
+const SecHead = ({ title, sub, link, onLink }) => (
+  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:32}}>
+    <div>
+      <h2 style={{fontSize:26,fontWeight:900,color:BK,letterSpacing:'-0.5px',marginBottom:sub?6:0}}>{title}</h2>
+      {sub&&<p style={{fontSize:14,color:GD}}>{sub}</p>}
+    </div>
+    {link&&<a onClick={onLink} style={{fontSize:14,fontWeight:700,color:NV,cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>
+      {link} ←
+    </a>}
+  </div>
+);
+
+// ── PRODUCT CARD ─────────────────────────────────────────────────────
+const PCard = ({ name, cat, price, desc, seal, img, onClick }) => {
+  const [hov,setHov]=useState(false);
+  return (
+    <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+      style={{
+        background:WH, border:`2px solid ${hov?Y:GM}`, borderRadius:8,
+        overflow:'hidden', cursor:'pointer',
+        boxShadow: hov ? `0 8px 28px rgba(255,214,0,.18)` : '0 1px 4px rgba(0,0,0,.06)',
+        transform: hov ? 'translateY(-3px)' : 'none',
+        transition:'all .15s',
+      }}>
+      <div style={{height:168,background:`${GR} ${img?`url(${img}) center/cover no-repeat`:''}`,position:'relative'}}>
+        {seal&&<div style={{position:'absolute',top:10,right:10}}><Seal sm/></div>}
+        {!img&&<div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',opacity:.3}}>
+          <Ribbon size={52} color={BK}/>
+        </div>}
+      </div>
+      <div style={{padding:'16px 18px 20px'}}>
+        {cat&&<span style={{display:'inline-block',background:hov?Y:'#f5f0c0',color:BK,fontSize:11,fontWeight:800,borderRadius:4,padding:'2px 8px',marginBottom:8,letterSpacing:.3}}>{cat}</span>}
+        <h3 style={{fontSize:15,fontWeight:800,color:BK,marginBottom:6,lineHeight:1.3}}>{name}</h3>
+        {desc&&<p style={{fontSize:13,color:GD,lineHeight:1.6,marginBottom:12}}>{desc}</p>}
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:'auto'}}>
+          {price&&<span style={{fontSize:16,fontWeight:800,color:NV}}>{price}</span>}
+          <Btn variant="dark" sm>לרכישה →</Btn>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── SERVICE CARD ─────────────────────────────────────────────────────
+const SCard = ({ icon, title, desc, cta }) => {
+  const [hov,setHov]=useState(false);
+  return (
+    <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+      style={{
+        background:hov?BK:GR, border:`2px solid ${hov?Y:GM}`,
+        borderRadius:8, padding:'32px 28px',
+        transition:'all .2s', cursor:'pointer',
+      }}>
+      <div style={{fontSize:32,marginBottom:16}}>{icon}</div>
+      <h3 style={{fontSize:18,fontWeight:800,color:hov?WH:BK,marginBottom:10}}>{title}</h3>
+      <p style={{fontSize:14,color:hov?'rgba(255,255,255,.65)':GD,lineHeight:1.8,marginBottom:24}}>{desc}</p>
+      <span style={{
+        display:'inline-flex',alignItems:'center',gap:6,
+        fontSize:14,fontWeight:700,color:hov?Y:BK,
+        borderBottom:`2px solid ${hov?Y:BK}`,paddingBottom:2,
+      }}>{cta} +</span>
+    </div>
+  );
+};
+
+// ── CATEGORY CHIPS ───────────────────────────────────────────────────
+const CATS = ['הכל','אוכל ואירוח','עיצוב ואמנות','שירותים מקצועיים','בריאות ורווחה','חינוך','אופנה','טכנולוגיה'];
+const Chips = ({ active, set }) => (
+  <div style={{display:'flex',gap:8,overflowX:'auto',paddingBottom:4}}>
+    {CATS.map(c=>(
+      <button key={c} onClick={()=>set(c)} style={{
+        background: active===c ? Y : WH,
+        border:`2px solid ${active===c ? Y : GM}`,
+        color: active===c ? BK : '#555',
+        fontSize:13, fontWeight: active===c ? 800 : 500,
+        padding:'7px 18px', borderRadius:99, whiteSpace:'nowrap',
+        transition:'all .15s', cursor:'pointer',
+      }}>{c}</button>
+    ))}
+  </div>
+);
+
+// ══════════════════════════════════════════════════════════════════════
+// HOME PAGE
+// ══════════════════════════════════════════════════════════════════════
+const HomePage = ({ nav }) => {
+  const [cat,setCat]=useState('הכל');
+  const [q,setQ]=useState('');
+
+  const products = [
+    { name:'מארז ניצחון של עומר ונקרט', cat:'יין ואלכוהול', price:'החל מ-₪1,200', desc:'מארז 6 בקבוקים מהדורה מוגבלת', seal:true },
+    { name:'שיפוד נקי "בביתא"', cat:'אוכל ואירוח', price:'החל מ-₪85', desc:'ארוחה ביתית טעימה ומוכנה עם אהבה', seal:false },
+    { name:'קולקציית חוסן — כד קרמי', cat:'עיצוב ואמנות', price:'החל מ-₪320', desc:'קרמיקה בעבודת יד, מהדורה מוגבלת', seal:true },
+    { name:'קפה הניצחון', cat:'אוכל ואירוח', price:'החל מ-₪45', desc:'תערובת קפה מיוחדת מהדורה מוגבלת', seal:false },
+  ];
+
+  const services = [
+    { icon:'⚖️', title:'ייעוץ אסטרטגי לעסקים', desc:'תמיכה מקצועית לעסקים המחפשים כיוון וצמיחה — מאנשים שמבינים את הסיפור.', cta:'לפרטים נוספים' },
+    { icon:'🎨', title:'מיתוג ועיצוב גרפי', desc:'שירותי מיתוג מלאים, מתוך הבנה אמיתית של מי אתם ולאן אתם הולכים.', cta:'לפרטים נוספים' },
+    { icon:'📣', title:'שיווק וקידום ממוקד', desc:'קמפיינים שיוציאו את העסק שלכם לאור ויגיעו ללקוחות הנכונים.', cta:'לפרטים נוספים' },
+  ];
+
+  return (
+    <div>
+      {/* ── HERO ── */}
+      <section style={{background:BK,padding:'72px 80px 64px',position:'relative',overflow:'hidden'}}>
+        {/* BG ribbon watermark */}
+        <div style={{position:'absolute',left:-40,top:'50%',transform:'translateY(-50%)',opacity:.04,pointerEvents:'none'}}>
+          <Ribbon size={380} color={WH}/>
+        </div>
+        <div style={{position:'absolute',left:640,top:0,bottom:0,right:0,opacity:.06,overflow:'hidden',pointerEvents:'none'}}>
+          <div style={{position:'absolute',right:-80,top:'50%',transform:'translateY(-50%)'}}>
+            <Ribbon size={460} color={WH}/>
+          </div>
+        </div>
+
+        <div style={{maxWidth:720,position:'relative'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:22}}>
+            <Ribbon size={16} color={Y}/>
+            <span style={{fontSize:12,fontWeight:800,color:Y,letterSpacing:'1.5px',textTransform:'uppercase'}}>מחזקים את הבית</span>
+          </div>
+          <h1 style={{fontSize:60,fontWeight:900,color:WH,lineHeight:1.05,letterSpacing:'-1.5px',marginBottom:22}}>
+            הקהילה העסקית<br/>
+            <span style={{color:Y}}>של משפחות החטופים</span>
+          </h1>
+          <p style={{fontSize:18,color:'rgba(255,255,255,.6)',lineHeight:1.75,maxWidth:560,marginBottom:40}}>
+            פלטפורמה שמחברת בין עסקים של משפחות החטופים לבין קהילה תומכת — כי הכוח שלנו הוא ביחד.
+          </p>
+          {/* Search */}
+          <div style={{display:'flex',maxWidth:600,border:`3px solid ${Y}`,borderRadius:8,overflow:'hidden'}}>
+            <input value={q} onChange={e=>setQ(e.target.value)}
+              placeholder="חפשו מוצר, שירות, עסק..."
+              style={{flex:1,padding:'14px 20px',fontSize:16,border:'none',outline:'none',fontFamily:'Heebo',direction:'rtl',color:BK,background:WH}}
+            />
+            <button style={{background:Y,color:BK,fontSize:16,fontWeight:800,padding:'14px 28px',border:'none',cursor:'pointer',flexShrink:0}}>
+              חיפוש
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CATEGORIES ── */}
+      <section style={{background:GR,borderBottom:`1px solid ${GM}`,padding:'18px 80px'}}>
+        <Chips active={cat} set={setCat}/>
+      </section>
+
+      {/* ── FEATURED PRODUCTS ── */}
+      <section style={{padding:'64px 80px'}}>
+        <SecHead title="מוצרים נבחרים" sub="נבחרו בקפידה מבין עסקי הקהילה שלנו" link="כל המוצרים"/>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:24}}>
+          {products.map((p,i)=>(
+            <PCard key={i} {...p} onClick={()=>nav('profile')}/>
+          ))}
+        </div>
+      </section>
+
+      {/* ── DIGITAL SERVICES ── */}
+      <section style={{padding:'64px 80px',background:GR,borderTop:`1px solid ${GM}`,borderBottom:`1px solid ${GM}`}}>
+        <SecHead title="שירותים דיגיטליים" sub="שירותים מקצועיים מהקהילה לקהילה" link="לכל השירותים"/>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:24}}>
+          {services.map((s,i)=><SCard key={i} {...s}/>)}
+        </div>
+      </section>
+
+      {/* ── SEAL SECTION ── */}
+      <section style={{background:Y,padding:'80px 80px',display:'flex',gap:80,alignItems:'center'}}>
+        <div style={{flex:1}}>
+          <p style={{fontSize:11,fontWeight:800,letterSpacing:'1.5px',textTransform:'uppercase',color:'rgba(0,0,0,.45)',marginBottom:16}}>THE ONE OF US SEAL</p>
+          <h2 style={{fontSize:44,fontWeight:900,color:BK,lineHeight:1.05,letterSpacing:'-1px',marginBottom:20}}>
+            חותם של איכות<br/>וסולידריות
+          </h2>
+          <p style={{fontSize:16,color:'rgba(0,0,0,.65)',lineHeight:1.85,maxWidth:480,marginBottom:36}}>
+            כל עסק בפלטפורמה עובר אימות ובדיקה. אנחנו מבטיחים שהחיבורים בפלטפורמה אמינים ואיכותיים של ממש — כי מאחורי כל עסק עומד סיפור אמיתי.
+          </p>
+          <div style={{display:'flex',flexDirection:'column',gap:12}}>
+            {['עסקים מאומתים ובדוקים','תמיכה מקצועית מקצה לקצה','ליווי ושיתוף פעולה עם הקהילה'].map(item=>(
+              <div key={item} style={{display:'flex',alignItems:'center',gap:12}}>
+                <div style={{width:24,height:24,background:BK,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                  <span style={{color:Y,fontSize:12,fontWeight:900}}>✓</span>
+                </div>
+                <span style={{fontSize:16,fontWeight:600,color:BK}}>{item}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{marginTop:36}}>
+            <Btn variant="dark" onClick={()=>nav('profile')}>לפרופיל עסק לדוגמה ←</Btn>
+          </div>
+        </div>
+        {/* Seal box */}
+        <div style={{
+          width:260,height:260,background:BK,borderRadius:16,flexShrink:0,
+          display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:14,
+          boxShadow:'0 24px 48px rgba(0,0,0,.35)',
+        }}>
+          <Ribbon size={72} color={Y}/>
+          <span style={{color:WH,fontSize:12,fontWeight:800,letterSpacing:'1px',textTransform:'uppercase',textAlign:'center',lineHeight:1.6}}>
+            THE ONE OF US<br/>SEAL
+          </span>
+        </div>
+      </section>
+
+      {/* ── B2B BANNER ── */}
+      <section style={{background:NV,padding:'72px 80px',display:'flex',gap:64,alignItems:'center',overflow:'hidden',position:'relative'}}>
+        <div style={{position:'absolute',left:-60,top:'50%',transform:'translateY(-50%)',opacity:.07}}>
+          <Ribbon size={340} color={WH}/>
+        </div>
+        <div style={{flex:1,position:'relative'}}>
+          <p style={{fontSize:11,fontWeight:800,color:Y,letterSpacing:'1.5px',textTransform:'uppercase',marginBottom:14}}>לעסקים ואירגונים</p>
+          <h2 style={{fontSize:38,fontWeight:900,color:WH,lineHeight:1.15,marginBottom:18,letterSpacing:'-0.5px'}}>
+            פתרונות הוליסטיים<br/>לעסקים ואירגונים
+          </h2>
+          <p style={{fontSize:15,color:'rgba(255,255,255,.65)',lineHeight:1.85,maxWidth:460,marginBottom:36}}>
+            מנגנוני רוחות, רכש ומשאבי אנוש — אנחנו מציעים פלטפורמה מרחבת לרכישה: מתנות חג, שירותי ייעוץ, סדנאות גיבוש והרצאות מעוררות השראה. הכל מעסקים של אחד מאיתנו.
+          </p>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px 32px',maxWidth:380,marginBottom:36}}>
+            {['מארזי שי ומתנות','שירותי גיבוש','הרצאות וסדנאות','כיבוד ואירוח'].map(item=>(
+              <div key={item} style={{display:'flex',alignItems:'center',gap:8}}>
+                <div style={{width:6,height:6,background:Y,borderRadius:'50%',flexShrink:0}}/>
+                <span style={{fontSize:14,color:'rgba(255,255,255,.8)'}}>{item}</span>
+              </div>
+            ))}
+          </div>
+          <Btn variant="primary">מעבר לפורטל עסקים ←</Btn>
+        </div>
+        <div style={{width:340,height:240,borderRadius:12,overflow:'hidden',flexShrink:0}}>
+          <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=680&q=80" alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+        </div>
+      </section>
+
+      {/* ── JOIN ── */}
+      <section style={{padding:'80px 80px',background:WH}}>
+        <div style={{maxWidth:560,margin:'0 auto',textAlign:'center'}}>
+          <div style={{display:'flex',justifyContent:'center',marginBottom:16}}>
+            <Ribbon size={38} color={BK}/>
+          </div>
+          <h2 style={{fontSize:40,fontWeight:900,color:BK,letterSpacing:'-0.5px',marginBottom:14}}>בואו להיות חלק</h2>
+          <p style={{fontSize:16,color:GD,lineHeight:1.8,marginBottom:40}}>
+            בואו להצטרף לקהילה שלנו היושבת לצד משפחות החטופים ודואגת לחלק מהמקולקלה העסקית שלהם.
+          </p>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+            {['שם פרטי','שם משפחה','טלפון לחזרה','אימייל'].map(pl=>(
+              <input key={pl} placeholder={pl}
+                style={{padding:'13px 16px',border:`2px solid ${GM}`,borderRadius:6,fontSize:15,outline:'none'}}
+                onFocus={e=>e.target.style.borderColor=Y}
+                onBlur={e=>e.target.style.borderColor=GM}
+              />
+            ))}
+          </div>
+          <Btn variant="primary" full>צרו איתנו קשר ←</Btn>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// BUSINESS PROFILE PAGE
+// ══════════════════════════════════════════════════════════════════════
+const ProfilePage = ({ nav }) => {
+  const [tab,setTab]=useState('products');
+
+  const tabs = [
+    {id:'products',label:'מוצרים ושירותים'},
+    {id:'about',label:'אודות העסק'},
+    {id:'story',label:'הסיפור שלנו'},
+  ];
+
+  const products = [
+    { name:'מארז 6 בקבוקים — הניצחון של עומר ונקרט', cat:'יין', price:'החל מ-₪1,200', desc:'מארז מהדורה מוגבלת — 6 בקבוקים שנאספו במיוחד.', seal:true },
+    { name:'ליווי עיצוב פנים מלא', cat:'עיצוב', price:'החל מ-₪15,000', desc:'ניהול פרויקט מקצה לקצה: מתכניות עבודה ועד להלבשת הבית.', seal:false },
+  ];
+
+  return (
+    <div style={{background:WH}}>
+      {/* ── COVER ── */}
+      <div style={{height:360,background:`${BK} url(${window.__resources&&window.__resources.coverImg||'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1400&q=80'}) center/cover no-repeat`,position:'relative'}}>
+        <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,.42)'}}/>
+        <div style={{position:'absolute',bottom:0,left:0,right:0,height:5,background:Y}}/>
+      </div>
+
+      {/* ── MAIN LAYOUT ── */}
+      <div style={{display:'flex',gap:40,padding:'0 80px',alignItems:'flex-start'}}>
+
+        {/* ── MAIN CONTENT ── */}
+        <div style={{flex:1,paddingTop:40}}>
+          {/* Tabs */}
+          <div style={{display:'flex',gap:0,borderBottom:`2px solid ${GM}`,marginBottom:40}}>
+            {tabs.map(t=>(
+              <button key={t.id} onClick={()=>setTab(t.id)} style={{
+                padding:'12px 24px',fontSize:15,fontWeight:700,
+                background:'none',border:'none',cursor:'pointer',
+                color: tab===t.id ? BK : GD,
+                borderBottom:`3px solid ${tab===t.id ? Y : 'transparent'}`,
+                marginBottom:-2, transition:'all .15s',
+              }}>{t.label}</button>
+            ))}
+          </div>
+
+          {tab==='products' && (
+            <div>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
+                <h3 style={{fontSize:22,fontWeight:900,color:BK}}>השירותים והמוצרים שלנו</h3>
+                <span style={{fontSize:13,color:GD}}>2 פריטים</span>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24}}>
+                {products.map((p,i)=><PCard key={i} {...p} onClick={()=>{}}/>)}
+              </div>
+            </div>
+          )}
+
+          {tab==='about' && (
+            <div style={{maxWidth:660}}>
+              <h3 style={{fontSize:22,fontWeight:900,color:BK,marginBottom:20}}>אודות העסק</h3>
+              <p style={{fontSize:16,color:'#444',lineHeight:1.9,marginBottom:20}}>
+                Winekart הייתה פרויקט חלום — שני גילי מחדש, בתוך המציאות המורכבת, מצאנו את הכוח לחפור את היצירה שלנו למקור של נחמה ועוצמה עבור אחרים.
+              </p>
+              <p style={{fontSize:16,color:'#444',lineHeight:1.9,marginBottom:20}}>
+                אנחנו מאמינים שכל בקבוק שמגיע לביתכם נושא בתוכו אינסוף אהבה, חוסן ויצירתיות. הסטודיו שלנו תורם חלק מהכנסות לחולנות ולחלקנות ולאחרים.
+              </p>
+              <div style={{background:Y10,border:`2px solid ${Y}`,borderRadius:8,padding:'20px 24px',marginTop:32}}>
+                <p style={{fontSize:13,fontWeight:800,color:BK,letterSpacing:'0.5px',marginBottom:8}}>🕐 שעות פעילות העסק</p>
+                <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                  {[{d:'ראשון–חמישי',h:'08:00–18:00'},{d:'שישי',h:'09:00–13:00'},{d:'שבת',h:'סגור'}].map(r=>(
+                    <div key={r.d} style={{display:'flex',justifyContent:'space-between',fontSize:14}}>
+                      <span style={{color:r.h==='סגור'?'#d44':'#444'}}>{r.h}</span>
+                      <span style={{fontWeight:600,color:BK}}>{r.d}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {tab==='story' && (
+            <div style={{display:'flex',gap:48,alignItems:'flex-start'}}>
+              <div style={{flex:1}}>
+                <p style={{fontSize:11,fontWeight:800,color:Y,letterSpacing:'1.5px',textTransform:'uppercase',marginBottom:12,background:BK,display:'inline-block',padding:'4px 10px',borderRadius:4}}>הסיפור שלנו</p>
+                <h3 style={{fontSize:32,fontWeight:900,color:BK,lineHeight:1.2,letterSpacing:'-0.5px',marginBottom:20,marginTop:12}}>
+                  "השנתיים האחרונות היו<br/>מסע של גילוי מחדש."
+                </h3>
+                <p style={{fontSize:16,color:'#444',lineHeight:1.9,marginBottom:20}}>
+                  בתוך המציאות המורכבת, מצאנו את הכוח לחפור את היצירה שלנו למקור של נחמה ועוצמה עבור אחרים. כל בקבוק, כל טעם — הוא חלק מהסיפור שלנו.
+                </p>
+                <p style={{fontSize:16,color:'#444',lineHeight:1.9}}>
+                  כל קניה שתעשו מהסטודיו הזה נושאת בתוכה אינסוף אהבה, את הריקוד, החוסן והיצירתיות שלנו.
+                </p>
+                <div style={{marginTop:32,display:'flex',alignItems:'center',gap:12}}>
+                  <div style={{width:46,height:46,borderRadius:'50%',background:GM,overflow:'hidden'}}>
+                    <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=96&q=80" alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+                  </div>
+                  <div>
+                    <p style={{fontSize:15,fontWeight:700,color:BK}}>— משפחות סטודיו רזיליאנס</p>
+                    <p style={{fontSize:13,color:GD}}>יזמים ועצמאים ראשיים</p>
+                  </div>
+                </div>
+                <div style={{marginTop:28}}>
+                  <a style={{fontSize:15,fontWeight:700,color:NV,cursor:'pointer',borderBottom:`2px solid ${NV}`,paddingBottom:2}}>לצפייה בקולקציה המלאה ←</a>
+                </div>
+              </div>
+              <div style={{width:280,height:320,borderRadius:12,overflow:'hidden',flexShrink:0,background:GM}}>
+                <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=560&q=80" alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── SIDEBAR ── */}
+        <div style={{width:340,flexShrink:0,paddingTop:40}}>
+          <div style={{
+            background:WH, border:`2px solid ${GM}`, borderRadius:12,
+            padding:'28px 26px 24px',
+            boxShadow:'0 8px 36px rgba(0,0,0,.09)',
+            position:'sticky', top:80,
+          }}>
+            {/* Logo */}
+            <div style={{display:'flex',justifyContent:'center',marginBottom:18}}>
+              <div style={{width:76,height:76,background:BK,borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <span style={{color:Y,fontWeight:900,fontSize:13,textAlign:'center',lineHeight:1.3}}>Wine<br/>kart</span>
+              </div>
+            </div>
+            <div style={{textAlign:'center',marginBottom:18}}>
+              <Seal/>
+              <h2 style={{fontSize:22,fontWeight:900,color:BK,marginTop:12,letterSpacing:'-0.3px'}}>סטודיו לעיצוב רזיליאנס</h2>
+              <p style={{fontSize:13,color:GD,lineHeight:1.7,marginTop:8}}>עיצוב פנים ואדריכלות בוטיק המתמקדת ביצירת חללים המעניקים תחושת ביטחון, שקט ובית אמיתי.</p>
+            </div>
+            <div style={{borderTop:`1px solid ${GM}`,margin:'16px 0'}}/>
+            {[
+              {i:'📞', t:'054-1234567'},
+              {i:'🌐', t:'www.resilience-studio.co.il'},
+              {i:'✉️', t:'info@resilience-studio.co.il'},
+              {i:'📍', t:'תל אביב, ישראל'},
+            ].map(r=>(
+              <div key={r.t} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+                <span style={{fontSize:15}}>{r.i}</span>
+                <span style={{fontSize:13,color:'#333'}}>{r.t}</span>
+              </div>
+            ))}
+            <div style={{borderTop:`1px solid ${GM}`,margin:'16px 0'}}/>
+            <Btn variant="primary" full>קביעת פגישת ייעוץ</Btn>
+            <div style={{marginTop:10}}>
+              <Btn variant="outline" full>שיתוף העסק</Btn>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── CTA BANNER ── */}
+      <section style={{background:NV,margin:'64px 0 0',padding:'72px 80px',display:'flex',gap:64,alignItems:'center',position:'relative',overflow:'hidden'}}>
+        <div style={{position:'absolute',left:-60,top:'50%',transform:'translateY(-50%)',opacity:.06}}>
+          <Ribbon size={320} color={WH}/>
+        </div>
+        <div style={{flex:1,position:'relative'}}>
+          <p style={{fontSize:11,fontWeight:800,color:Y,letterSpacing:'1.5px',textTransform:'uppercase',marginBottom:14}}>לעסקים ואירגונים</p>
+          <h2 style={{fontSize:36,fontWeight:900,color:WH,lineHeight:1.2,marginBottom:18}}>פתרונות הוליסטיים<br/>לעסקים ואירגונים</h2>
+          <p style={{fontSize:15,color:'rgba(255,255,255,.6)',lineHeight:1.85,maxWidth:460,marginBottom:32}}>
+            מנגנוני רוחות, רכש ומשאבי אנוש — אנחנו מציעים פלטפורמה מרחבת לרכישה, מתנות חג, שירותי ייעוץ, סדנאות גיבוש והרצאות מעוררות השראה.
+          </p>
+          <Btn variant="primary">מעבר לפורטל עסקים ←</Btn>
+        </div>
+        <div style={{width:320,height:220,borderRadius:12,overflow:'hidden',flexShrink:0}}>
+          <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=640&q=80" alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// CONTACT PAGE
+// ══════════════════════════════════════════════════════════════════════
+const ContactPage = () => (
+  <div style={{background:WH}}>
+    <section style={{background:BK,padding:'64px 80px',borderBottom:`4px solid ${Y}`,position:'relative',overflow:'hidden'}}>
+      <div style={{position:'absolute',left:-40,top:'50%',transform:'translateY(-50%)',opacity:.05}}>
+        <Ribbon size={320} color={WH}/>
+      </div>
+      <div style={{position:'relative'}}>
+        <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(255,214,0,.15)',border:`1px solid rgba(255,214,0,.3)`,borderRadius:99,padding:'4px 14px',marginBottom:20}}>
+          <span style={{fontSize:11,fontWeight:800,color:Y,letterSpacing:'1px',textTransform:'uppercase'}}>One of Us ✓</span>
+        </div>
+        <h1 style={{fontSize:52,fontWeight:900,color:WH,letterSpacing:'-1px',marginBottom:16}}>צרו קשר</h1>
+        <p style={{fontSize:18,color:'rgba(255,255,255,.6)',maxWidth:500,lineHeight:1.75}}>
+          אנחנו כאן לעזור. פנו אלינו בכל שאלה לגבי הקהילה, שיתוף פעולה, שירותים או תמיכה טכנית.
+        </p>
+      </div>
+    </section>
+
+    <div style={{padding:'64px 80px',display:'flex',gap:72}}>
+      {/* Info */}
+      <div style={{width:260,flexShrink:0}}>
+        <h3 style={{fontSize:18,fontWeight:800,color:BK,marginBottom:28}}>מידע ליצירת קשר</h3>
+        {[
+          {i:'📍',label:'כתובת',t:'רחוב יהרק 45, תל אביב-יפו'},
+          {i:'📞',label:'טלפון',t:'+972 (0) 3 555 1234'},
+          {i:'✉️',label:'אימייל',t:'contact@theeditorial.co.il'},
+        ].map(r=>(
+          <div key={r.label} style={{display:'flex',gap:14,marginBottom:28}}>
+            <div style={{width:42,height:42,background:Y,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>
+              {r.i}
+            </div>
+            <div>
+              <p style={{fontSize:11,fontWeight:800,color:GD,textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:4}}>{r.label}</p>
+              <p style={{fontSize:14,color:BK,lineHeight:1.5}}>{r.t}</p>
+            </div>
+          </div>
+        ))}
+        {/* Map placeholder */}
+        <div style={{width:'100%',height:160,background:GR,borderRadius:8,border:`2px solid ${GM}`,display:'flex',alignItems:'center',justifyContent:'center',marginTop:8}}>
+          <div style={{textAlign:'center',opacity:.4}}>
+            <div style={{fontSize:32}}>📍</div>
+            <p style={{fontSize:12,marginTop:6}}>תצוגת מפה</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Form */}
+      <div style={{flex:1}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:14}}>
+          {[{pl:'שם פרטי',val:'ישראלי ישראלי'},{pl:'כתובת אימייל',val:'name@company.com'}].map(f=>(
+            <input key={f.pl} defaultValue={f.val} placeholder={f.pl}
+              style={{padding:'13px 16px',border:`2px solid ${GM}`,borderRadius:6,fontSize:15,outline:'none',color:'#333'}}
+              onFocus={e=>e.target.style.borderColor=Y}
+              onBlur={e=>e.target.style.borderColor=GM}
+            />
+          ))}
+        </div>
+        <input defaultValue="050-000-0000" placeholder="מספר טלפון"
+          style={{width:'100%',padding:'13px 16px',border:`2px solid ${GM}`,borderRadius:6,fontSize:15,outline:'none',marginBottom:14,color:'#333'}}
+          onFocus={e=>e.target.style.borderColor=Y}
+          onBlur={e=>e.target.style.borderColor=GM}
+        />
+        <textarea defaultValue="" placeholder="הודעה — איך נוכל לעזור לכם?" rows={6}
+          style={{width:'100%',padding:'13px 16px',border:`2px solid ${GM}`,borderRadius:6,fontSize:15,outline:'none',resize:'vertical',color:'#333',lineHeight:1.7}}
+          onFocus={e=>e.target.style.borderColor=Y}
+          onBlur={e=>e.target.style.borderColor=GM}
+        />
+        <div style={{display:'flex',gap:12,marginTop:16}}>
+          <Btn variant="primary">שלחו הודעה ←</Btn>
+          <Btn variant="outline">חזרה לבית</Btn>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// ══════════════════════════════════════════════════════════════════════
+// TWEAKS PANEL
+// ══════════════════════════════════════════════════════════════════════
+const TweaksPanel = ({ tweaks, setTweak, visible, onClose }) => {
+  const [drag,setDrag]=useState({x:null,y:null,ox:0,oy:0});
+  const [pos,setPos]=useState({x:24,y:120});
+  const ref=useRef();
+
+  useEffect(()=>{
+    window.addEventListener('message', e=>{
+      if(e.data?.type==='__activate_edit_mode') onClose(false);
+    });
+  },[]);
+
+  if(!visible) return null;
+  const colors = [{l:'צהוב קלאסי',v:'#FFD600'},{l:'כתום חיוני',v:'#FF8C00'},{l:'ירוק תקווה',v:'#4CAF50'},{l:'כחול ים',v:'#0078D4'}];
+  return (
+    <div ref={ref} style={{
+      position:'fixed', left:pos.x, top:pos.y, zIndex:9999,
+      background:WH, border:`2px solid ${BK}`, borderRadius:10,
+      boxShadow:'0 12px 40px rgba(0,0,0,.18)', width:240, userSelect:'none',
+    }}>
+      <div onMouseDown={e=>{setDrag({x:e.clientX,y:e.clientY,ox:pos.x,oy:pos.y})}}
+        style={{background:BK,color:WH,padding:'10px 14px',borderRadius:'8px 8px 0 0',display:'flex',justifyContent:'space-between',alignItems:'center',cursor:'grab'}}>
+        <span style={{fontSize:13,fontWeight:800,letterSpacing:'0.5px'}}>⚙ Tweaks</span>
+        <button onClick={()=>{onClose(false);window.parent.postMessage({type:'__edit_mode_dismissed'},'*')}} style={{background:'none',border:'none',color:WH,fontSize:16,cursor:'pointer',lineHeight:1}}>×</button>
+      </div>
+      <div style={{padding:16}}>
+        <p style={{fontSize:11,fontWeight:800,color:GD,letterSpacing:'1px',textTransform:'uppercase',marginBottom:10}}>צבע מבטא</p>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:16}}>
+          {colors.map(c=>(
+            <div key={c.v} onClick={()=>setTweak('accentColor',c.v)} title={c.l}
+              style={{width:30,height:30,borderRadius:'50%',background:c.v,cursor:'pointer',border:`3px solid ${tweaks.accentColor===c.v?BK:'transparent'}`,transition:'border .1s'}}/>
+          ))}
+        </div>
+        <p style={{fontSize:11,fontWeight:800,color:GD,letterSpacing:'1px',textTransform:'uppercase',marginBottom:10}}>סגנון כרטיסים</p>
+        {['bordered','shadowed'].map(v=>(
+          <label key={v} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8,cursor:'pointer'}}>
+            <input type="radio" checked={tweaks.cardStyle===v} onChange={()=>setTweak('cardStyle',v)} style={{accentColor:BK}}/>
+            <span style={{fontSize:14}}>{v==='bordered'?'מסגרת':'צל'}</span>
+          </label>
+        ))}
+        <p style={{fontSize:11,fontWeight:800,color:GD,letterSpacing:'1px',textTransform:'uppercase',margin:'10px 0 8px'}}>Hero</p>
+        {['dark','light'].map(v=>(
+          <label key={v} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8,cursor:'pointer'}}>
+            <input type="radio" checked={tweaks.heroStyle===v} onChange={()=>setTweak('heroStyle',v)} style={{accentColor:BK}}/>
+            <span style={{fontSize:14}}>{v==='dark'?'כהה':'בהיר'}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// APP
+// ══════════════════════════════════════════════════════════════════════
+const App = () => {
+  const [page,setPage]=useState('home');
+  const [tweaks,setTweaksState]=useState(TWEAK_DEFAULTS);
+  const [tweaksOpen,setTweaksOpen]=useState(false);
+
+  const setTweak=(k,v)=>{
+    const next={...tweaks,[k]:v};
+    setTweaksState(next);
+    window.parent.postMessage({type:'__edit_mode_set_keys',edits:next},'*');
+  };
+
+  useEffect(()=>{
+    window.scrollTo({top:0,behavior:'auto'});
+  },[page]);
+
+  useEffect(()=>{
+    const handler=e=>{
+      if(e.data?.type==='__activate_edit_mode') setTweaksOpen(true);
+      if(e.data?.type==='__deactivate_edit_mode') setTweaksOpen(false);
+    };
+    window.addEventListener('message',handler);
+    window.parent.postMessage({type:'__edit_mode_available'},'*');
+    return()=>window.removeEventListener('message',handler);
+  },[]);
+
+  const nav=(p)=>setPage(p);
+
+  return (
+    <div>
+      <Nav page={page} nav={nav}/>
+      {page==='home' && <HomePage nav={nav}/>}
+      {page==='profile' && <ProfilePage nav={nav}/>}
+      {page==='contact' && <ContactPage/>}
+      <Footer nav={nav}/>
+      <TweaksPanel tweaks={tweaks} setTweak={setTweak} visible={tweaksOpen} onClose={setTweaksOpen}/>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
+</script>
+</body>
+</html>
