@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="utf-8">
+  <title>ווירפריים — אחד משלנו</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <template id="__bundler_thumbnail" data-bg-color="#1b3f6e">
+    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1200" height="800" fill="#1b3f6e"/>
+      <!-- Promo banner -->
+      <rect x="0" y="0" width="1200" height="48" fill="#f9e44a"/>
+      <!-- Navbar -->
+      <rect x="0" y="48" width="1200" height="52" fill="#1b3f6e"/>
+      <!-- Ribbon logo -->
+      <circle cx="80" cy="74" r="14" fill="#f9e44a"/>
+      <line x1="73" y1="86" x2="68" y2="100" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      <line x1="87" y1="86" x2="92" y2="100" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      <!-- Logo text lines -->
+      <rect x="102" y="66" width="90" height="8" rx="4" fill="#f9e44a" opacity="0.9"/>
+      <rect x="102" y="80" width="70" height="6" rx="3" fill="#b8d0ee" opacity="0.7"/>
+      <!-- Yellow border -->
+      <rect x="0" y="100" width="1200" height="4" fill="#f9e44a"/>
+      <!-- Category bar -->
+      <rect x="0" y="104" width="1200" height="36" fill="#162f55"/>
+      <!-- Hero -->
+      <rect x="0" y="140" width="1200" height="120" fill="#1b3f6e"/>
+      <rect x="300" y="158" width="600" height="22" rx="4" fill="#f9e44a" opacity="0.8"/>
+      <rect x="200" y="195" width="800" height="36" rx="4" fill="#fff" opacity="0.15"/>
+      <!-- Search bar -->
+      <rect x="200" y="195" width="620" height="36" rx="4" fill="#fff" opacity="0.9"/>
+      <rect x="820" y="195" width="160" height="36" rx="4" fill="#f9e44a"/>
+      <!-- Category icons row -->
+      <rect x="0" y="260" width="1200" height="80" fill="#fff"/>
+      {[0,1,2,3,4,5,6,7,8,9].map((i)=> null)}
+      <rect x="20"  y="272" width="96" height="56" rx="3" fill="#eef3fb" stroke="#ccc" stroke-width="1.5"/>
+      <rect x="128" y="272" width="96" height="56" rx="3" fill="#eef3fb" stroke="#ccc" stroke-width="1.5"/>
+      <rect x="236" y="272" width="96" height="56" rx="3" fill="#eef3fb" stroke="#ccc" stroke-width="1.5"/>
+      <rect x="344" y="272" width="96" height="56" rx="3" fill="#eef3fb" stroke="#ccc" stroke-width="1.5"/>
+      <rect x="452" y="272" width="96" height="56" rx="3" fill="#eef3fb" stroke="#ccc" stroke-width="1.5"/>
+      <rect x="560" y="272" width="96" height="56" rx="3" fill="#eef3fb" stroke="#ccc" stroke-width="1.5"/>
+      <!-- Carousel section -->
+      <rect x="0" y="340" width="1200" height="160" fill="#f5f8ff"/>
+      <rect x="20" y="355" width="180" height="130" rx="3" fill="#fff" stroke="#2a2a2a" stroke-width="1.5"/>
+      <rect x="210" y="355" width="180" height="130" rx="3" fill="#fff" stroke="#2a2a2a" stroke-width="1.5"/>
+      <rect x="400" y="355" width="180" height="130" rx="3" fill="#fff" stroke="#2a2a2a" stroke-width="1.5"/>
+      <rect x="590" y="355" width="180" height="130" rx="3" fill="#fff" stroke="#2a2a2a" stroke-width="1.5"/>
+      <!-- Bottom sections -->
+      <rect x="0" y="500" width="400" height="100" fill="#162f55"/>
+      <rect x="400" y="500" width="400" height="100" fill="#fff"/>
+      <rect x="800" y="500" width="400" height="100" fill="#f0f4fa"/>
+      <!-- Footer -->
+      <rect x="0" y="600" width="1200" height="60" fill="#1b3f6e"/>
+      <rect x="0" y="600" width="1200" height="3" fill="#f9e44a"/>
+    </svg>
+  </template>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #ece8e1; font-family: 'Caveat', cursive; direction: rtl; }
+
+    .sk-box   { border: 2px solid #2a2a2a; background: #fff; position: relative; }
+    .sk-fill  { background: #e2e2e2; border-color: #aaa; }
+    .sk-blue  { background: #d4e4f7; border-color: #3a6fa8; }
+    .sk-navy  { background: #1b3f6e; }
+    .sk-yellow{ background: #f9e44a; border-color: #c0a000; }
+    .sk-gray  { background: #f0f0f0; border-color: #bbb; }
+    .sk-dashed{ border-style: dashed !important; }
+    .sk-green { background: #e3f5e8; border-color: #3a9a5c; }
+
+    .sk-label { font-family:'Caveat',cursive; font-size:11px; color:#e05a00;
+                letter-spacing:.4px; position:absolute; top:-18px; right:0; white-space:nowrap; }
+
+    .sk-line  { height:2px; background:#c8c8c8; border-radius:1px; }
+    .sk-btn   { display:inline-flex; align-items:center; justify-content:center;
+                border:2px solid #2a2a2a; padding:5px 14px; font-family:'Caveat',cursive;
+                font-size:15px; cursor:pointer; border-radius:3px; white-space:nowrap; }
+    .sk-btn-primary { background:#1b3f6e; color:#fff; border-color:#1b3f6e; }
+    .sk-btn-yellow  { background:#f9e44a; color:#2a2a2a; border-color:#c0a000; }
+    .sk-btn-outline { background:#fff; color:#2a2a2a; }
+    .sk-btn-green   { background:#2e8b57; color:#fff; border-color:#1e6b3a; }
+
+    .img-ph { background:#e0dbd4; border:2px dashed #aaa; display:flex; align-items:center;
+              justify-content:center; color:#888; font-family:'Caveat',cursive; font-size:13px;
+              overflow:hidden; position:relative; }
+    .img-ph::before,.img-ph::after { content:''; position:absolute; width:140%; height:2px;
+              background:#bbb; left:-20%; }
+    .img-ph::before { transform:rotate(17deg); }
+    .img-ph::after  { transform:rotate(-17deg); }
+    .img-ph span    { position:relative; z-index:1; background:#e0dbd4; padding:1px 6px; border-radius:2px; }
+
+    .note { font-family:'Caveat',cursive; font-size:11.5px; color:#e05a00;
+            border-right:2px solid #e05a00; padding-right:5px; margin-top:4px; }
+    .tag  { display:inline-flex; align-items:center; border:1.5px solid #aaa; border-radius:12px;
+            padding:2px 9px; font-family:'Caveat',cursive; font-size:12px; background:#fff; color:#444; }
+    .tag-blue { border-color:#3a6fa8; background:#d4e4f7; color:#1b3f6e; }
+
+    .screen-shell { background:#fff; border:3px solid #2a2a2a; border-radius:6px;
+                    overflow:hidden; box-shadow:5px 5px 0 #2a2a2a; max-width:980px; margin:0 auto; }
+    .browser-bar  { background:#e8e4df; border-bottom:2px solid #2a2a2a; padding:7px 12px;
+                    display:flex; align-items:center; gap:8px; }
+    .screen-scroll{ height:640px; overflow-y:auto; overflow-x:hidden; }
+    .section-sep  { border-bottom:2px dashed #d8d8d8; }
+
+    .tab-bar { background:#1a1a1a; padding:10px 20px; display:flex; align-items:center;
+               justify-content:space-between; position:sticky; top:0; z-index:200; }
+    .tab-btn  { font-family:'Caveat',cursive; font-size:14px; padding:5px 13px; cursor:pointer;
+                border:2px solid; border-radius:3px; transition:all .15s; }
+    .tab-btn.active   { background:#f9e44a; color:#1a1a1a; border-color:#c0a000; }
+    .tab-btn.inactive { background:transparent; color:#aaa; border-color:#555; }
+
+    .screen-scroll::-webkit-scrollbar       { width:6px; }
+    .screen-scroll::-webkit-scrollbar-thumb { background:#bbb; border-radius:3px; }
+  </style>
+</head>
+<body>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ── primitives ── */
+function Lines({ n=3, last=60, style={} }) {
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:5, ...style }}>
+      {Array.from({length:n}).map((_,i)=>(
+        <div key={i} className="sk-line" style={{ width: i===n-1 ? `${last}%` : '100%' }} />
+      ))}
+    </div>
+  );
+}
+function ImgPh({ w, h, text='📷', style={} }) {
+  return (
+    <div className="img-ph" style={{ width:w, height:h, flexShrink:0, ...style }}>
+      <span>{text}</span>
+    </div>
+  );
+}
+function Logo({ small }) {
+  const s = small ? .85 : 1;
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap:7*s, direction:'rtl' }}>
+      <svg width={26*s} height={26*s} viewBox="0 0 26 26" fill="none">
+        <circle cx="13" cy="10" r="7" fill="#f9e44a" stroke="#2a2a2a" strokeWidth="2.2"/>
+        <line x1="9.5"  y1="16" x2="7"  y2="24" stroke="#2a2a2a" strokeWidth="2.2" strokeLinecap="round"/>
+        <line x1="16.5" y1="16" x2="19" y2="24" stroke="#2a2a2a" strokeWidth="2.2" strokeLinecap="round"/>
+      </svg>
+      <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:14*s, lineHeight:1.15 }}>
+        <div style={{ color:'#f9e44a' }}>אחד משלנו</div>
+        <div style={{ color:'#cde', fontSize:11*s, fontWeight:400 }}>פורטל עסקי לקהילת השווים</div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Promo banner ticker ── */
+function PromoBanner() {
+  const items = [
+    '🆕 הצטרפו 12 עסקים חדשים החודש!',
+    '🏷️ מבצע שבוע הספר — 20% הנחה על ספרים ותוכן',
+    '🤝 חברות חדשה: קייטרינג "טעמים מהבית" — ת"א',
+    '⭐ מוצר מומלץ: הדרכות מקצועיות לארגונים',
+    '🎉 500+ עסקים רשומים — הצטרפו גם אתם!',
+  ];
+  const [idx, setIdx] = useState(0);
+  useEffect(()=>{
+    const t = setInterval(()=> setIdx(p=>(p+1)%items.length), 2800);
+    return ()=>clearInterval(t);
+  },[]);
+  return (
+    <div style={{ background:'#f9e44a', borderBottom:'2px solid #c0a000', padding:'7px 16px',
+                  display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
+      <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:15, color:'#2a2a2a', flex:1 }}>
+        {items[idx]}
+      </div>
+      <div style={{ display:'flex', gap:4 }}>
+        {items.map((_,i)=>(
+          <div key={i} onClick={()=>setIdx(i)} style={{
+            width:8, height:8, borderRadius:'50%', cursor:'pointer',
+            background: i===idx ? '#1b3f6e' : '#c0a000', border:'1px solid #c0a000'
+          }}/>
+        ))}
+      </div>
+      <button className="sk-btn sk-btn-primary" style={{ fontSize:12, padding:'3px 12px' }}>לכל המבצעים</button>
+      <div className="note" style={{ position:'absolute', top:-16, right:0 }}>באנר פרומו מתחלף</div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
+   SCREEN A — דף הבית
+══════════════════════════════════════ */
+function ScreenHome() {
+  const [catOpen, setCatOpen] = useState(false);
+
+  const cats = [
+    {icon:'🔧',label:'בית ותשתיות'},
+    {icon:'⚖️',label:'משפט ופיננסים'},
+    {icon:'📚',label:'ספרים וחינוך'},
+    {icon:'🍽️',label:'מזון ואירועים'},
+    {icon:'💻',label:'טכנולוגיה'},
+    {icon:'🎨',label:'עיצוב ויצירה'},
+    {icon:'🏋️',label:'בריאות וספורט'},
+    {icon:'✂️',label:'יופי וטיפוח'},
+    {icon:'🧒',label:'ילדים ומשפחה'},
+    {icon:'⋯',label:'עוד קטגוריות'},
+  ];
+
+  return (
+    <div>
+      {/* 1 ── PROMO BANNER */}
+      <div style={{ position:'relative' }}>
+        <PromoBanner />
+      </div>
+
+      {/* 2 ── NAVBAR */}
+      <div style={{ background:'#1b3f6e', padding:'10px 16px', display:'flex', alignItems:'center',
+                    gap:12, borderBottom:'3px solid #f9e44a' }}>
+        <Logo />
+        <div style={{ flex:1 }} />
+        <div style={{ display:'flex', gap:6 }}>
+          <button className="sk-btn" style={{ height:32, background:'transparent', color:'#fff',
+                  borderColor:'rgba(255,255,255,0.4)', fontSize:13 }}>כניסה</button>
+          <button className="sk-btn sk-btn-yellow" style={{ height:32, fontSize:13 }}>הרשמה חינם</button>
+        </div>
+      </div>
+
+      {/* 3 ── CATEGORY MEGAMENU BAR */}
+      <div style={{ background:'#162f55', borderBottom:'2px solid #2a547a', padding:'0 14px',
+                    display:'flex', alignItems:'center', overflowX:'auto' }}>
+        <button onClick={()=>setCatOpen(!catOpen)} style={{
+          fontFamily:'Caveat', fontSize:14, color:'#fff', padding:'8px 14px', cursor:'pointer',
+          background: catOpen?'#2a547a':'transparent', border:'none',
+          display:'flex', alignItems:'center', gap:5, borderLeft:'1px solid #2a547a',
+        }}>☰ כל הקטגוריות</button>
+        {cats.slice(0,7).map(c=>(
+          <span key={c.label} style={{ fontFamily:'Caveat', fontSize:14, color:'#b8d0ee',
+                padding:'8px 13px', cursor:'pointer', borderLeft:'1px solid #2a547a',
+                whiteSpace:'nowrap' }}>{c.label}</span>
+        ))}
+      </div>
+
+      {catOpen && (
+        <div className="sk-box sk-blue" style={{ zIndex:40, padding:14, borderTop:'none', position:'relative' }}>
+          <div className="note" style={{ marginBottom:8 }}>Progressive disclosure — כל הקטגוריות</div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:8 }}>
+            {cats.map(c=>(
+              <div key={c.label} className="sk-box" style={{ padding:'8px 6px', textAlign:'center', cursor:'pointer' }}>
+                <div style={{ fontSize:22 }}>{c.icon}</div>
+                <div style={{ fontFamily:'Caveat', fontSize:13 }}>{c.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 4 ── HERO + SEARCH */}
+      <div style={{ background:'#1b3f6e', padding:'26px 20px 22px', textAlign:'center' }} className="section-sep">
+        <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:28, color:'#f9e44a', marginBottom:4 }}>
+          מצא עסקים ושירותים מקהילת השווים
+        </div>
+        <div style={{ fontFamily:'Caveat', fontSize:15, color:'#b8d0ee', marginBottom:18 }}>
+          כל רכישה מחזקת משפחה ועסק
+        </div>
+        {/* Search bar */}
+        <div style={{ display:'flex', maxWidth:620, margin:'0 auto', height:50 }}>
+          <div className="sk-box" style={{ flex:1, display:'flex', alignItems:'center', padding:'0 14px',
+                background:'#fff', borderRadius:'0 6px 6px 0', color:'#aaa', fontSize:15 }}>
+            🔍 שם עסק, מוצר, שירות...
+          </div>
+          <div className="sk-box" style={{ width:155, display:'flex', alignItems:'center',
+                padding:'0 10px', background:'#fff', borderLeft:'2px solid #2a2a2a', color:'#777', fontSize:13 }}>
+            📍 כל הארץ ▾
+          </div>
+          <button className="sk-btn sk-btn-yellow" style={{ height:'100%', borderRadius:'6px 0 0 6px',
+                  fontSize:17, padding:'0 22px' }}>חפש</button>
+        </div>
+        {/* Quick tags */}
+        <div style={{ display:'flex', gap:6, justifyContent:'center', marginTop:11, flexWrap:'wrap' }}>
+          {['חשמלאי','עורך דין','קייטרינג','ספרים','הדרכות','עיצוב'].map(t=>(
+            <span key={t} className="tag" style={{ cursor:'pointer', background:'rgba(255,255,255,.1)',
+                  borderColor:'rgba(255,255,255,.3)', color:'#fff', fontSize:13 }}>{t}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* 5 ── QUICK CATEGORY ICONS */}
+      <div style={{ background:'#fff', padding:'16px 14px' }} className="section-sep">
+        <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:18, color:'#1b3f6e', marginBottom:12 }}>
+          עיין לפי קטגוריה
+        </div>
+        <div style={{ display:'flex', gap:8, overflowX:'auto', paddingBottom:4 }}>
+          {cats.map(c=>(
+            <div key={c.label} className="sk-box" style={{ minWidth:82, padding:'10px 6px',
+                  textAlign:'center', cursor:'pointer', flexShrink:0 }}>
+              <ImgPh w={58} h={44} text={c.icon} style={{ border:'none', background:'#eef3fb',
+                    margin:'0 auto 6px', borderRadius:4 }} />
+              <div style={{ fontFamily:'Caveat', fontSize:12, lineHeight:1.2 }}>{c.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 6 ── SEASONAL STRIP */}
+      <div style={{ background:'#fffbe5', borderTop:'2px solid #f9e44a', borderBottom:'2px solid #f9e44a',
+                    padding:'10px 14px', display:'flex', alignItems:'center', gap:12, position:'relative' }}>
+        <div className="note" style={{ position:'absolute', top:-16, right:4 }}>פס עונתי — מתחלף לפי לוח שנה / חג</div>
+        <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:16, color:'#7a5c00', flexShrink:0 }}>
+          🍷 לקראת פסח
+        </div>
+        <div style={{ display:'flex', gap:8, overflowX:'auto', flex:1 }}>
+          {['קייטרינג חגיגי','מוצרי מזון כשרים','הגדות ותוכן','עיצוב שולחן'].map(t=>(
+            <span key={t} className="sk-box sk-yellow" style={{ padding:'4px 12px', fontFamily:'Caveat',
+                  fontSize:13, whiteSpace:'nowrap', cursor:'pointer', borderRadius:3 }}>{t}</span>
+          ))}
+        </div>
+        <span style={{ fontFamily:'Caveat', fontSize:13, color:'#3a6fa8', cursor:'pointer',
+              textDecoration:'underline', flexShrink:0 }}>ראה הכל ←</span>
+      </div>
+
+      {/* 7 ── CAROUSEL: עסקים חדשים */}
+      <div style={{ background:'#fff', padding:'16px 14px' }} className="section-sep">
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+          <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:18, color:'#1b3f6e' }}>
+            🆕 עסקים חדשים בפורטל
+          </div>
+          <span style={{ fontFamily:'Caveat', fontSize:14, color:'#3a6fa8', cursor:'pointer',
+                textDecoration:'underline' }}>ראה הכל ←</span>
+        </div>
+        <div style={{ display:'flex', gap:10, overflowX:'auto', paddingBottom:6 }}>
+          {[1,2,3,4,5].map(i=><BusinessCard key={i} idx={i} />)}
+          <NavArrows />
+        </div>
+      </div>
+
+      {/* 8 ── CAROUSEL: פרופילים אישיים */}
+      <div style={{ background:'#f5f8ff', padding:'16px 14px' }} className="section-sep">
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+          <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:18, color:'#1b3f6e' }}>
+            👤 פרופילים אישיים
+          </div>
+          <span style={{ fontFamily:'Caveat', fontSize:14, color:'#3a6fa8', cursor:'pointer',
+                textDecoration:'underline' }}>ראה הכל ←</span>
+        </div>
+        <div className="note" style={{ marginBottom:10 }}>
+          בני המשפחה — חלק חזרו הביתה וחלק לא. הפורטל מכנה אותם "קהילת השווים"
+        </div>
+        <div style={{ display:'flex', gap:10, overflowX:'auto', paddingBottom:6 }}>
+          {[6,7,8,9,10].map(i=><PersonalCard key={i} idx={i} />)}
+          <NavArrows />
+        </div>
+      </div>
+
+      {/* 9 ── HOLISTIC SOLUTIONS */}
+      <div style={{ background:'#162f55', padding:'20px 16px' }} className="section-sep">
+        <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:20, color:'#f9e44a', marginBottom:6 }}>
+          🏢 פתרונות הוליסטיים לעסקים וארגונים
+        </div>
+        <div style={{ fontFamily:'Caveat', fontSize:14, color:'#b8d0ee', marginBottom:14 }}>
+          חבילות מותאמות לועדי עובדים, מחלקות HR ורכש ארגוני
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
+          {[
+            {icon:'🎁', title:'מתנות לחגים', sub:'מארזים, ספרים, גיפט קארד'},
+            {icon:'📋', title:'הדרכות לצוותים', sub:'סדנאות, הרצאות, ייעוץ'},
+            {icon:'🛒', title:'רכש ארגוני', sub:'חוזה עסקי, חשבונית, מכסה'},
+          ].map(c=>(
+            <div key={c.title} className="sk-box sk-blue" style={{ padding:12 }}>
+              <div style={{ fontSize:24, marginBottom:5 }}>{c.icon}</div>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:16, marginBottom:3 }}>{c.title}</div>
+              <div style={{ fontFamily:'Caveat', fontSize:13, color:'#555' }}>{c.sub}</div>
+              <button className="sk-btn sk-btn-primary" style={{ marginTop:10, fontSize:12, padding:'4px 12px' }}>
+                לפרטים
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 10 ── QUALITY SEAL */}
+      <div style={{ background:'#fff', padding:'18px 16px', textAlign:'center' }} className="section-sep">
+        <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:20, color:'#1b3f6e', marginBottom:10 }}>
+          🏅 חותם איכות וסולידריות
+        </div>
+        <div style={{ display:'flex', justifyContent:'center', gap:20, flexWrap:'wrap', marginBottom:12 }}>
+          {[
+            {icon:'✅', label:'עסקים מאומתים'},
+            {icon:'🔍', label:'ביקורות אמיתיות'},
+            {icon:'🤝', label:'הסכם סולידריות'},
+            {icon:'🛡️', label:'הגנת רוכש'},
+          ].map(s=>(
+            <div key={s.label} className="sk-box sk-green" style={{ padding:'12px 18px',
+                  display:'flex', flexDirection:'column', alignItems:'center', gap:5, minWidth:110 }}>
+              <div style={{ fontSize:26 }}>{s.icon}</div>
+              <div style={{ fontFamily:'Caveat', fontSize:14, fontWeight:700 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+        <div className="note" style={{ display:'inline-block' }}>
+          כל עסק מקבל חותם לאחר אימות — מוצג על הכרטיסייה
+        </div>
+      </div>
+
+      {/* 11 ── LEAD FORM */}
+      <div style={{ background:'#f0f4fa', padding:'20px 16px', borderTop:'2px dashed #c0cce0' }}>
+        <div style={{ maxWidth:480, margin:'0 auto' }}>
+          <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:20, color:'#1b3f6e', marginBottom:4, textAlign:'center' }}>
+            📬 צור קשר / השאר פרטים
+          </div>
+          <div style={{ fontFamily:'Caveat', fontSize:14, color:'#666', marginBottom:14, textAlign:'center' }}>
+            רוצה להצטרף? שאלה? נחזור אליך
+          </div>
+          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+            {[{ph:'שם מלא',w:'100%'},{ph:'טלפון',w:'100%'},{ph:'דוא"ל',w:'100%'}].map(f=>(
+              <div key={f.ph} className="sk-box" style={{ height:40, display:'flex', alignItems:'center',
+                    padding:'0 12px', borderRadius:4, color:'#aaa', fontFamily:'Caveat', fontSize:14,
+                    width:f.w }}>{f.ph}</div>
+            ))}
+            <div className="sk-box" style={{ height:72, padding:'8px 12px', borderRadius:4, color:'#aaa',
+                  fontFamily:'Caveat', fontSize:14 }}>הודעה (אופציונלי)</div>
+            <button className="sk-btn sk-btn-primary" style={{ height:42, fontSize:16, borderRadius:4 }}>
+              שלח ←
+            </button>
+          </div>
+          <div className="note" style={{ marginTop:8, textAlign:'center' }}>טופס לידים פשוט — מספיק לשלב זה</div>
+        </div>
+      </div>
+
+      {/* 12 ── FOOTER */}
+      <div style={{ background:'#1b3f6e', padding:'18px 18px 12px', borderTop:'3px solid #f9e44a' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:14 }}>
+          <Logo />
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'4px 22px' }}>
+            {['אודות','צור קשר','נגישות','תנאי שימוש','פרטיות','הצטרף אלינו'].map(l=>(
+              <span key={l} style={{ fontFamily:'Caveat', fontSize:13, color:'#9bb', cursor:'pointer' }}>{l}</span>
+            ))}
+          </div>
+        </div>
+        <div style={{ borderTop:'1px solid #2a547a', paddingTop:8, fontFamily:'Caveat', fontSize:12,
+              color:'#678', textAlign:'center' }}>
+          © 2024 אחד משלנו — פורטל עסקי לקהילת השווים
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NavArrows() {
+  return (
+    <div style={{ display:'flex', flexDirection:'column', justifyContent:'center', gap:5, flexShrink:0 }}>
+      <div className="sk-box" style={{ width:30,height:30,display:'flex',alignItems:'center',
+            justifyContent:'center',cursor:'pointer',fontWeight:700,fontSize:18 }}>›</div>
+      <div className="sk-box" style={{ width:30,height:30,display:'flex',alignItems:'center',
+            justifyContent:'center',cursor:'pointer',fontWeight:700,fontSize:18 }}>‹</div>
+    </div>
+  );
+}
+
+/* ── Business Card ── */
+function BusinessCard({ idx }) {
+  const types = ['חשמלאי','עורך דין','קייטרינג','מעצב','מוצרי ספר'];
+  return (
+    <div className="sk-box" style={{ minWidth:165, padding:10, flexShrink:0 }}>
+      <ImgPh w="100%" h={80} text="לוגו עסק" style={{ borderRadius:4 }} />
+      <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:15, marginTop:8 }}>שם העסק</div>
+      <div style={{ display:'flex', gap:3, margin:'4px 0 6px', flexWrap:'wrap' }}>
+        <span className="tag tag-blue" style={{ fontSize:11 }}>{types[idx%types.length]}</span>
+        <span className="tag" style={{ fontSize:11 }}>📍 מרכז</span>
+        <span className="tag" style={{ fontSize:11, background:'#e3f5e8', borderColor:'#3a9a5c', color:'#1e6b3a' }}>✅ מאומת</span>
+      </div>
+      <Lines n={2} last={55} style={{ marginBottom:8 }} />
+      <div style={{ display:'flex', gap:4 }}>
+        <button className="sk-btn sk-btn-yellow"  style={{ flex:1, fontSize:12, padding:'3px 0' }}>לרכישה</button>
+        <button className="sk-btn sk-btn-outline" style={{ flex:1, fontSize:12, padding:'3px 0' }}>פרטים</button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Personal Profile Card ── */
+function PersonalCard({ idx }) {
+  const kins = ['בן','בת','אח','אחות','דוד','דודה','בן דוד'];
+  return (
+    <div className="sk-box" style={{ minWidth:155, padding:10, flexShrink:0 }}>
+      <ImgPh w="100%" h={85} text="תמונה" style={{ borderRadius:4 }} />
+      <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:15, marginTop:7 }}>שם מלא</div>
+      <div style={{ fontFamily:'Caveat', fontSize:12, color:'#e05a00', marginBottom:4 }}>
+        👤 {kins[idx%kins.length]} של שווה
+      </div>
+      <Lines n={2} last={60} style={{ marginBottom:6 }} />
+      <div style={{ display:'flex', gap:4 }}>
+        <button className="sk-btn sk-btn-primary" style={{ flex:1, fontSize:12, padding:'3px 0' }}>הזמן</button>
+        <button className="sk-btn sk-btn-outline" style={{ flex:1, fontSize:12, padding:'3px 0' }}>פרופיל</button>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
+   SCREEN B — עמוד קטגוריה
+══════════════════════════════════════ */
+function ScreenCategory() {
+  return (
+    <div>
+      <div style={{ background:'#1b3f6e', borderBottom:'3px solid #f9e44a', padding:'8px 14px',
+                    display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <Logo small />
+        <div style={{ display:'flex', flex:1, maxWidth:360, margin:'0 14px' }}>
+          <div className="sk-box" style={{ flex:1, height:34, display:'flex', alignItems:'center',
+                padding:'0 10px', background:'#fff', borderRadius:'0 4px 4px 0', color:'#aaa', fontSize:13 }}>
+            🔍 חיפוש...
+          </div>
+          <button className="sk-btn sk-btn-yellow" style={{ height:34, fontSize:13, borderRadius:'4px 0 0 4px' }}>חפש</button>
+        </div>
+        <div style={{ display:'flex', gap:6 }}>
+          <button className="sk-btn" style={{ height:30, background:'transparent', color:'#fff',
+                  borderColor:'rgba(255,255,255,.4)', fontSize:12 }}>כניסה</button>
+          <button className="sk-btn sk-btn-yellow" style={{ height:30, fontSize:12 }}>הרשמה</button>
+        </div>
+      </div>
+
+      <div style={{ background:'#f0f4fa', padding:'7px 14px', borderBottom:'1.5px solid #dce6f5',
+                    display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div style={{ fontFamily:'Caveat', fontSize:13, color:'#666' }}>
+          דף הבית › <span style={{ color:'#1b3f6e' }}>בית ותשתיות</span> › <strong>חשמלאים</strong>
+        </div>
+        <div style={{ display:'flex', gap:10 }}>
+          <span style={{ fontFamily:'Caveat', fontSize:13, color:'#555' }}>📍 כל הארץ ▾</span>
+          <span style={{ fontFamily:'Caveat', fontSize:13, color:'#555' }}>מיין ▾</span>
+        </div>
+      </div>
+
+      <div style={{ display:'flex' }}>
+        {/* sidebar */}
+        <div style={{ width:175, flexShrink:0, borderLeft:'2px dashed #ddd', padding:'12px 10px', display:'flex', flexDirection:'column', gap:12 }}>
+          <div className="sk-box sk-blue" style={{ padding:10 }}>
+            <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:15, marginBottom:8 }}>תת-קטגוריות</div>
+            {['חשמלאים ✓','שרברבים','מזגנים','צבעים','עיצוב פנים','גינון'].map((c,i)=>(
+              <div key={c} style={{ fontFamily:'Caveat', fontSize:13, padding:'4px 0', cursor:'pointer',
+                    color: i===0?'#1b3f6e':'#555', fontWeight: i===0?700:400,
+                    borderBottom:'1px dashed #c6d6ee' }}>{c}</div>
+            ))}
+          </div>
+          <div className="sk-box" style={{ padding:10 }}>
+            <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:15, marginBottom:8 }}>אזור</div>
+            {['כל הארץ ✓','צפון','מרכז','ירושלים','דרום','שרון'].map((a,i)=>(
+              <div key={a} style={{ fontFamily:'Caveat', fontSize:13, display:'flex', gap:5,
+                    alignItems:'center', padding:'3px 0', cursor:'pointer' }}>
+                <div style={{ width:12,height:12, border: i===0?'none':'1.5px solid #888',
+                      borderRadius:2, background: i===0?'#1b3f6e':'#fff', flexShrink:0 }} />
+                <span style={{ color: i===0?'#1b3f6e':'#555', fontWeight: i===0?700:400 }}>{a}</span>
+              </div>
+            ))}
+          </div>
+          <div className="sk-box sk-gray" style={{ padding:10 }}>
+            <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:14, marginBottom:6 }}>מיון</div>
+            {['רלבנטי','חדש','מאומת'].map((s,i)=>(
+              <div key={s} style={{ fontFamily:'Caveat', fontSize:13, display:'flex', gap:5,
+                    alignItems:'center', padding:'3px 0' }}>
+                <div style={{ width:12,height:12, borderRadius:'50%',
+                      border:'1.5px solid #888', background: i===0?'#1b3f6e':'#fff', flexShrink:0 }} />
+                <span>{s}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* grid */}
+        <div style={{ flex:1, padding:'12px 12px' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
+            <div style={{ fontFamily:'Caveat', fontSize:14, color:'#888' }}>
+              נמצאו <strong>24</strong> עסקים ונותני שירות
+            </div>
+            <div style={{ display:'flex', gap:5 }}>
+              <span className="tag tag-blue" style={{ fontSize:12, cursor:'pointer' }}>רשת</span>
+              <span className="tag" style={{ fontSize:12, cursor:'pointer' }}>רשימה</span>
+            </div>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
+            {[1,2,3,4,5,6].map(i=>(
+              <div key={i} className="sk-box" style={{ padding:10 }}>
+                <ImgPh w="100%" h={95} text="📷" />
+                <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:15, marginTop:8 }}>שם עסק / נותן שירות</div>
+                <div style={{ fontFamily:'Caveat', fontSize:12, color:'#e05a00', marginBottom:4 }}>
+                  👤 {i%2===0 ? 'עסק משפחתי' : 'פרופיל אישי'} — קהילת השווים
+                </div>
+                <Lines n={2} last={60} style={{ margin:'4px 0 6px' }} />
+                <div style={{ display:'flex', gap:3, flexWrap:'wrap', marginBottom:8 }}>
+                  <span className="tag tag-blue" style={{ fontSize:11 }}>⚡ חשמלאי</span>
+                  <span className="tag" style={{ fontSize:11 }}>📍 מרכז</span>
+                  <span className="tag" style={{ fontSize:11, background:'#e3f5e8', borderColor:'#3a9a5c', color:'#1e6b3a' }}>✅</span>
+                </div>
+                <div style={{ display:'flex', gap:5 }}>
+                  <button className="sk-btn sk-btn-primary" style={{ flex:1, fontSize:12, padding:'4px 0' }}>הזמן</button>
+                  <button className="sk-btn sk-btn-outline" style={{ flex:1, fontSize:12, padding:'4px 0' }}>פרופיל</button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display:'flex', justifyContent:'center', gap:5, marginTop:14 }}>
+            {[1,2,3,'...',8].map((p,i)=>(
+              <div key={i} className="sk-box" style={{ width:30,height:30,display:'flex',
+                    alignItems:'center',justifyContent:'center', fontFamily:'Caveat', fontSize:14,
+                    cursor:'pointer', background: p===1?'#1b3f6e':'#fff', color: p===1?'#fff':'#333' }}>{p}</div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
+   SERVICES SECTION — מורחב
+══════════════════════════════════════ */
+function ServiceRow({ item }) {
+  const [open, setOpen] = useState(false);
+  const isProduct = item.type === 'product';
+  return (
+    <div className="sk-box" style={{ marginBottom:10, overflow:'hidden' }}>
+      {/* ── Row header ── */}
+      <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px',
+                    background: open ? '#f0f6ff' : '#fff', cursor:'pointer' }}
+           onClick={()=>setOpen(o=>!o)}>
+        {/* Type badge */}
+        <div style={{ fontFamily:'Caveat', fontSize:11, padding:'2px 8px', borderRadius:10,
+                      background: isProduct ? '#e3f5e8' : '#d4e4f7',
+                      border: `1.5px solid ${isProduct ? '#3a9a5c' : '#3a6fa8'}`,
+                      color: isProduct ? '#1e6b3a' : '#1b3f6e', flexShrink:0 }}>
+          {isProduct ? '📦 מוצר' : '🔧 שירות'}
+        </div>
+        {/* Name */}
+        <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:15, flex:1 }}>{item.name}</div>
+        {/* Delivery badges */}
+        <div style={{ display:'flex', gap:4, flexWrap:'wrap' }}>
+          {item.online && (
+            <span className="tag" style={{ fontSize:11, background:'#eef3fb', borderColor:'#3a6fa8', color:'#1b3f6e' }}>
+              🌐 מקוון
+            </span>
+          )}
+          {item.offline && (
+            <span className="tag" style={{ fontSize:11, background:'#f5f0ff', borderColor:'#7c5cbf', color:'#5a3d9e' }}>
+              🏠 פיזי
+            </span>
+          )}
+          {item.shipping && (
+            <span className="tag" style={{ fontSize:11, background:'#fff8e6', borderColor:'#c0a000', color:'#7a5c00' }}>
+              🚚 משלוח
+            </span>
+          )}
+          {item.areas && (
+            <span className="tag" style={{ fontSize:11 }}>📍 {item.areas}</span>
+          )}
+        </div>
+        {/* Price */}
+        {item.price && (
+          <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:15, color:'#1b3f6e', flexShrink:0 }}>
+            {item.price}
+          </div>
+        )}
+        {/* CTA */}
+        <button className="sk-btn sk-btn-yellow" style={{ fontSize:12, padding:'4px 12px', flexShrink:0 }}
+                onClick={e=>{ e.stopPropagation(); }}>
+          {isProduct ? 'לרכישה' : 'הזמן'}
+        </button>
+        {/* Expand toggle */}
+        <div style={{ fontFamily:'Caveat', fontSize:16, color:'#aaa', flexShrink:0 }}>{open ? '▲' : '▼'}</div>
+      </div>
+
+      {/* ── Expanded details ── */}
+      {open && (
+        <div style={{ background:'#fafcff', borderTop:'1.5px dashed #d0dcf0', padding:'12px 14px' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10, marginBottom:10 }}>
+
+            {/* Delivery method */}
+            <div className="sk-box sk-gray" style={{ padding:10 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#1b3f6e', marginBottom:6 }}>
+                🚀 אופן אספקה
+              </div>
+              {item.online && (
+                <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>
+                  🌐 <strong>מקוון</strong> — זום / וידאו / דיגיטלי
+                </div>
+              )}
+              {item.offline && (
+                <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>
+                  🏠 <strong>פיזי</strong> — {item.areas || 'לפי אזור'}
+                </div>
+              )}
+              {item.shipping && (
+                <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>
+                  🚚 <strong>משלוח</strong> — {item.shippingDetails || 'כל הארץ'}
+                </div>
+              )}
+              {isProduct && (
+                <div style={{ fontFamily:'Caveat', fontSize:12, color:'#888', marginTop:4 }}>
+                  מלאי: <strong style={{ color:'#2e8b57' }}>{item.stock || 'זמין'}</strong>
+                </div>
+              )}
+            </div>
+
+            {/* Areas / Availability */}
+            <div className="sk-box sk-gray" style={{ padding:10 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#1b3f6e', marginBottom:6 }}>
+                📍 אזורי פעילות / זמינות
+              </div>
+              {isProduct ? (
+                <>
+                  <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>🗺️ משלוח: כל הארץ</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>⏱️ זמן אספקה: 3-5 ימי עסקים</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:12 }}>📦 אריזה: בטוחה + ממותגת</div>
+                </>
+              ) : (
+                <>
+                  {(item.areas || 'מרכז, שרון').split(',').map(a=>(
+                    <div key={a} style={{ fontFamily:'Caveat', fontSize:12, marginBottom:2 }}>📌 {a.trim()}</div>
+                  ))}
+                  <div style={{ fontFamily:'Caveat', fontSize:12, color:'#888', marginTop:4 }}>
+                    💬 ניתן לתאם גם מרחוק
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Pricing & booking */}
+            <div className="sk-box sk-gray" style={{ padding:10 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#1b3f6e', marginBottom:6 }}>
+                💳 מחיר ותנאים
+              </div>
+              <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>
+                💰 מחיר: <strong>{item.price || 'לפי הצעה'}</strong>
+              </div>
+              {!isProduct && (
+                <>
+                  <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>⏰ זמן ביצוע: {item.duration || 'לפי היקף'}</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>📅 זמינות: {item.availability || 'ראה לוח זמנים'}</div>
+                </>
+              )}
+              {isProduct && (
+                <>
+                  <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>🔄 החזרות: {item.returns || '14 יום'}</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>🛡️ אחריות: {item.warranty || 'שנה'}</div>
+                </>
+              )}
+              <div style={{ fontFamily:'Caveat', fontSize:12 }}>💵 תשלום: {item.payment || 'כרטיס / העברה'}</div>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div style={{ background:'#fff', border:'1.5px solid #dce6f5', borderRadius:4, padding:'8px 12px', marginBottom:8 }}>
+            <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#333', marginBottom:5 }}>
+              📝 תיאור מפורט
+            </div>
+            <Lines n={3} last={70} />
+          </div>
+
+          {/* Product-only: variants */}
+          {isProduct && (
+            <div style={{ background:'#fff8e6', border:'1.5px dashed #c0a000', borderRadius:4, padding:'8px 12px', marginBottom:8 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#7a5c00', marginBottom:5 }}>
+                🎛️ משתנים / גרסאות מוצר
+              </div>
+              <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                {(item.variants || ['צבע','גודל','כמות']).map(v=>(
+                  <div key={v} style={{ display:'flex', flexDirection:'column', gap:3 }}>
+                    <div style={{ fontFamily:'Caveat', fontSize:11, color:'#888' }}>{v}</div>
+                    <div className="sk-box sk-yellow" style={{ padding:'3px 10px', fontFamily:'Caveat', fontSize:12 }}>
+                      בחר {v} ▾
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="note" style={{ marginTop:6 }}>שדות קבועים למוצרים פיזיים — נבחרים לפני הרכישה</div>
+            </div>
+          )}
+
+          {/* Service-only: online vs offline */}
+          {!isProduct && item.online && item.offline && (
+            <div style={{ background:'#f0f6ff', border:'1.5px dashed #3a6fa8', borderRadius:4, padding:'8px 12px', marginBottom:8 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#1b3f6e', marginBottom:6 }}>
+                🔀 אופציות ביצוע
+              </div>
+              <div style={{ display:'flex', gap:10 }}>
+                <div className="sk-box" style={{ flex:1, padding:'8px 10px', textAlign:'center', background:'#d4e4f7', borderColor:'#3a6fa8' }}>
+                  <div style={{ fontSize:20 }}>🌐</div>
+                  <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13 }}>מקוון</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:11, color:'#555' }}>זום / וידאו</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:11, color:'#1b3f6e', marginTop:3 }}>זמינות: כל הארץ</div>
+                </div>
+                <div className="sk-box" style={{ flex:1, padding:'8px 10px', textAlign:'center', background:'#f0ebff', borderColor:'#7c5cbf' }}>
+                  <div style={{ fontSize:20 }}>🏠</div>
+                  <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13 }}>פיזי / אוף-ליין</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:11, color:'#555' }}>{item.areas || 'מרכז, שרון'}</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:11, color:'#5a3d9e', marginTop:3 }}>נסיעה לבית הלקוח</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* CTA row */}
+          <div style={{ display:'flex', gap:8, justifyContent:'flex-end' }}>
+            <button className="sk-btn sk-btn-outline" style={{ fontSize:13, padding:'6px 16px' }}>
+              💬 שלח הודעה
+            </button>
+            <button className="sk-btn sk-btn-yellow" style={{ fontSize:13, padding:'6px 16px' }}>
+              {isProduct ? '🛒 הוסף לסל' : '📅 קבע תור'}
+            </button>
+            <button className="sk-btn sk-btn-primary" style={{ fontSize:13, padding:'6px 16px' }}>
+              {isProduct ? '⚡ קנה עכשיו' : '📞 התקשר'}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ServicesSection() {
+  const items = [
+    {
+      type:'service', name:'התקנת לוח חשמל',
+      online:false, offline:true, shipping:false,
+      areas:'מרכז, שרון, ירושלים',
+      price:'₪800–1,500', duration:'3-5 שעות',
+      availability:'א׳-ה׳ 8:00–18:00',
+      payment:'כרטיס / מזומן / העברה',
+    },
+    {
+      type:'service', name:'ייעוץ חשמל מקוון',
+      online:true, offline:false, shipping:false,
+      areas:'כל הארץ',
+      price:'₪150 / שעה', duration:'60-90 דקות',
+      availability:'גמיש, לפי תיאום',
+      payment:'כרטיס בלבד',
+    },
+    {
+      type:'service', name:'חיווט דירה מלא',
+      online:true, offline:true, shipping:false,
+      areas:'מרכז, שרון',
+      price:'לפי הצעה', duration:'יום שלם+',
+      availability:'לפי לוח עבודה',
+      payment:'העברה בנקאית',
+    },
+    {
+      type:'product', name:'ערכת כלי עבודה חשמלאי',
+      online:true, offline:true, shipping:true,
+      shippingDetails:'כל הארץ, 3-5 ימים',
+      price:'₪320',
+      stock:'10 יחידות במלאי',
+      returns:'14 יום', warranty:'שנה',
+      payment:'כרטיס / PayBox',
+      variants:['צבע','תוכן הערכה','כמות'],
+    },
+  ];
+
+  const [filter, setFilter] = useState('all');
+  const filters = [
+    {id:'all',     label:'הכל'},
+    {id:'service', label:'🔧 שירותים'},
+    {id:'product', label:'📦 מוצרים'},
+    {id:'online',  label:'🌐 מקוון'},
+    {id:'offline', label:'🏠 פיזי'},
+    {id:'shipping',label:'🚚 משלוח'},
+  ];
+
+  const filtered = items.filter(item => {
+    if (filter==='all')      return true;
+    if (filter==='service')  return item.type==='service';
+    if (filter==='product')  return item.type==='product';
+    if (filter==='online')   return item.online;
+    if (filter==='offline')  return item.offline;
+    if (filter==='shipping') return item.shipping;
+    return true;
+  });
+
+  return (
+    <div className="sk-box" style={{ padding:14, marginBottom:14 }}>
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6 }}>
+        <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:18, color:'#1b3f6e' }}>
+          השירותים והמוצרים שלי
+        </div>
+        <div style={{ fontFamily:'Caveat', fontSize:12, color:'#888' }}>
+          {items.length} פריטים
+        </div>
+      </div>
+      <div className="note" style={{ marginBottom:10 }}>
+        רשימה זו מזינה את כרטיסיית העסק בכל קטגוריה רלבנטית בפורטל
+      </div>
+
+      {/* Filter tabs */}
+      <div style={{ display:'flex', gap:5, flexWrap:'wrap', marginBottom:12 }}>
+        {filters.map(f=>(
+          <button key={f.id} onClick={()=>setFilter(f.id)} style={{
+            fontFamily:'Caveat', fontSize:12, padding:'4px 10px', cursor:'pointer',
+            border:'1.5px solid', borderRadius:14,
+            borderColor: filter===f.id ? '#1b3f6e' : '#bbb',
+            background: filter===f.id ? '#1b3f6e' : '#fff',
+            color: filter===f.id ? '#fff' : '#555',
+          }}>{f.label}</button>
+        ))}
+      </div>
+
+      {/* Items */}
+      {filtered.map((item,i)=>(
+        <ServiceRow key={i} item={item} />
+      ))}
+
+      {/* Add button */}
+      <div style={{ textAlign:'center', marginTop:6 }}>
+        <button className="sk-btn sk-btn-outline" style={{ fontSize:13, padding:'6px 20px', borderStyle:'dashed', color:'#3a6fa8', borderColor:'#3a6fa8' }}>
+          + הוסף שירות / מוצר
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
+   SCREEN C — פרופיל אישי
+══════════════════════════════════════ */
+function ScreenProfile() {
+  return (
+    <div>
+      <div style={{ background:'#1b3f6e', borderBottom:'3px solid #f9e44a', padding:'8px 14px',
+                    display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <Logo small />
+        <div style={{ fontFamily:'Caveat', fontSize:13, color:'#aaa' }}>
+          דף הבית › חשמלאים › <strong style={{ color:'#fff' }}>ישראל לוי</strong>
+        </div>
+      </div>
+
+      <div style={{ maxWidth:720, margin:'0 auto', padding:16 }}>
+        {/* header card */}
+        <div className="sk-box" style={{ padding:16, marginBottom:14, display:'flex', gap:16, alignItems:'flex-start' }}>
+          <ImgPh w={110} h={110} text="📷" style={{ borderRadius:6 }} />
+          <div style={{ flex:1 }}>
+            <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:24 }}>ישראל לוי</div>
+            <div style={{ fontFamily:'Caveat', fontSize:14, color:'#e05a00', margin:'3px 0 8px' }}>
+              👤 {`${`בן`} של שווה — קהילת השווים`}
+            </div>
+            <div style={{ display:'flex', gap:5, flexWrap:'wrap', marginBottom:8 }}>
+              <span className="tag tag-blue">⚡ חשמלאי מוסמך</span>
+              <span className="tag">📍 מרכז</span>
+              <span className="tag" style={{ background:'#e3f5e8', borderColor:'#3a9a5c', color:'#1e6b3a' }}>✅ מאומת</span>
+            </div>
+            <Lines n={3} last={60} />
+          </div>
+          <div style={{ display:'flex', flexDirection:'column', gap:8, minWidth:120, flexShrink:0 }}>
+            <button className="sk-btn sk-btn-yellow"  style={{ width:'100%', fontSize:14, padding:'8px 0' }}>📞 צור קשר</button>
+            <button className="sk-btn sk-btn-primary" style={{ width:'100%', fontSize:14, padding:'8px 0' }}>🛒 הזמן</button>
+          </div>
+        </div>
+
+        {/* ── SERVICES & PRODUCTS ── */}
+        <ServicesSection />
+
+        {/* gallery */}
+        <div className="sk-box" style={{ padding:14, marginBottom:14 }}>
+          <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:18, color:'#1b3f6e', marginBottom:10 }}>
+            גלריית עבודות / מוצרים
+          </div>
+          <div style={{ display:'flex', gap:8 }}>
+            {[1,2,3,4].map(i=>(
+              <ImgPh key={i} w={100} h={80} text={`תמונה ${i}`} />
+            ))}
+          </div>
+        </div>
+
+        {/* story — optional */}
+        <div className="sk-box sk-dashed" style={{ padding:14, marginBottom:14, background:'#fffbe6', borderColor:'#e5c600' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+            <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:18, color:'#7a5c00' }}>
+              ✍️ הסיפור שלי
+            </div>
+            <span className="tag" style={{ fontSize:11, borderColor:'#e5c600' }}>אופציונלי</span>
+          </div>
+          <Lines n={4} last={45} />
+          <div className="note">מוצג רק אם בעל הפרופיל בחר לשתף — החלטה אישית לחלוטין</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
+   SCREEN D — דף שירות / מוצר בודד
+══════════════════════════════════════ */
+function ScreenItem() {
+  const [mode, setMode] = useState('page'); // 'page' | 'modal'
+  const [variant, setVariant] = useState({ צבע:'שחור', גודל:'M', כמות:'1' });
+
+  const item = {
+    type:'product',
+    name:'ערכת כלי עבודה חשמלאי',
+    price:'₪320',
+    stock:'10 יחידות במלאי',
+    online:true, offline:true, shipping:true,
+    shippingDetails:'כל הארץ, 3-5 ימי עסקים',
+    areas:'מרכז, שרון',
+    duration:null,
+    availability:null,
+    returns:'14 יום', warranty:'שנה',
+    payment:'כרטיס / PayBox / העברה',
+    variants:['צבע','גודל','כמות'],
+  };
+
+  const isProduct = item.type === 'product';
+
+  const PageContent = () => (
+    <div style={{ maxWidth:760, margin:'0 auto', padding:14 }}>
+
+      {/* Breadcrumb */}
+      <div style={{ fontFamily:'Caveat', fontSize:13, color:'#888', marginBottom:12 }}>
+        דף הבית › <span style={{ color:'#1b3f6e' }}>בית ותשתיות</span> ›
+        <span style={{ color:'#1b3f6e' }}> חשמלאים</span> ›
+        <span style={{ color:'#2a2a2a' }}> <strong>ערכת כלי עבודה חשמלאי</strong></span>
+      </div>
+
+      {/* ── MAIN CARD ── */}
+      <div className="sk-box" style={{ padding:0, marginBottom:14, overflow:'hidden' }}>
+
+        {/* Top: image + core info */}
+        <div style={{ display:'flex', gap:0 }}>
+
+          {/* Gallery */}
+          <div style={{ width:260, flexShrink:0, borderLeft:'2px dashed #ddd', padding:12 }}>
+            <ImgPh w="100%" h={160} text="תמונה ראשית" style={{ borderRadius:4, marginBottom:8 }} />
+            <div style={{ display:'flex', gap:6 }}>
+              {[1,2,3].map(i=>(
+                <ImgPh key={i} w={70} h={55} text={`📷${i}`} style={{ borderRadius:3, cursor:'pointer' }} />
+              ))}
+            </div>
+            <div className="note" style={{ marginTop:6 }}>גלריה — לחיצה מחליפה תמונה ראשית</div>
+          </div>
+
+          {/* Core details */}
+          <div style={{ flex:1, padding:14 }}>
+            {/* Title + badge */}
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:22 }}>{item.name}</div>
+              <span style={{ fontFamily:'Caveat', fontSize:12, padding:'2px 9px', borderRadius:10,
+                    background: isProduct?'#e3f5e8':'#d4e4f7',
+                    border:`1.5px solid ${isProduct?'#3a9a5c':'#3a6fa8'}`,
+                    color: isProduct?'#1e6b3a':'#1b3f6e' }}>
+                {isProduct ? '📦 מוצר' : '🔧 שירות'}
+              </span>
+            </div>
+
+            {/* Delivery badges */}
+            <div style={{ display:'flex', gap:5, flexWrap:'wrap', marginBottom:10 }}>
+              {item.online   && <span className="tag" style={{ fontSize:12, background:'#eef3fb', borderColor:'#3a6fa8', color:'#1b3f6e' }}>🌐 מקוון</span>}
+              {item.offline  && <span className="tag" style={{ fontSize:12, background:'#f5f0ff', borderColor:'#7c5cbf', color:'#5a3d9e' }}>🏠 פיזי</span>}
+              {item.shipping && <span className="tag" style={{ fontSize:12, background:'#fff8e6', borderColor:'#c0a000', color:'#7a5c00' }}>🚚 משלוח — {item.shippingDetails}</span>}
+              {item.areas    && <span className="tag" style={{ fontSize:12 }}>📍 {item.areas}</span>}
+            </div>
+
+            {/* Price + stock */}
+            <div style={{ display:'flex', alignItems:'baseline', gap:12, marginBottom:10 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:28, color:'#1b3f6e' }}>{item.price}</div>
+              {item.stock && (
+                <span style={{ fontFamily:'Caveat', fontSize:13, color:'#2e8b57', background:'#e3f5e8',
+                      border:'1.5px solid #3a9a5c', borderRadius:10, padding:'2px 10px' }}>
+                  ✅ {item.stock}
+                </span>
+              )}
+            </div>
+
+            {/* Variants (product only) */}
+            {isProduct && (
+              <div style={{ background:'#fffbe6', border:'1.5px dashed #c0a000', borderRadius:4,
+                            padding:'10px 12px', marginBottom:12 }}>
+                <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#7a5c00', marginBottom:8 }}>
+                  🎛️ בחר משתנים
+                </div>
+                <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
+                  {item.variants.map(v=>(
+                    <div key={v}>
+                      <div style={{ fontFamily:'Caveat', fontSize:12, color:'#888', marginBottom:3 }}>{v}</div>
+                      <div className="sk-box sk-yellow" style={{ padding:'4px 14px', fontFamily:'Caveat', fontSize:13, cursor:'pointer' }}>
+                        {variant[v] || 'בחר'} ▾
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="note" style={{ marginTop:6 }}>שדות קבועים — חובה לבחור לפני הוספה לסל</div>
+              </div>
+            )}
+
+            {/* Service: online/offline toggle */}
+            {!isProduct && item.online && item.offline && (
+              <div style={{ display:'flex', gap:8, marginBottom:12 }}>
+                <div className="sk-box" style={{ flex:1, padding:'8px 10px', textAlign:'center',
+                      background:'#d4e4f7', borderColor:'#3a6fa8', cursor:'pointer' }}>
+                  <div style={{ fontSize:18 }}>🌐</div>
+                  <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13 }}>מקוון</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:11, color:'#555' }}>זום / וידאו</div>
+                </div>
+                <div className="sk-box" style={{ flex:1, padding:'8px 10px', textAlign:'center',
+                      background:'#f5f0ff', borderColor:'#7c5cbf', cursor:'pointer' }}>
+                  <div style={{ fontSize:18 }}>🏠</div>
+                  <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13 }}>פיזי / אוף-ליין</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:11, color:'#555' }}>{item.areas}</div>
+                </div>
+              </div>
+            )}
+
+            {/* CTAs */}
+            <div style={{ display:'flex', gap:8 }}>
+              <button className="sk-btn sk-btn-yellow" style={{ flex:2, fontSize:15, padding:'10px 0' }}>
+                {isProduct ? '🛒 הוסף לסל' : '📅 קבע תור'}
+              </button>
+              <button className="sk-btn sk-btn-primary" style={{ flex:2, fontSize:15, padding:'10px 0' }}>
+                {isProduct ? '⚡ קנה עכשיו' : '📞 צור קשר'}
+              </button>
+              <button className="sk-btn sk-btn-outline" style={{ flex:1, fontSize:13, padding:'10px 0' }}>
+                💬 שלח הודעה
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── DETAILS TABS ── */}
+        <div style={{ borderTop:'2px dashed #ddd', padding:'12px 14px', background:'#fafcff' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10, marginBottom:10 }}>
+
+            {/* Delivery */}
+            <div className="sk-box sk-gray" style={{ padding:10 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#1b3f6e', marginBottom:6 }}>
+                🚀 אופן אספקה
+              </div>
+              {item.online && <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>🌐 <strong>מקוון</strong> — זמין מיד</div>}
+              {item.offline && <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>🏠 <strong>פיזי</strong> — {item.areas}</div>}
+              {item.shipping && <div style={{ fontFamily:'Caveat', fontSize:12 }}>🚚 <strong>משלוח</strong> — {item.shippingDetails}</div>}
+            </div>
+
+            {/* Pricing & terms */}
+            <div className="sk-box sk-gray" style={{ padding:10 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#1b3f6e', marginBottom:6 }}>
+                💳 מחיר ותנאים
+              </div>
+              <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>💰 מחיר: <strong>{item.price}</strong></div>
+              {item.duration    && <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>⏰ זמן: {item.duration}</div>}
+              {item.availability && <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>📅 זמינות: {item.availability}</div>}
+              {item.returns     && <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>🔄 החזרות: {item.returns}</div>}
+              {item.warranty    && <div style={{ fontFamily:'Caveat', fontSize:12, marginBottom:3 }}>🛡️ אחריות: {item.warranty}</div>}
+              <div style={{ fontFamily:'Caveat', fontSize:12 }}>💵 תשלום: {item.payment}</div>
+            </div>
+
+            {/* About provider */}
+            <div className="sk-box sk-gray" style={{ padding:10 }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13, color:'#1b3f6e', marginBottom:6 }}>
+                👤 על נותן השירות
+              </div>
+              <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:6 }}>
+                <ImgPh w={36} h={36} text="📷" style={{ borderRadius:'50%', flexShrink:0 }} />
+                <div>
+                  <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:13 }}>ישראל לוי</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:11, color:'#e05a00' }}>👤 בן של שווה</div>
+                </div>
+              </div>
+              <Lines n={2} last={70} style={{ marginBottom:6 }} />
+              <button className="sk-btn sk-btn-outline" style={{ width:'100%', fontSize:11, padding:'3px 0' }}>
+                לפרופיל המלא ←
+              </button>
+            </div>
+          </div>
+
+          {/* Full description */}
+          <div style={{ background:'#fff', border:'1.5px solid #dce6f5', borderRadius:4, padding:'10px 12px', marginBottom:10 }}>
+            <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:14, color:'#333', marginBottom:6 }}>📝 תיאור מפורט</div>
+            <Lines n={4} last={65} />
+          </div>
+
+          {/* Related items */}
+          <div>
+            <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:15, color:'#1b3f6e', marginBottom:8 }}>
+              🔗 שירותים ומוצרים נוספים של אותו ספק
+            </div>
+            <div style={{ display:'flex', gap:8 }}>
+              {[1,2,3].map(i=>(
+                <div key={i} className="sk-box" style={{ minWidth:140, padding:8, flexShrink:0 }}>
+                  <ImgPh w="100%" h={55} text={`פריט ${i}`} />
+                  <div style={{ fontFamily:'Caveat', fontSize:12, fontWeight:700, marginTop:5 }}>שם שירות/מוצר</div>
+                  <div style={{ fontFamily:'Caveat', fontSize:11, color:'#888', marginBottom:4 }}>₪XXX</div>
+                  <button className="sk-btn sk-btn-yellow" style={{ width:'100%', fontSize:10, padding:'2px 0' }}>לדף המוצר</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div>
+      {/* Slim header */}
+      <div style={{ background:'#1b3f6e', borderBottom:'3px solid #f9e44a', padding:'8px 14px',
+                    display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <Logo small />
+        <div style={{ fontFamily:'Caveat', fontSize:13, color:'#aaa' }}>
+          דף הבית › חשמלאים › ישראל לוי › <strong style={{ color:'#fff' }}>ערכת כלי עבודה חשמלאי</strong>
+        </div>
+      </div>
+
+      {/* Mode toggle */}
+      <div style={{ background:'#f0f4fa', borderBottom:'1.5px solid #dce6f5', padding:'7px 14px',
+                    display:'flex', alignItems:'center', gap:8 }}>
+        <div style={{ fontFamily:'Caveat', fontSize:13, color:'#555' }}>הצג כ:</div>
+        {[{id:'page',label:'📄 עמוד עצמאי'},{id:'modal',label:'🪟 Modal (מדף הבית)'}].map(m=>(
+          <button key={m.id} onClick={()=>setMode(m.id)} style={{
+            fontFamily:'Caveat', fontSize:12, padding:'4px 12px', cursor:'pointer',
+            border:'1.5px solid', borderRadius:14,
+            borderColor: mode===m.id?'#1b3f6e':'#bbb',
+            background: mode===m.id?'#1b3f6e':'#fff',
+            color: mode===m.id?'#fff':'#555',
+          }}>{m.label}</button>
+        ))}
+        <div className="note" style={{ marginRight:'auto' }}>
+          אותו תוכן — שתי דרכי הצגה שונות
+        </div>
+      </div>
+
+      {mode === 'page' ? (
+        /* Full page */
+        <PageContent />
+      ) : (
+        /* Modal overlay */
+        <div style={{ position:'relative', padding:16 }}>
+          {/* Page behind */}
+          <div style={{ opacity:0.25, pointerEvents:'none', userSelect:'none', marginBottom:0 }}>
+            <div style={{ background:'#1b3f6e', height:50, borderBottom:'3px solid #f9e44a' }} />
+            <div style={{ background:'#162f55', height:36 }} />
+            <div style={{ background:'#1b3f6e', height:100 }} />
+            <div style={{ background:'#fff', height:80, border:'1px solid #eee' }} />
+            <div style={{ background:'#f5f8ff', height:140, borderTop:'1px solid #eee' }} />
+          </div>
+          {/* Modal */}
+          <div style={{
+            position:'absolute', top:16, left:24, right:24, zIndex:10,
+            background:'#fff', border:'3px solid #2a2a2a', borderRadius:8,
+            boxShadow:'6px 6px 0 #2a2a2a', overflow:'hidden', maxHeight:480, overflowY:'auto'
+          }}>
+            {/* Modal header */}
+            <div style={{ background:'#1b3f6e', padding:'8px 14px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'2.5px solid #f9e44a' }}>
+              <div style={{ fontFamily:'Caveat', fontWeight:700, fontSize:16, color:'#fff' }}>
+                ערכת כלי עבודה חשמלאי
+              </div>
+              <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                <button className="sk-btn" style={{ fontSize:11, background:'transparent', color:'#fff', borderColor:'rgba(255,255,255,.4)', padding:'3px 10px' }}>
+                  ← לדף המלא
+                </button>
+                <div style={{ fontFamily:'Caveat', fontSize:20, color:'#f9e44a', cursor:'pointer', lineHeight:1 }}>✕</div>
+              </div>
+            </div>
+            <PageContent />
+          </div>
+          <div className="note" style={{ position:'absolute', top:10, right:30, zIndex:20 }}>
+            Modal — נפתח מעל דף הבית / קטגוריה ללא ניווט
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
+   ROOT
+══════════════════════════════════════ */
+function App() {
+  const [tab, setTab] = useState('home');
+  const tabs = [
+    {id:'home',     label:'א׳ — דף הבית'},
+    {id:'category', label:'ב׳ — קטגוריה'},
+    {id:'profile',  label:'ג׳ — פרופיל אישי'},
+    {id:'item',     label:'ד׳ — דף מוצר/שירות'},
+  ];
+  const urlMap = {
+    home:     'ahad-mishlanu.co.il',
+    category: 'ahad-mishlanu.co.il/hashmalai',
+    profile:  'ahad-mishlanu.co.il/profile/israel-levi',
+    item:     'ahad-mishlanu.co.il/item/התקנת-לוח-חשמל',
+  };
+  const annotationMap = {
+    home:     'באנר פרומו (מתחלף) → Navbar כחול → Megamenu → Hero חיפוש גדול → אייקוני קטגוריות → פס עונתי → קרוסלת עסקים → קרוסלת פרופילים → פתרונות הוליסטיים → חותם איכות → טופס לידים → Footer',
+    category: 'Navbar slim → Breadcrumb + פילטרים → Sidebar קטגוריות/אזור/מיון → גריד 3 עמודות → Pagination',
+    profile:  'תמונה + שם + קרבה → שירותים/מוצרים מורחב: פילטר (הכל/שירות/מוצר/מקוון/פיזי/משלוח) → כל פריט נפתח לפרטים מלאים: אופן אספקה, אזורים, מחיר, זמינות, משתני מוצר, און/אוף-ליין → גלריה → סיפור אישי (אופציונלי)',
+    item:     'דף עצמאי לשירות/מוצר בודד — ניתן להציג גם כ-modal מדף הבית/קטגוריה. Breadcrumb → כותרת + badge סוג + CTAs → פרטי אספקה/אזור/מחיר → גלריה → פרופיל מקוצר של נותן השירות → פריטים נוספים',
+  };
+
+  return (
+    <div style={{ minHeight:'100vh', background:'#ece8e1', direction:'rtl' }}>
+      <div className="tab-bar">
+        <span style={{ fontFamily:'Caveat', fontSize:17, color:'#f9e44a', fontWeight:700 }}>
+          ✏️ ווירפריים — אחד משלנו v2
+        </span>
+        <div style={{ display:'flex', gap:6 }}>
+          {tabs.map(t=>(
+            <button key={t.id} onClick={()=>setTab(t.id)}
+              className={`tab-btn ${tab===t.id?'active':'inactive'}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <span style={{ fontFamily:'Caveat', fontSize:11, color:'#666' }}>low-fi wireframe</span>
+      </div>
+
+      <div style={{ maxWidth:1000, margin:'18px auto', padding:'0 14px' }}>
+        <div className="screen-shell">
+          <div className="browser-bar">
+            <div style={{ display:'flex', gap:5 }}>
+              {['#ff5f57','#febc2e','#28c840'].map(c=>(
+                <div key={c} style={{ width:12,height:12,borderRadius:'50%',background:c,
+                      border:'1.5px solid rgba(0,0,0,.15)' }} />
+              ))}
+            </div>
+            <div className="sk-box" style={{ flex:1,height:24,display:'flex',alignItems:'center',
+                  padding:'0 10px',maxWidth:440,margin:'0 auto',borderRadius:4 }}>
+              <span style={{ fontFamily:'Caveat', fontSize:12, color:'#888' }}>🔒 {urlMap[tab]}</span>
+            </div>
+          </div>
+          <div className="screen-scroll">
+            {tab==='home'     && <ScreenHome />}
+            {tab==='category' && <ScreenCategory />}
+            {tab==='profile'  && <ScreenProfile />}
+            {tab==='item'     && <ScreenItem />}
+          </div>
+        </div>
+
+        <div style={{ background:'#fff8e0', border:'2px solid #f9e44a', borderRadius:5,
+              padding:'9px 14px', marginTop:12, fontFamily:'Caveat', fontSize:13,
+              color:'#4a3800', lineHeight:1.6 }}>
+          {annotationMap[tab]}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+<div id="root"></div>
+</body>
+</html>
