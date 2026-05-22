@@ -1,0 +1,272 @@
+@import "tailwindcss";
+
+/* ====================================================================
+   CoachUp Design System tokens (v1.1 — Racing Orange + Magenta)
+   ==================================================================== */
+:root {
+  --ur-font: var(--font-rubik, "Rubik"), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --ur-canvas-0: #060300;
+  --ur-canvas-1: #110800;
+  --ur-canvas-2: #1c0c00;
+  --ur-canvas-gradient: linear-gradient(140deg, #060300 0%, #110800 55%, #1c0c00 100%);
+
+  --ur-red-900: #3d1200;
+  --ur-red-700: #8c3000;
+  --ur-red-500: #ff5c00;
+  --ur-red-300: #ff8f4d;
+  --ur-red-100: #ffe0cc;
+
+  --ur-magenta-900: #3d0022;
+  --ur-magenta-700: #960053;
+  --ur-magenta-500: #ff0075;
+  --ur-magenta-300: #ff66aa;
+  --ur-magenta-100: #ffd6eb;
+
+  --ur-fg-1: #ffffff;
+  --ur-fg-2: rgba(255, 255, 255, 0.8);
+  --ur-fg-3: rgba(255, 255, 255, 0.55);
+  --ur-fg-4: rgba(255, 255, 255, 0.35);
+  --ur-fg-5: rgba(255, 255, 255, 0.1);
+
+  --ur-surface-glass: rgba(255, 255, 255, 0.04);
+  --ur-surface-glass-border: rgba(255, 255, 255, 0.08);
+  --ur-surface-glass-hover: rgba(255, 255, 255, 0.07);
+  --ur-surface-item: rgba(255, 255, 255, 0.03);
+  --ur-surface-item-border: rgba(255, 255, 255, 0.06);
+  --ur-surface-active: rgba(255, 92, 0, 0.12);
+  --ur-surface-active-border: rgba(255, 92, 0, 0.30);
+  --ur-surface-sunken: rgba(0, 0, 0, 0.5);
+
+  --ur-gradient-primary: linear-gradient(135deg, #ff5c00 0%, #ff0075 100%);
+  --ur-gradient-hot: linear-gradient(135deg, #ff0075 0%, #ff66aa 100%);
+  --ur-gradient-race: linear-gradient(135deg, #8c3000 0%, #ff5c00 50%, #ff0075 100%);
+  --ur-gradient-dark: linear-gradient(135deg, #3d1200 0%, #8c3000 100%);
+
+  --ur-glow-red: 0 0 32px rgba(255, 92, 0, 0.45), 0 4px 16px rgba(255, 92, 0, 0.25);
+  --ur-glow-magenta: 0 0 32px rgba(255, 0, 117, 0.45), 0 4px 16px rgba(255, 0, 117, 0.25);
+  --ur-shadow-card: 0 24px 64px rgba(0, 0, 0, 0.7);
+  --ur-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4);
+
+  --ur-blur-glass: blur(24px);
+
+  --ur-radius-xs: 4px;
+  --ur-radius-sm: 8px;
+  --ur-radius-md: 14px;
+  --ur-radius-lg: 20px;
+  --ur-radius-xl: 28px;
+  --ur-radius-pill: 999px;
+
+  --ur-ok: #22c55e;
+  --ur-warn: #f59e0b;
+  --ur-err: #e5001a;
+
+  /* Legacy mappings for components that still reference these */
+  --background: var(--ur-canvas-0);
+  --foreground: var(--ur-fg-1);
+  --muted: var(--ur-fg-3);
+  --card: var(--ur-surface-glass);
+  --border: var(--ur-surface-glass-border);
+  --accent: var(--ur-red-500);
+  --accent-hover: var(--ur-magenta-500);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --ur-canvas-0: #fff7f1;
+    --ur-canvas-1: #fff0e3;
+    --ur-canvas-2: #ffe6d2;
+    --ur-canvas-gradient: linear-gradient(140deg, #fff7f1 0%, #fff0e3 55%, #ffe6d2 100%);
+    --ur-fg-1: #1c0c00;
+    --ur-fg-2: rgba(28, 12, 0, 0.85);
+    --ur-fg-3: rgba(28, 12, 0, 0.6);
+    --ur-fg-4: rgba(28, 12, 0, 0.4);
+    --ur-fg-5: rgba(28, 12, 0, 0.10);
+    --ur-surface-glass: rgba(255, 255, 255, 0.65);
+    --ur-surface-glass-border: rgba(28, 12, 0, 0.08);
+    --ur-surface-glass-hover: rgba(255, 255, 255, 0.85);
+    --ur-surface-item: rgba(255, 255, 255, 0.45);
+    --ur-surface-item-border: rgba(28, 12, 0, 0.06);
+    --ur-surface-active: rgba(255, 92, 0, 0.10);
+    --ur-surface-active-border: rgba(255, 92, 0, 0.40);
+    --ur-surface-sunken: rgba(28, 12, 0, 0.05);
+    --ur-shadow-card: 0 16px 48px rgba(255, 92, 0, 0.12);
+    --ur-shadow-sm: 0 4px 16px rgba(255, 92, 0, 0.08);
+    --background: var(--ur-canvas-0);
+    --foreground: var(--ur-fg-1);
+    --muted: var(--ur-fg-3);
+    --card: var(--ur-surface-glass);
+    --border: var(--ur-surface-glass-border);
+  }
+}
+
+/* Manual theme overrides — take precedence over OS preference */
+html[data-theme="light"] {
+  --ur-canvas-0: #fff7f1;
+  --ur-canvas-1: #fff0e3;
+  --ur-canvas-2: #ffe6d2;
+  --ur-canvas-gradient: linear-gradient(140deg, #fff7f1 0%, #fff0e3 55%, #ffe6d2 100%);
+  --ur-fg-1: #1c0c00;
+  --ur-fg-2: rgba(28, 12, 0, 0.85);
+  --ur-fg-3: rgba(28, 12, 0, 0.6);
+  --ur-fg-4: rgba(28, 12, 0, 0.4);
+  --ur-fg-5: rgba(28, 12, 0, 0.10);
+  --ur-surface-glass: rgba(255, 255, 255, 0.65);
+  --ur-surface-glass-border: rgba(28, 12, 0, 0.08);
+  --ur-surface-glass-hover: rgba(255, 255, 255, 0.85);
+  --ur-surface-item: rgba(255, 255, 255, 0.45);
+  --ur-surface-item-border: rgba(28, 12, 0, 0.06);
+  --ur-surface-active: rgba(255, 92, 0, 0.10);
+  --ur-surface-active-border: rgba(255, 92, 0, 0.40);
+  --ur-surface-sunken: rgba(28, 12, 0, 0.05);
+  --ur-shadow-card: 0 16px 48px rgba(255, 92, 0, 0.12);
+  --ur-shadow-sm: 0 4px 16px rgba(255, 92, 0, 0.08);
+  --background: var(--ur-canvas-0);
+  --foreground: var(--ur-fg-1);
+  --muted: var(--ur-fg-3);
+  --card: var(--ur-surface-glass);
+  --border: var(--ur-surface-glass-border);
+}
+
+html[data-theme="dark"] {
+  --ur-canvas-0: #060300;
+  --ur-canvas-1: #110800;
+  --ur-canvas-2: #1c0c00;
+  --ur-canvas-gradient: linear-gradient(140deg, #060300 0%, #110800 55%, #1c0c00 100%);
+  --ur-fg-1: #ffffff;
+  --ur-fg-2: rgba(255, 255, 255, 0.8);
+  --ur-fg-3: rgba(255, 255, 255, 0.55);
+  --ur-fg-4: rgba(255, 255, 255, 0.35);
+  --ur-fg-5: rgba(255, 255, 255, 0.1);
+  --ur-surface-glass: rgba(255, 255, 255, 0.04);
+  --ur-surface-glass-border: rgba(255, 255, 255, 0.08);
+  --ur-surface-glass-hover: rgba(255, 255, 255, 0.07);
+  --ur-surface-item: rgba(255, 255, 255, 0.03);
+  --ur-surface-item-border: rgba(255, 255, 255, 0.06);
+  --ur-surface-active: rgba(255, 92, 0, 0.12);
+  --ur-surface-active-border: rgba(255, 92, 0, 0.30);
+  --ur-surface-sunken: rgba(0, 0, 0, 0.5);
+  --ur-shadow-card: 0 24px 64px rgba(0, 0, 0, 0.7);
+  --ur-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --background: var(--ur-canvas-0);
+  --foreground: var(--ur-fg-1);
+  --muted: var(--ur-fg-3);
+  --card: var(--ur-surface-glass);
+  --border: var(--ur-surface-glass-border);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --font-sans: var(--ur-font);
+}
+
+html {
+  background: var(--ur-canvas-gradient);
+  background-attachment: fixed;
+  color: var(--foreground);
+}
+
+body {
+  background: transparent;
+  color: var(--foreground);
+  font-family: var(--ur-font);
+  font-feature-settings: "kern";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer components {
+  .ur-card {
+    background: var(--ur-surface-glass);
+    backdrop-filter: var(--ur-blur-glass);
+    -webkit-backdrop-filter: var(--ur-blur-glass);
+    border: 1px solid var(--ur-surface-glass-border);
+    border-radius: var(--ur-radius-lg);
+    box-shadow: var(--ur-shadow-card);
+  }
+
+  .ur-gradient-text {
+    background: var(--ur-gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .ur-gradient-bg {
+    background: var(--ur-gradient-primary);
+  }
+
+  .ur-glow-orange {
+    box-shadow: var(--ur-glow-red);
+  }
+
+  .ur-eyebrow {
+    font-weight: 700;
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--ur-fg-4);
+  }
+
+  .ur-btn-primary {
+    background: var(--ur-gradient-primary);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: var(--ur-glow-red);
+    transition: transform 120ms ease, box-shadow 200ms ease, filter 200ms ease;
+  }
+  .ur-btn-primary:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+  }
+
+  .ur-btn-ghost {
+    background: var(--ur-surface-glass);
+    border: 1px solid var(--ur-surface-glass-border);
+    color: var(--ur-fg-1);
+    backdrop-filter: var(--ur-blur-glass);
+    transition: background 160ms ease, border-color 160ms ease;
+  }
+  .ur-btn-ghost:hover {
+    background: var(--ur-surface-glass-hover);
+  }
+
+  .ur-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--ur-surface-item);
+    border: 1px solid var(--ur-surface-item-border);
+    border-radius: var(--ur-radius-pill);
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ur-fg-2);
+  }
+}
+
+/* Leaflet — themed popups */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--ur-canvas-1) !important;
+  color: var(--ur-fg-1) !important;
+  border-radius: var(--ur-radius-md) !important;
+}
+.leaflet-control-attribution {
+  background: rgba(0, 0, 0, 0.5) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+.leaflet-control-attribution a {
+  color: var(--ur-red-300) !important;
+}
+.leaflet-container {
+  background: var(--ur-canvas-2) !important;
+}
