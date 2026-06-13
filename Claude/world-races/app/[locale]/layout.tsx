@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Rubik } from "next/font/google";
 import "../globals.css";
 import { HeaderUserMenu } from "@/components/HeaderUserMenu";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { PWAInstall } from "@/components/PWAInstall";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { MobileFAB } from "@/components/MobileFAB";
@@ -59,7 +58,7 @@ export default async function LocaleLayout({
     >
       <body className="min-h-full flex flex-col">
         {/* Prevent theme flash on load */}
-        <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('theme');if(t==='light'){var l=document.documentElement.style;l.setProperty('--ur-canvas-0','#fff7f1');l.setProperty('--ur-canvas-1','#fff0e3');l.setProperty('--ur-canvas-2','#ffe6d2');l.setProperty('--ur-canvas-gradient','linear-gradient(140deg,#fff7f1 0%,#fff0e3 55%,#ffe6d2 100%)');l.setProperty('--ur-fg-1','#1c0c00');l.setProperty('--ur-fg-2','rgba(28,12,0,0.85)');l.setProperty('--ur-fg-3','rgba(28,12,0,0.6)');l.setProperty('--ur-fg-4','rgba(28,12,0,0.4)');l.setProperty('--ur-fg-5','rgba(28,12,0,0.10)');l.setProperty('--ur-surface-glass','rgba(255,255,255,0.65)');l.setProperty('--ur-surface-glass-border','rgba(28,12,0,0.08)');l.setProperty('--ur-surface-glass-hover','rgba(255,255,255,0.85)');l.setProperty('--ur-surface-item','rgba(255,255,255,0.45)');l.setProperty('--ur-surface-item-border','rgba(28,12,0,0.06)');l.setProperty('--ur-surface-active','rgba(255,92,0,0.10)');l.setProperty('--ur-surface-active-border','rgba(255,92,0,0.40)');l.setProperty('--ur-surface-sunken','rgba(28,12,0,0.05)');l.setProperty('--background','var(--ur-canvas-0)');l.setProperty('--foreground','var(--ur-fg-1)');}})()` }} />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('theme');if(t==='light'){var l=document.documentElement.style;l.setProperty('--ur-canvas-0','#f5f5f7');l.setProperty('--ur-canvas-1','#ebebed');l.setProperty('--ur-canvas-2','#e1e1e4');l.setProperty('--ur-canvas-gradient','linear-gradient(140deg,#f5f5f7 0%,#ebebed 55%,#e1e1e4 100%)');l.setProperty('--ur-fg-1','#1c0c00');l.setProperty('--ur-fg-2','rgba(28,12,0,0.85)');l.setProperty('--ur-fg-3','rgba(28,12,0,0.6)');l.setProperty('--ur-fg-4','rgba(28,12,0,0.4)');l.setProperty('--ur-fg-5','rgba(28,12,0,0.10)');l.setProperty('--ur-surface-glass','rgba(255,255,255,0.65)');l.setProperty('--ur-surface-glass-border','rgba(28,12,0,0.08)');l.setProperty('--ur-surface-glass-hover','rgba(255,255,255,0.85)');l.setProperty('--ur-surface-item','rgba(255,255,255,0.45)');l.setProperty('--ur-surface-item-border','rgba(28,12,0,0.06)');l.setProperty('--ur-surface-active','rgba(255,92,0,0.10)');l.setProperty('--ur-surface-active-border','rgba(255,92,0,0.40)');l.setProperty('--ur-surface-sunken','rgba(28,12,0,0.05)');l.setProperty('--background','var(--ur-canvas-0)');l.setProperty('--foreground','var(--ur-fg-1)');}})()` }} />
         {/* Top header — slim app bar */}
         <header className="sticky top-0 z-20 backdrop-blur-2xl bg-[color:var(--ur-canvas-0)]/70 border-b border-[color:var(--ur-surface-glass-border)]">
           <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -79,7 +78,13 @@ export default async function LocaleLayout({
               </span>
             </Link>
             <div className="flex items-center gap-2">
-              <ThemeToggle />
+              <Link
+                href={`/${locale}/chat`}
+                className="ur-btn-ghost rounded-full w-9 h-9 flex items-center justify-center text-base"
+                aria-label={t(locale, "nav.chat")}
+              >
+                💬
+              </Link>
               <HeaderUserMenu locale={locale} />
               <Link
                 href={`/${otherLocale}`}

@@ -73,10 +73,10 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --ur-canvas-0: #fff7f1;
-    --ur-canvas-1: #fff0e3;
-    --ur-canvas-2: #ffe6d2;
-    --ur-canvas-gradient: linear-gradient(140deg, #fff7f1 0%, #fff0e3 55%, #ffe6d2 100%);
+    --ur-canvas-0: #f5f5f7;
+    --ur-canvas-1: #ebebed;
+    --ur-canvas-2: #e1e1e4;
+    --ur-canvas-gradient: linear-gradient(140deg, #f5f5f7 0%, #ebebed 55%, #e1e1e4 100%);
     --ur-fg-1: #1c0c00;
     --ur-fg-2: rgba(28, 12, 0, 0.85);
     --ur-fg-3: rgba(28, 12, 0, 0.6);
@@ -102,10 +102,10 @@
 
 /* Manual theme overrides — take precedence over OS preference */
 html[data-theme="light"] {
-  --ur-canvas-0: #fff7f1;
-  --ur-canvas-1: #fff0e3;
-  --ur-canvas-2: #ffe6d2;
-  --ur-canvas-gradient: linear-gradient(140deg, #fff7f1 0%, #fff0e3 55%, #ffe6d2 100%);
+  --ur-canvas-0: #f5f5f7;
+  --ur-canvas-1: #ebebed;
+  --ur-canvas-2: #e1e1e4;
+  --ur-canvas-gradient: linear-gradient(140deg, #f5f5f7 0%, #ebebed 55%, #e1e1e4 100%);
   --ur-fg-1: #1c0c00;
   --ur-fg-2: rgba(28, 12, 0, 0.85);
   --ur-fg-3: rgba(28, 12, 0, 0.6);

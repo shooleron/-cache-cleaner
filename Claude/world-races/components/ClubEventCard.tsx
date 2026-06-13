@@ -103,10 +103,10 @@ export function ClubEventCard({
           className="absolute inset-0"
           style={{ background: "var(--ur-gradient-race)" }}
         />
-        {event.cover_image_url && (
+        {event.cover_url && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={event.cover_image_url}
+            src={event.cover_url}
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
           />
