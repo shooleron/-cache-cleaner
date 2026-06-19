@@ -153,7 +153,7 @@ export default function Header({
                   cursor: 'pointer',
                 }}
               >
-                {t.catLabels[cat.value]}
+                {t.catLabels[cat.value as keyof typeof t.catLabels]}
               </button>
             ))}
           </div>

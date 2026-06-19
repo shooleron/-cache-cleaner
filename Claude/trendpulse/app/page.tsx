@@ -145,7 +145,7 @@ export default function Dashboard() {
           {CATEGORY_KEYS.map(({ key, emoji }) => {
             const count = categoryCounts[key] ?? 0;
             const active = activeCategory === key;
-            const label = t.categories[key];
+            const label = t.categories[key as keyof typeof t.categories];
             return (
               <button
                 key={key}
