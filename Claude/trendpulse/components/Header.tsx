@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { TrendSource, TrendCategory } from '@/lib/types';
 import { UserPreferences, ROLE_CONFIG } from '@/lib/personalization';
+import { useLang } from '@/lib/i18n';
 
 const SOURCES: { value: TrendSource | 'all'; label: string }[] = [
   { value: 'all', label: 'All Sources' },
@@ -44,6 +45,7 @@ export default function Header({
   onRefresh, onAnalyze, onPersonalize,
   loading, analyzing, fetchedAt, prefs,
 }: Props) {
+  const { lang, t, toggle } = useLang();
   return (
     <header style={{ background: 'var(--surface)', borderBottom: '1.5px solid var(--border)', position: 'sticky', top: 0, zIndex: 50 }}>
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 24px' }}>
@@ -64,14 +66,14 @@ export default function Header({
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold"
                 style={{ background: 'rgba(99,102,241,0.1)', color: '#6366f1', textDecoration: 'none', border: '1px solid rgba(99,102,241,0.2)' }}
               >
-                Feed
+                {t.feed}
               </Link>
               <Link
                 href="/markets"
                 className="px-3 py-1.5 rounded-lg text-xs font-medium"
                 style={{ color: 'var(--muted)', textDecoration: 'none' }}
               >
-                📊 Markets
+                📊 {t.markets}
               </Link>
             </div>
           </div>
@@ -79,9 +81,17 @@ export default function Header({
           <div className="flex items-center gap-2">
             {fetchedAt && (
               <span className="text-xs hidden sm:block" style={{ color: 'var(--muted)' }}>
-                Updated {new Date(fetchedAt).toLocaleTimeString()}
+                {t.updated} {new Date(fetchedAt).toLocaleTimeString()}
               </span>
             )}
+            {/* Language toggle */}
+            <button
+              onClick={toggle}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+              style={{ background: 'var(--bg)', border: '1.5px solid var(--border)', color: 'var(--text)', cursor: 'pointer', fontFamily: 'monospace', letterSpacing: '0.05em' }}
+            >
+              {lang === 'en' ? 'עב' : 'EN'}
+            </button>
             {/* Personalize button */}
             <button
               onClick={onPersonalize}
@@ -95,7 +105,7 @@ export default function Header({
             >
               {prefs
                 ? `${ROLE_CONFIG[prefs.role].emoji} ${ROLE_CONFIG[prefs.role].label}`
-                : '✨ Personalize'}
+                : t.personalize}
             </button>
             <button
               onClick={onRefresh}
@@ -109,7 +119,7 @@ export default function Header({
                 opacity: loading ? 0.6 : 1,
               }}
             >
-              {loading ? '⟳ Loading...' : '⟳ Refresh'}
+              {loading ? `⟳ ${t.loading}` : `⟳ ${t.refresh}`}
             </button>
             <button
               onClick={onAnalyze}
@@ -122,7 +132,7 @@ export default function Header({
                 cursor: analyzing ? 'not-allowed' : 'pointer',
               }}
             >
-              {analyzing ? '🧠 Analyzing...' : '🧠 AI Analyze'}
+              {analyzing ? `🧠 ${t.analyzing}` : `🧠 ${t.aiAnalyze}`}
             </button>
           </div>
         </div>
@@ -143,7 +153,7 @@ export default function Header({
                   cursor: 'pointer',
                 }}
               >
-                {cat.label}
+                {t.catLabels[cat.value]}
               </button>
             ))}
           </div>
@@ -163,7 +173,7 @@ export default function Header({
                   fontWeight: activeSource === src.value ? 600 : 400,
                 }}
               >
-                {src.label}
+                {src.value === 'all' ? t.allSources : src.label}
               </button>
             ))}
           </div>

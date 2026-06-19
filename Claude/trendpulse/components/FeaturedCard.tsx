@@ -1,29 +1,24 @@
 'use client';
 import Link from 'next/link';
 import { Trend } from '@/lib/types';
+import { useLang } from '@/lib/i18n';
 
-const CAT_COLOR: Record<string, string> = {
-  tech: '#6366f1', ai: '#8b5cf6', marketing: '#f59e0b', culture: '#10b981',
-  business: '#3b82f6', science: '#06b6d4', design: '#ec4899', crypto: '#f97316', other: '#6b7280',
+const CAT_TOKEN: Record<string, string> = {
+  tech: 'var(--cat-tech)', ai: 'var(--cat-ai)', marketing: 'var(--cat-marketing)',
+  culture: 'var(--cat-culture)', business: 'var(--cat-business)', science: 'var(--cat-science)',
+  design: 'var(--cat-design)', crypto: 'var(--cat-crypto)', other: 'var(--cat-other)',
 };
 const CAT_EMOJI: Record<string, string> = {
   tech: '💻', ai: '🤖', marketing: '📣', culture: '🌍',
   business: '💼', science: '🔬', design: '🎨', crypto: '₿', other: '📌',
 };
-const CAT_BG: Record<string, string> = {
-  tech: 'linear-gradient(135deg,#1e1b4b,#312e81)',
-  ai: 'linear-gradient(135deg,#1a0533,#2e1065)',
-  marketing: 'linear-gradient(135deg,#1c1100,#451a03)',
-  culture: 'linear-gradient(135deg,#022c22,#064e3b)',
-  business: 'linear-gradient(135deg,#0c1a4b,#1e3a8a)',
-  science: 'linear-gradient(135deg,#0a2030,#0e4163)',
-  design: 'linear-gradient(135deg,#2d0a1e,#5b1a38)',
-  crypto: 'linear-gradient(135deg,#1c0a00,#431407)',
-  other: 'linear-gradient(135deg,#111,#222)',
-};
 
-const SOURCE_LABEL: Record<string, string> = {
-  hackernews: 'HN', reddit: 'Reddit', youtube: 'YouTube', rss: 'News', producthunt: 'PH',
+const SOURCE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+  hackernews: { label: 'HN', color: '#b45309', bg: '#fef3c7' },
+  reddit:     { label: 'Reddit', color: '#b91c1c', bg: '#fee2e2' },
+  youtube:    { label: 'YouTube', color: '#991b1b', bg: '#fee2e2' },
+  rss:        { label: 'News', color: '#1e40af', bg: '#dbeafe' },
+  producthunt:{ label: 'PH', color: '#92400e', bg: '#fef3c7' },
 };
 
 function timeAgo(iso: string) {
@@ -37,11 +32,14 @@ function timeAgo(iso: string) {
 interface Props { trend: Trend; dim?: boolean }
 
 export default function TrendCard({ trend, dim }: Props) {
-  const color = CAT_COLOR[trend.category] ?? CAT_COLOR.other;
+  const { t } = useLang();
+  const catToken = CAT_TOKEN[trend.category] ?? CAT_TOKEN.other;
   const rising = trend.score >= 55;
   const cooling = trend.score < 35;
-  const statusColor = rising ? '#22c55e' : cooling ? '#ef4444' : '#f59e0b';
+  const momentumColor = rising ? 'var(--yes-ink)' : cooling ? 'var(--no-ink)' : 'var(--stable-ink)';
+  const momentumBar = rising ? 'var(--yes)' : cooling ? 'var(--no)' : 'var(--stable)';
   const isHot = trend.score >= 70;
+  const src = SOURCE_CONFIG[trend.source] ?? SOURCE_CONFIG.rss;
 
   return (
     <Link href={`/trends/${trend.id}`} style={{ textDecoration: 'none', display: 'block', height: '100%', opacity: dim ? 0.72 : 1 }}>
@@ -49,16 +47,16 @@ export default function TrendCard({ trend, dim }: Props) {
         className="group h-full rounded-[20px] overflow-hidden flex flex-col transition-all duration-200 hover:-translate-y-0.5"
         style={{
           background: 'var(--surface)',
-          border: isHot ? '2px solid #ef4444' : '1px solid var(--border)',
-          boxShadow: isHot ? '0 0 0 1px rgba(239,68,68,0.15), 0 4px 20px rgba(239,68,68,0.14)' : '0 2px 16px rgba(15,15,26,0.07)',
+          border: isHot ? '2px solid var(--no)' : '1px solid var(--border)',
+          boxShadow: isHot ? '0 0 0 1px var(--no-border), var(--shadow-card-soft)' : 'var(--shadow-card)',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = isHot ? '#ef4444' : color + '55';
-          e.currentTarget.style.boxShadow = isHot ? '0 0 0 1px rgba(239,68,68,0.22), 0 8px 32px rgba(239,68,68,0.2)' : `0 8px 32px ${color}20`;
+          e.currentTarget.style.borderColor = isHot ? 'var(--no)' : 'var(--accent-border)';
+          e.currentTarget.style.boxShadow = isHot ? '0 0 0 1px var(--no-border), 0 8px 32px rgba(247,160,168,0.2)' : '0 8px 32px rgba(163,166,245,0.18)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = isHot ? '#ef4444' : 'var(--border)';
-          e.currentTarget.style.boxShadow = isHot ? '0 0 0 1px rgba(239,68,68,0.15), 0 4px 20px rgba(239,68,68,0.14)' : '0 2px 16px rgba(15,15,26,0.07)';
+          e.currentTarget.style.borderColor = isHot ? 'var(--no)' : 'var(--border)';
+          e.currentTarget.style.boxShadow = isHot ? '0 0 0 1px var(--no-border), var(--shadow-card-soft)' : 'var(--shadow-card)';
         }}
       >
         {/* Image — fixed height, all cards identical */}
@@ -66,32 +64,38 @@ export default function TrendCard({ trend, dim }: Props) {
           {trend.thumbnail ? (
             <img src={trend.thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center" style={{ background: CAT_BG[trend.category] ?? CAT_BG.other }}>
-              <span style={{ fontSize: 52, opacity: 0.25 }}>{CAT_EMOJI[trend.category]}</span>
+            <div className="w-full h-full flex items-center justify-center" style={{ background: catToken }}>
+              <span style={{ fontSize: 52, opacity: 0.45 }}>{CAT_EMOJI[trend.category]}</span>
             </div>
           )}
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom,transparent 30%,rgba(0,0,0,0.55))' }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom,transparent 30%,rgba(15,15,26,0.4))' }} />
           {/* Left badges */}
           <div className="absolute top-3 left-3 flex gap-1.5">
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: color + 'cc', color: '#fff', backdropFilter: 'blur(4px)' }}>
+            <span
+              className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+              style={{ background: catToken, color: 'var(--text)', backdropFilter: 'blur(4px)' }}
+            >
               {CAT_EMOJI[trend.category]} {trend.category}
             </span>
-            <span className="text-[11px] px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(0,0,0,0.45)', color: '#fff', backdropFilter: 'blur(4px)' }}>
-              {SOURCE_LABEL[trend.source] ?? trend.source}
+            <span
+              className="text-[11px] px-2 py-0.5 rounded-full font-semibold"
+              style={{ background: src.bg, color: src.color }}
+            >
+              {src.label}
             </span>
           </div>
           {/* Right badge */}
           {isHot ? (
             <span
               className="absolute top-3 right-3 text-[11px] font-black px-2.5 py-1 rounded-full"
-              style={{ background: '#ef4444', color: '#fff', backdropFilter: 'blur(4px)', letterSpacing: '0.07em', boxShadow: '0 2px 8px rgba(239,68,68,0.5)' }}
+              style={{ background: 'var(--no)', color: 'var(--no-ink)', letterSpacing: '0.07em', boxShadow: '0 2px 8px var(--no-border)' }}
             >
               TREND
             </span>
           ) : (
             <span
               className="absolute top-3 right-3 text-xs font-black px-2 py-0.5 rounded-full"
-              style={{ background: statusColor + 'dd', color: '#fff', backdropFilter: 'blur(4px)' }}
+              style={{ background: momentumBar, color: momentumColor }}
             >
               {trend.score}
             </span>
@@ -116,11 +120,11 @@ export default function TrendCard({ trend, dim }: Props) {
 
           <div className="mt-auto">
             <div className="w-full rounded-full overflow-hidden mb-1.5" style={{ height: 4, background: 'var(--border)' }}>
-              <div style={{ width: `${trend.score}%`, height: '100%', background: statusColor, borderRadius: 9999, transition: 'width 0.5s ease' }} />
+              <div style={{ width: `${trend.score}%`, height: '100%', background: momentumBar, borderRadius: 9999, transition: 'width 0.5s ease' }} />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold" style={{ color: statusColor }}>
-                {rising ? '↑ Rising' : cooling ? '↓ Cooling' : '→ Stable'} {trend.score}%
+              <span className="text-[11px] font-semibold" style={{ color: momentumColor }}>
+                {rising ? t.rising : cooling ? t.cooling : t.stable} {trend.score}%
               </span>
               <span className="text-[11px]" style={{ color: 'var(--muted)' }}>
                 {timeAgo(trend.publishedAt)}

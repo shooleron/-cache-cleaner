@@ -5,17 +5,18 @@ import { UserPreferences, loadPreferences, savePreferences, splitByRelevance, RO
 import Header from '@/components/Header';
 import TrendCard from '@/components/FeaturedCard';
 import PersonalizeModal from '@/components/PersonalizeModal';
+import { useLang } from '@/lib/i18n';
 
-const CATEGORIES: { key: TrendCategory | 'all'; emoji: string; label: string }[] = [
-  { key: 'all',       emoji: '🔥', label: 'All Trends' },
-  { key: 'tech',      emoji: '💻', label: 'Tech' },
-  { key: 'ai',        emoji: '🤖', label: 'AI' },
-  { key: 'marketing', emoji: '📣', label: 'Marketing' },
-  { key: 'business',  emoji: '💼', label: 'Business' },
-  { key: 'science',   emoji: '🔬', label: 'Science' },
-  { key: 'design',    emoji: '🎨', label: 'Design' },
-  { key: 'crypto',    emoji: '₿',  label: 'Crypto' },
-  { key: 'culture',   emoji: '🌍', label: 'Culture' },
+const CATEGORY_KEYS: { key: TrendCategory | 'all'; emoji: string }[] = [
+  { key: 'all',       emoji: '🔥' },
+  { key: 'tech',      emoji: '💻' },
+  { key: 'ai',        emoji: '🤖' },
+  { key: 'marketing', emoji: '📣' },
+  { key: 'business',  emoji: '💼' },
+  { key: 'science',   emoji: '🔬' },
+  { key: 'design',    emoji: '🎨' },
+  { key: 'crypto',    emoji: '₿'  },
+  { key: 'culture',   emoji: '🌍' },
 ];
 
 function SkeletonFeatured() {
@@ -32,6 +33,7 @@ function SkeletonFeatured() {
 
 
 export default function Dashboard() {
+  const { t } = useLang();
   const [trends, setTrends] = useState<Trend[]>([]);
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
@@ -136,96 +138,61 @@ export default function Dashboard() {
         prefs={prefs}
       />
 
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 20px 40px', display: 'flex', gap: 24, alignItems: 'flex-start', paddingTop: 20 }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px 40px', paddingTop: 20 }}>
 
-        {/* Left sidebar */}
-        <aside style={{ width: 208, flexShrink: 0, position: 'sticky', top: 80 }}>
-          <div className="rounded-2xl border overflow-hidden" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
-            <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>Categories</p>
-            </div>
-            {CATEGORIES.map(({ key, emoji, label }) => {
-              const count = categoryCounts[key] ?? 0;
-              const active = activeCategory === key;
-              return (
-                <button
-                  key={key}
-                  onClick={() => setActiveCategory(key)}
-                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors"
-                  style={{
-                    background: active ? 'rgba(99,102,241,0.1)' : 'transparent',
-                    borderLeft: active ? '3px solid #6366f1' : '3px solid transparent',
-                    cursor: 'pointer',
-                    border: 'none',
-                    borderLeft: active ? '3px solid #6366f1' : '3px solid transparent',
-                  }}
-                >
-                  <span style={{ fontSize: 14 }}>{emoji}</span>
-                  <span
-                    className="flex-1 text-sm"
-                    style={{ color: active ? '#6366f1' : 'var(--text)', fontWeight: active ? 600 : 400 }}
-                  >
-                    {label}
+        {/* Top category bar */}
+        <div className="flex items-center gap-2 mb-6 flex-wrap">
+          {CATEGORY_KEYS.map(({ key, emoji }) => {
+            const count = categoryCounts[key] ?? 0;
+            const active = activeCategory === key;
+            const label = t.categories[key];
+            return (
+              <button
+                key={key}
+                onClick={() => setActiveCategory(key)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
+                style={{
+                  background: active ? 'var(--accent-ink)' : 'var(--surface)',
+                  color: active ? '#fff' : 'var(--text)',
+                  border: active ? '1px solid var(--accent-ink)' : '1px solid var(--border)',
+                  cursor: 'pointer',
+                  boxShadow: active ? '0 2px 8px rgba(109,112,224,0.3)' : 'none',
+                }}
+              >
+                <span style={{ fontSize: 13 }}>{emoji}</span>
+                {label}
+                {count > 0 && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: active ? 'rgba(255,255,255,0.25)' : 'var(--border)', color: active ? '#fff' : 'var(--muted)' }}>
+                    {count}
                   </span>
-                  {count > 0 && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: active ? '#6366f1' : 'var(--border)', color: active ? '#fff' : 'var(--muted)', fontWeight: 600 }}>
-                      {count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Source status */}
-          {sourceStats.length > 0 && (
-            <div className="mt-4 rounded-2xl border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
-              <p className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>Sources</p>
-              {sourceStats.map((s) => (
-                <div key={s.source} className="flex items-center justify-between py-0.5">
-                  <span className="text-[11px] flex items-center gap-1" style={{ color: s.ok ? 'var(--text)' : '#ef4444' }}>
-                    <span style={{ color: s.ok ? '#22c55e' : '#ef4444', fontSize: 8 }}>●</span>
-                    {s.source}
-                  </span>
-                  <span className="text-[10px]" style={{ color: 'var(--muted)' }}>{s.count}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Personalize CTA */}
-          {!prefs && !loading && (
-            <button
-              onClick={() => setShowModal(true)}
-              className="mt-4 w-full p-3 rounded-2xl text-left transition-all"
-              style={{
-                background: 'linear-gradient(135deg,rgba(99,102,241,0.1),rgba(139,92,246,0.06))',
-                border: '1.5px dashed rgba(99,102,241,0.4)',
-                cursor: 'pointer',
-              }}
-            >
-              <p className="text-xs font-semibold" style={{ color: '#6366f1' }}>Personalize feed</p>
-              <p className="text-[10px] mt-0.5" style={{ color: 'var(--muted)' }}>Rank trends for your role</p>
-            </button>
-          )}
+                )}
+              </button>
+            );
+          })}
           {prefs && (
             <button
               onClick={() => setShowModal(true)}
-              className="mt-4 w-full p-3 rounded-2xl text-left transition-all"
-              style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', cursor: 'pointer' }}
+              className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
+              style={{ background: 'var(--accent-tint)', border: '1px solid var(--accent-border)', color: 'var(--accent-ink)', cursor: 'pointer' }}
             >
-              <p className="text-xs font-semibold" style={{ color: '#6366f1' }}>
-                {ROLE_CONFIG[prefs.role].emoji} {ROLE_CONFIG[prefs.role].label}
-              </p>
-              <p className="text-[10px] mt-0.5" style={{ color: 'var(--muted)' }}>Edit preferences</p>
+              {ROLE_CONFIG[prefs.role].emoji} {ROLE_CONFIG[prefs.role].label}
             </button>
           )}
-        </aside>
+          {!prefs && !loading && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
+              style={{ background: 'var(--accent-light)', border: '1.5px dashed var(--accent-border)', color: 'var(--accent-ink)', cursor: 'pointer' }}
+            >
+              {t.personalize}
+            </button>
+          )}
+        </div>
 
         {/* Main content */}
-        <main style={{ flex: 1, minWidth: 0 }}>
+        <main>
           {error && (
-            <div className="mb-5 p-3 rounded-xl text-sm" style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#991b1b' }}>
+            <div className="mb-5 p-3 rounded-xl text-sm" style={{ background: 'var(--no-tint)', border: '1px solid var(--no-border)', color: 'var(--no-ink)' }}>
               {error}
             </div>
           )}
@@ -240,13 +207,13 @@ export default function Dashboard() {
           ) : filtered.length === 0 ? (
             <div className="text-center py-20" style={{ color: 'var(--muted)' }}>
               <div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>
-              <p className="font-medium">No trends match this filter</p>
+              <p className="font-medium">{t.noTrends}</p>
               <button
                 onClick={() => { setActiveSource('all'); setActiveCategory('all'); }}
                 className="mt-3 text-sm underline"
-                style={{ color: '#6366f1', background: 'none', border: 'none', cursor: 'pointer' }}
+                style={{ color: 'var(--accent-ink)', background: 'none', border: 'none', cursor: 'pointer' }}
               >
-                Clear filters
+                {t.clearFilters}
               </button>
             </div>
           ) : (
@@ -258,8 +225,8 @@ export default function Dashboard() {
                     <div className="live-dot" />
                     <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text)' }}>
                       {prefs
-                        ? `For You — ${ROLE_CONFIG[prefs.role].emoji} ${ROLE_CONFIG[prefs.role].label}`
-                        : 'Top Trends'}
+                        ? `${t.forYou} — ${ROLE_CONFIG[prefs.role].emoji} ${ROLE_CONFIG[prefs.role].label}`
+                        : t.topTrends}
                     </h2>
                     <span className="text-xs" style={{ color: 'var(--muted)' }}>({displayForYou.length})</span>
                   </div>
@@ -276,7 +243,7 @@ export default function Dashboard() {
                 <section>
                   <div className="flex items-center gap-2 mb-4">
                     <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
-                      {prefs ? 'Less Relevant to You' : 'More Trends'}
+                      {prefs ? t.lessRelevant : t.moreTrends}
                     </h2>
                     <span className="text-xs" style={{ color: 'var(--muted)' }}>({displayMore.length})</span>
                   </div>
@@ -291,6 +258,7 @@ export default function Dashboard() {
           )}
         </main>
       </div>
+
 
       {showModal && (
         <PersonalizeModal
