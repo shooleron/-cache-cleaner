@@ -1,23 +1,12 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { Trend, TrendSource, TrendCategory, TrendsResponse, TrendInsight, AIAnalysis } from '@/lib/types';
-import { UserPreferences, loadPreferences, savePreferences, splitByRelevance, ROLE_CONFIG } from '@/lib/personalization';
+import { UserPreferences, loadPreferences, savePreferences, splitByRelevance } from '@/lib/personalization';
 import Header from '@/components/Header';
 import TrendCard from '@/components/FeaturedCard';
 import PersonalizeModal from '@/components/PersonalizeModal';
 import { useLang } from '@/lib/i18n';
 
-const CATEGORY_KEYS: { key: TrendCategory | 'all'; emoji: string }[] = [
-  { key: 'all',       emoji: '🔥' },
-  { key: 'tech',      emoji: '💻' },
-  { key: 'ai',        emoji: '🤖' },
-  { key: 'marketing', emoji: '📣' },
-  { key: 'business',  emoji: '💼' },
-  { key: 'science',   emoji: '🔬' },
-  { key: 'design',    emoji: '🎨' },
-  { key: 'crypto',    emoji: '₿'  },
-  { key: 'culture',   emoji: '🌍' },
-];
 
 function SkeletonFeatured() {
   return (
@@ -139,58 +128,10 @@ export default function Dashboard() {
         analyzing={analyzing}
         fetchedAt={fetchedAt}
         prefs={prefs}
+        categoryCounts={categoryCounts}
       />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px 40px', paddingTop: 20 }}>
-
-        {/* Top category bar */}
-        <div className="flex items-center gap-2 mb-6 flex-wrap">
-          {CATEGORY_KEYS.map(({ key, emoji }) => {
-            const count = categoryCounts[key] ?? 0;
-            const active = activeCategory === key;
-            const label = t.categories[key as keyof typeof t.categories];
-            return (
-              <button
-                key={key}
-                onClick={() => setActiveCategory(key)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
-                style={{
-                  background: active ? 'var(--accent-ink)' : 'var(--surface)',
-                  color: active ? '#fff' : 'var(--text)',
-                  border: active ? '1px solid var(--accent-ink)' : '1px solid var(--border)',
-                  cursor: 'pointer',
-                  boxShadow: active ? '0 2px 8px rgba(109,112,224,0.3)' : 'none',
-                }}
-              >
-                <span style={{ fontSize: 13 }}>{emoji}</span>
-                {label}
-                {count > 0 && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: active ? 'rgba(255,255,255,0.25)' : 'var(--border)', color: active ? '#fff' : 'var(--muted)' }}>
-                    {count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-          {prefs && (
-            <button
-              onClick={() => setShowModal(true)}
-              className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
-              style={{ background: 'var(--accent-tint)', border: '1px solid var(--accent-border)', color: 'var(--accent-ink)', cursor: 'pointer' }}
-            >
-              {ROLE_CONFIG[prefs.role].emoji} {ROLE_CONFIG[prefs.role].label}
-            </button>
-          )}
-          {!prefs && !loading && (
-            <button
-              onClick={() => setShowModal(true)}
-              className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
-              style={{ background: 'var(--accent-light)', border: '1.5px dashed var(--accent-border)', color: 'var(--accent-ink)', cursor: 'pointer' }}
-            >
-              {t.personalize}
-            </button>
-          )}
-        </div>
 
         {/* Main content */}
         <main>

@@ -38,13 +38,14 @@ interface Props {
   analyzing: boolean;
   fetchedAt?: string;
   prefs?: UserPreferences | null;
+  categoryCounts?: Record<string, number>;
 }
 
 export default function Header({
   activeSource, activeCategory,
   onSourceChange, onCategoryChange,
   onRefresh, onAnalyze, onPersonalize,
-  loading, analyzing, fetchedAt, prefs,
+  loading, analyzing, fetchedAt, prefs, categoryCounts = {},
 }: Props) {
   const { lang, t, toggle } = useLang();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -150,45 +151,72 @@ export default function Header({
           </div>
         </div>
 
-        {/* Filter rows — collapsible */}
-        <div style={{ paddingBottom: menuOpen ? 10 : 0, overflowX: 'auto', maxHeight: menuOpen ? 200 : 0, overflow: 'hidden', transition: 'max-height 0.25s ease, padding-bottom 0.25s ease' }}>
-          {/* Category pills */}
-          <div className="flex items-center gap-1.5 flex-nowrap pb-2">
-            {CATEGORIES.map((cat) => (
+        {/* Collapsible menu */}
+        <div style={{ maxHeight: menuOpen ? 300 : 0, overflow: 'hidden', transition: 'max-height 0.25s ease' }}>
+          <div style={{ paddingBottom: 12, borderTop: '1px solid var(--border)', paddingTop: 10 }}>
+            {/* Personalize row */}
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
               <button
-                key={cat.value}
-                onClick={() => onCategoryChange(cat.value)}
-                className="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all"
+                onClick={() => { onPersonalize(); setMenuOpen(false); }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
                 style={{
-                  background: activeCategory === cat.value ? '#6366f1' : 'transparent',
-                  color: activeCategory === cat.value ? '#fff' : 'var(--muted)',
-                  border: `1.5px solid ${activeCategory === cat.value ? '#6366f1' : 'var(--border)'}`,
+                  background: prefs ? 'var(--accent-tint)' : 'var(--bg)',
+                  border: `1.5px solid ${prefs ? 'var(--accent-border)' : 'var(--border)'}`,
+                  color: prefs ? 'var(--accent-ink)' : 'var(--muted)',
                   cursor: 'pointer',
                 }}
               >
-                {t.catLabels[cat.value as keyof typeof t.catLabels]}
+                {prefs ? `${ROLE_CONFIG[prefs.role].emoji} ${ROLE_CONFIG[prefs.role].label}` : t.personalize}
               </button>
-            ))}
-          </div>
+            </div>
 
-          {/* Source pills */}
-          <div className="flex items-center gap-1.5 flex-nowrap">
-            {SOURCES.map((src) => (
-              <button
-                key={src.value}
-                onClick={() => onSourceChange(src.value)}
-                className="px-3 py-1 rounded-full text-xs whitespace-nowrap transition-all"
-                style={{
-                  background: activeSource === src.value ? 'rgba(99,102,241,0.1)' : 'transparent',
-                  color: activeSource === src.value ? '#6366f1' : 'var(--muted)',
-                  border: `1.5px solid ${activeSource === src.value ? 'rgba(99,102,241,0.3)' : 'transparent'}`,
-                  cursor: 'pointer',
-                  fontWeight: activeSource === src.value ? 600 : 400,
-                }}
-              >
-                {src.value === 'all' ? t.allSources : src.label}
-              </button>
-            ))}
+            {/* Category pills */}
+            <div className="flex items-center gap-1.5 flex-nowrap overflow-x-auto pb-2">
+              {CATEGORIES.map((cat) => {
+                const count = categoryCounts[cat.value] ?? 0;
+                const active = activeCategory === cat.value;
+                return (
+                  <button
+                    key={cat.value}
+                    onClick={() => { onCategoryChange(cat.value); setMenuOpen(false); }}
+                    className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all shrink-0"
+                    style={{
+                      background: active ? '#6366f1' : 'transparent',
+                      color: active ? '#fff' : 'var(--muted)',
+                      border: `1.5px solid ${active ? '#6366f1' : 'var(--border)'}`,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {t.catLabels[cat.value as keyof typeof t.catLabels]}
+                    {count > 0 && (
+                      <span className="text-[10px] px-1 rounded-full" style={{ background: active ? 'rgba(255,255,255,0.25)' : 'var(--border)', color: active ? '#fff' : 'var(--muted)' }}>
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Source pills */}
+            <div className="flex items-center gap-1.5 flex-nowrap overflow-x-auto">
+              {SOURCES.map((src) => (
+                <button
+                  key={src.value}
+                  onClick={() => { onSourceChange(src.value); setMenuOpen(false); }}
+                  className="px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0 transition-all"
+                  style={{
+                    background: activeSource === src.value ? 'rgba(99,102,241,0.1)' : 'transparent',
+                    color: activeSource === src.value ? '#6366f1' : 'var(--muted)',
+                    border: `1.5px solid ${activeSource === src.value ? 'rgba(99,102,241,0.3)' : 'transparent'}`,
+                    cursor: 'pointer',
+                    fontWeight: activeSource === src.value ? 600 : 400,
+                  }}
+                >
+                  {src.value === 'all' ? t.allSources : src.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -41,6 +41,7 @@ export default function TrendCard({ trend, dim, large }: Props) {
   const isHot = trend.score >= 70;
   const src = SOURCE_CONFIG[trend.source] ?? SOURCE_CONFIG.rss;
   const imgHeight = large ? 280 : 180;
+  const fallbackImg = `https://picsum.photos/seed/${encodeURIComponent(trend.id)}/800/450`;
 
   return (
     <Link href={`/trends/${trend.id}`} style={{ textDecoration: 'none', display: 'block', height: '100%', opacity: dim ? 0.72 : 1 }}>
@@ -62,13 +63,11 @@ export default function TrendCard({ trend, dim, large }: Props) {
       >
         {/* Image */}
         <div className="relative w-full shrink-0 overflow-hidden" style={{ height: imgHeight }}>
-          {trend.thumbnail ? (
-            <img src={trend.thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center" style={{ background: catToken }}>
-              <span style={{ fontSize: 52, opacity: 0.45 }}>{CAT_EMOJI[trend.category]}</span>
-            </div>
-          )}
+          <img
+            src={trend.thumbnail || fallbackImg}
+            alt=""
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom,transparent 30%,rgba(15,15,26,0.4))' }} />
           {/* Left badges */}
           <div className="absolute top-3 left-3 flex gap-1.5">
