@@ -29,9 +29,9 @@ function timeAgo(iso: string) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
-interface Props { trend: Trend; dim?: boolean }
+interface Props { trend: Trend; dim?: boolean; large?: boolean }
 
-export default function TrendCard({ trend, dim }: Props) {
+export default function TrendCard({ trend, dim, large }: Props) {
   const { t } = useLang();
   const catToken = CAT_TOKEN[trend.category] ?? CAT_TOKEN.other;
   const rising = trend.score >= 55;
@@ -40,6 +40,7 @@ export default function TrendCard({ trend, dim }: Props) {
   const momentumBar = rising ? 'var(--yes)' : cooling ? 'var(--no)' : 'var(--stable)';
   const isHot = trend.score >= 70;
   const src = SOURCE_CONFIG[trend.source] ?? SOURCE_CONFIG.rss;
+  const imgHeight = large ? 280 : 180;
 
   return (
     <Link href={`/trends/${trend.id}`} style={{ textDecoration: 'none', display: 'block', height: '100%', opacity: dim ? 0.72 : 1 }}>
@@ -59,8 +60,8 @@ export default function TrendCard({ trend, dim }: Props) {
           e.currentTarget.style.boxShadow = isHot ? '0 0 0 1px var(--no-border), var(--shadow-card-soft)' : 'var(--shadow-card)';
         }}
       >
-        {/* Image — fixed height, all cards identical */}
-        <div className="relative w-full shrink-0 overflow-hidden" style={{ height: 180 }}>
+        {/* Image */}
+        <div className="relative w-full shrink-0 overflow-hidden" style={{ height: imgHeight }}>
           {trend.thumbnail ? (
             <img src={trend.thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
           ) : (
@@ -102,10 +103,10 @@ export default function TrendCard({ trend, dim }: Props) {
           )}
         </div>
 
-        {/* Body — fixed min-height so all cards same total height */}
-        <div className="flex-1 flex flex-col p-4" style={{ minHeight: 110 }}>
+        {/* Body */}
+        <div className="flex-1 flex flex-col p-4" style={{ minHeight: large ? 130 : 110 }}>
           <p
-            className="text-sm font-bold leading-snug mb-3"
+            className={`${large ? 'text-base' : 'text-sm'} font-bold leading-snug mb-3`}
             style={{
               color: 'var(--text)',
               display: '-webkit-box',

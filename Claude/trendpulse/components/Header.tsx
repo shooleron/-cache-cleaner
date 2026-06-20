@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import Link from 'next/link';
 import { TrendSource, TrendCategory } from '@/lib/types';
 import { UserPreferences, ROLE_CONFIG } from '@/lib/personalization';
@@ -46,6 +47,7 @@ export default function Header({
   loading, analyzing, fetchedAt, prefs,
 }: Props) {
   const { lang, t, toggle } = useLang();
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <header style={{ background: 'var(--surface)', borderBottom: '1.5px solid var(--border)', position: 'sticky', top: 0, zIndex: 50 }}>
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 24px' }}>
@@ -84,6 +86,17 @@ export default function Header({
                 {t.updated} {new Date(fetchedAt).toLocaleTimeString()}
               </span>
             )}
+            {/* Hamburger */}
+            <button
+              onClick={() => setMenuOpen((o) => !o)}
+              className="flex flex-col items-center justify-center gap-[5px] w-8 h-8 rounded-lg transition-all"
+              style={{ background: menuOpen ? 'var(--accent-tint)' : 'var(--bg)', border: '1.5px solid var(--border)', cursor: 'pointer' }}
+              aria-label="Toggle filters"
+            >
+              <span style={{ display: 'block', width: 16, height: 1.5, background: menuOpen ? 'var(--accent-ink)' : 'var(--text)', borderRadius: 2, transition: 'transform 0.2s', transform: menuOpen ? 'translateY(3.25px) rotate(45deg)' : 'none' }} />
+              <span style={{ display: 'block', width: 16, height: 1.5, background: menuOpen ? 'var(--accent-ink)' : 'var(--text)', borderRadius: 2, opacity: menuOpen ? 0 : 1, transition: 'opacity 0.15s' }} />
+              <span style={{ display: 'block', width: 16, height: 1.5, background: menuOpen ? 'var(--accent-ink)' : 'var(--text)', borderRadius: 2, transition: 'transform 0.2s', transform: menuOpen ? 'translateY(-3.25px) rotate(-45deg)' : 'none' }} />
+            </button>
             {/* Language toggle */}
             <button
               onClick={toggle}
@@ -137,8 +150,8 @@ export default function Header({
           </div>
         </div>
 
-        {/* Filter rows */}
-        <div style={{ paddingBottom: 10, overflowX: 'auto' }}>
+        {/* Filter rows — collapsible */}
+        <div style={{ paddingBottom: menuOpen ? 10 : 0, overflowX: 'auto', maxHeight: menuOpen ? 200 : 0, overflow: 'hidden', transition: 'max-height 0.25s ease, padding-bottom 0.25s ease' }}>
           {/* Category pills */}
           <div className="flex items-center gap-1.5 flex-nowrap pb-2">
             {CATEGORIES.map((cat) => (

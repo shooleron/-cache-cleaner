@@ -109,6 +109,9 @@ export default function Dashboard() {
   const displayForYou = prefs ? forYou : allSorted.slice(0, 3);
   const displayMore = prefs ? more : allSorted.slice(3);
 
+  const hotTrends = filtered.filter((t) => t.score >= 70).sort((a, b) => b.score - a.score);
+  const regularTrends = filtered.filter((t) => t.score < 70).sort((a, b) => b.score - a.score);
+
   const insightMap = new Map<string, TrendInsight>();
   analysis?.topTrends?.forEach((ins) => {
     const idx = parseInt(ins.trendId?.replace('trend-', '') || '0') - 1;
@@ -218,38 +221,36 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              {/* Top Trends */}
-              {displayForYou.length > 0 && (
+              {/* Hot Trends — large 2-col */}
+              {hotTrends.length > 0 && (
                 <section className="mb-8">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="live-dot" />
                     <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text)' }}>
-                      {prefs
-                        ? `${t.forYou} — ${ROLE_CONFIG[prefs.role].emoji} ${ROLE_CONFIG[prefs.role].label}`
-                        : t.topTrends}
+                      {t.topTrends}
                     </h2>
-                    <span className="text-xs" style={{ color: 'var(--muted)' }}>({displayForYou.length})</span>
+                    <span className="text-xs" style={{ color: 'var(--muted)' }}>({hotTrends.length})</span>
                   </div>
-                  <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-                    {displayForYou.map((t) => (
-                      <TrendCard key={t.id} trend={t} />
+                  <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                    {hotTrends.map((tr) => (
+                      <TrendCard key={tr.id} trend={tr} large />
                     ))}
                   </div>
                 </section>
               )}
 
-              {/* More Trends */}
-              {displayMore.length > 0 && (
+              {/* Regular Trends — 3-col */}
+              {regularTrends.length > 0 && (
                 <section>
                   <div className="flex items-center gap-2 mb-4">
                     <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
-                      {prefs ? t.lessRelevant : t.moreTrends}
+                      {t.moreTrends}
                     </h2>
-                    <span className="text-xs" style={{ color: 'var(--muted)' }}>({displayMore.length})</span>
+                    <span className="text-xs" style={{ color: 'var(--muted)' }}>({regularTrends.length})</span>
                   </div>
                   <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-                    {displayMore.map((t) => (
-                      <TrendCard key={t.id} trend={t} dim={!!prefs} />
+                    {regularTrends.map((tr) => (
+                      <TrendCard key={tr.id} trend={tr} />
                     ))}
                   </div>
                 </section>
