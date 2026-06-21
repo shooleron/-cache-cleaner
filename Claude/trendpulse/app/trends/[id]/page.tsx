@@ -171,13 +171,11 @@ export default function TrendDetailPage() {
       <main style={{ maxWidth: 920, margin: '0 auto', padding: '28px 24px' }}>
         {/* Hero */}
         <div className="relative w-full rounded-[24px] overflow-hidden mb-7" style={{ height: 300 }}>
-          {trend.thumbnail ? (
-            <img src={trend.thumbnail} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center" style={{ background: cat.gradient }}>
-              <span style={{ fontSize: 90, opacity: 0.2 }}>{cat.emoji}</span>
-            </div>
-          )}
+          <img
+            src={trend.thumbnail || `https://picsum.photos/seed/${encodeURIComponent(trend.id)}/1200/600`}
+            alt=""
+            className="w-full h-full object-cover"
+          />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0) 20%, rgba(0,0,0,0.75) 100%)' }} />
 
           {/* Top badges */}
@@ -507,9 +505,12 @@ export default function TrendDetailPage() {
                       onMouseEnter={(e) => { e.currentTarget.style.borderColor = cat.color + '44'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
                     >
-                      {t.thumbnail && (
-                        <img src={t.thumbnail} alt="" className="rounded-lg object-cover shrink-0" style={{ width: 52, height: 38 }} />
-                      )}
+                      <img
+                        src={t.thumbnail || `https://picsum.photos/seed/${encodeURIComponent(t.id)}/200/150`}
+                        alt=""
+                        className="rounded-lg object-cover shrink-0"
+                        style={{ width: 52, height: 38 }}
+                      />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{t.title}</p>
                         <p className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>{timeAgo(t.publishedAt)} · {t.score} heat</p>

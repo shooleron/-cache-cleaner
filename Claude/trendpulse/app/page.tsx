@@ -162,7 +162,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              {/* Hot Trends — large 2-col */}
+              {/* Hot Trends */}
               {hotTrends.length > 0 && (
                 <section className="mb-8">
                   <div className="flex items-center gap-2 mb-4">
@@ -172,15 +172,15 @@ export default function Dashboard() {
                     </h2>
                     <span className="text-xs" style={{ color: 'var(--muted)' }}>({hotTrends.length})</span>
                   </div>
-                  <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                  <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
                     {hotTrends.map((tr) => (
-                      <TrendCard key={tr.id} trend={tr} large />
+                      <TrendCard key={tr.id} trend={tr} />
                     ))}
                   </div>
                 </section>
               )}
 
-              {/* Regular Trends — 3-col */}
+              {/* Regular Trends */}
               {regularTrends.length > 0 && (
                 <section>
                   <div className="flex items-center gap-2 mb-4">
