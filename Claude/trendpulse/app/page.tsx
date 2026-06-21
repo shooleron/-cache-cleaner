@@ -5,6 +5,7 @@ import { UserPreferences, loadPreferences, savePreferences, splitByRelevance } f
 import Header from '@/components/Header';
 import TrendCard from '@/components/FeaturedCard';
 import PersonalizeModal from '@/components/PersonalizeModal';
+import Link from 'next/link';
 import { useLang } from '@/lib/i18n';
 
 const CARD_WIDTH = 380;
@@ -109,14 +110,18 @@ function SkeletonFeatured() {
 }
 
 
-function HeroCover({ trendCount }: { trendCount: number }) {
+function HeroCover({ trendCount, topTrend }: { trendCount: number; topTrend: Trend | null }) {
+  const fallbackImg = topTrend
+    ? `https://picsum.photos/seed/${encodeURIComponent(topTrend.id)}/600/400`
+    : '';
+
   return (
     <div
       style={{
         width: '100%',
         position: 'relative',
         overflow: 'hidden',
-        height: 160,
+        height: 200,
         background: 'linear-gradient(135deg, #0f0f1a 0%, #1a1040 40%, #0d1f3c 100%)',
         display: 'flex',
         alignItems: 'center',
@@ -136,8 +141,9 @@ function HeroCover({ trendCount }: { trendCount: number }) {
       <div style={{ position: 'absolute', top: -40, left: '15%', width: 200, height: 200, borderRadius: '50%', background: 'rgba(99,102,241,0.18)', filter: 'blur(60px)' }} />
       <div style={{ position: 'absolute', bottom: -60, right: '20%', width: 180, height: 180, borderRadius: '50%', background: 'rgba(244,63,94,0.12)', filter: 'blur(50px)' }} />
 
-      <div style={{ position: 'relative', maxWidth: 1200, margin: '0 auto', padding: '0 24px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
-        <div>
+      <div style={{ position: 'relative', maxWidth: 1200, margin: '0 auto', padding: '0 24px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32 }}>
+        {/* Left: branding + stats */}
+        <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
             <span style={{ fontSize: 28 }}>🔥</span>
             <h1 style={{ fontSize: 26, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em', margin: 0 }}>
@@ -147,28 +153,84 @@ function HeroCover({ trendCount }: { trendCount: number }) {
               The Future, Translated
             </span>
           </div>
-          <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.55)', maxWidth: 460, lineHeight: 1.5 }}>
-            Real-time signals from Hacker News, Reddit, YouTube, Product Hunt, and the web — filtered and ranked by AI.
+          <p style={{ margin: '0 0 16px', fontSize: 13, color: 'rgba(255,255,255,0.55)', maxWidth: 400, lineHeight: 1.5 }}>
+            Real-time signals from Hacker News, Reddit, YouTube, Product Hunt, and the web — ranked by AI.
           </p>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ textAlign: 'center', padding: '7px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{trendCount}</div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginTop: 3, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Trends</div>
+            </div>
+            <div style={{ textAlign: 'center', padding: '7px 16px', borderRadius: 12, background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#a5b4fc', lineHeight: 1 }}>5</div>
+              <div style={{ fontSize: 9, color: 'rgba(165,180,252,0.55)', marginTop: 3, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Sources</div>
+            </div>
+            <div style={{ textAlign: 'center', padding: '7px 16px', borderRadius: 12, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'inline-block', boxShadow: '0 0 6px #4ade80' }} />
+                <span style={{ fontSize: 18, fontWeight: 800, color: '#4ade80', lineHeight: 1 }}>Live</span>
+              </div>
+              <div style={{ fontSize: 9, color: 'rgba(74,222,128,0.45)', marginTop: 3, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Updating</div>
+            </div>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
-          <div style={{ textAlign: 'center', padding: '10px 20px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{trendCount}</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', marginTop: 4, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Trends</div>
-          </div>
-          <div style={{ textAlign: 'center', padding: '10px 20px', borderRadius: 14, background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#a5b4fc', lineHeight: 1 }}>5</div>
-            <div style={{ fontSize: 10, color: 'rgba(165,180,252,0.6)', marginTop: 4, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Sources</div>
-          </div>
-          <div style={{ textAlign: 'center', padding: '10px 20px', borderRadius: 14, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, justifyContent: 'center' }}>
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#4ade80', display: 'inline-block', boxShadow: '0 0 6px #4ade80' }} />
-              <span style={{ fontSize: 22, fontWeight: 800, color: '#4ade80', lineHeight: 1 }}>Live</span>
+        {/* Right: Top Trend card */}
+        {topTrend && (
+          <Link href={`/trends/${topTrend.id}`} style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 14,
+                background: 'rgba(255,255,255,0.06)',
+                border: '1.5px solid rgba(244,63,94,0.4)',
+                borderRadius: 16,
+                padding: '10px 14px 10px 10px',
+                width: 340,
+                backdropFilter: 'blur(8px)',
+                cursor: 'pointer',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+            >
+              {/* Thumbnail */}
+              <div style={{ width: 90, height: 64, borderRadius: 10, overflow: 'hidden', flexShrink: 0 }}>
+                <img
+                  src={topTrend.thumbnail || fallbackImg}
+                  alt=""
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
+              {/* Info */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                  <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: '#f87171', textTransform: 'uppercase', background: 'rgba(244,63,94,0.2)', padding: '2px 6px', borderRadius: 99 }}>
+                    #1 Today
+                  </span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#fbbf24' }}>{topTrend.score}%</span>
+                </div>
+                <p style={{
+                  margin: 0,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#fff',
+                  lineHeight: 1.35,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                }}>
+                  {topTrend.title}
+                </p>
+                <div style={{ marginTop: 6, width: '100%', height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.1)' }}>
+                  <div style={{ width: `${topTrend.score}%`, height: '100%', borderRadius: 99, background: 'linear-gradient(90deg, #f43f5e, #fb923c)' }} />
+                </div>
+              </div>
             </div>
-            <div style={{ fontSize: 10, color: 'rgba(74,222,128,0.5)', marginTop: 4, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Updating</div>
-          </div>
-        </div>
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -284,7 +346,7 @@ export default function Dashboard() {
         categoryCounts={categoryCounts}
       />
 
-      <HeroCover trendCount={trends.length} />
+      <HeroCover trendCount={trends.length} topTrend={trends.length ? [...trends].sort((a, b) => b.score - a.score)[0] : null} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px 40px', paddingTop: 20 }}>
 
