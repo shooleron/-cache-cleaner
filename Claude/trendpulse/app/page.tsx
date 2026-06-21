@@ -1,11 +1,99 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Trend, TrendSource, TrendCategory, TrendsResponse, TrendInsight, AIAnalysis } from '@/lib/types';
 import { UserPreferences, loadPreferences, savePreferences, splitByRelevance } from '@/lib/personalization';
 import Header from '@/components/Header';
 import TrendCard from '@/components/FeaturedCard';
 import PersonalizeModal from '@/components/PersonalizeModal';
 import { useLang } from '@/lib/i18n';
+
+const CARD_WIDTH = 380;
+const CARD_GAP = 16;
+
+function HotSlider({ trends }: { trends: Trend[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [idx, setIdx] = useState(0);
+
+  function scrollTo(i: number) {
+    const clamped = Math.max(0, Math.min(i, trends.length - 1));
+    setIdx(clamped);
+    ref.current?.scrollTo({ left: clamped * (CARD_WIDTH + CARD_GAP), behavior: 'smooth' });
+  }
+
+  function onScroll() {
+    if (!ref.current) return;
+    const i = Math.round(ref.current.scrollLeft / (CARD_WIDTH + CARD_GAP));
+    setIdx(i);
+  }
+
+  return (
+    <div style={{ position: 'relative' }}>
+      {/* Scroll track */}
+      <div
+        ref={ref}
+        onScroll={onScroll}
+        style={{
+          display: 'flex',
+          gap: CARD_GAP,
+          overflowX: 'auto',
+          scrollSnapType: 'x mandatory',
+          scrollbarWidth: 'none',
+          paddingBottom: 4,
+        }}
+      >
+        {trends.map((tr) => (
+          <div key={tr.id} style={{ flex: `0 0 ${CARD_WIDTH}px`, scrollSnapAlign: 'start' }}>
+            <TrendCard trend={tr} />
+          </div>
+        ))}
+      </div>
+
+      {/* Arrows */}
+      {idx > 0 && (
+        <button
+          onClick={() => scrollTo(idx - 1)}
+          style={{
+            position: 'absolute', top: '50%', left: -18, transform: 'translateY(-50%)',
+            width: 36, height: 36, borderRadius: '50%',
+            background: 'var(--surface)', border: '1.5px solid var(--border)',
+            color: 'var(--text)', fontSize: 16, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: 'var(--shadow-card)', zIndex: 10,
+          }}
+        >‹</button>
+      )}
+      {idx < trends.length - 1 && (
+        <button
+          onClick={() => scrollTo(idx + 1)}
+          style={{
+            position: 'absolute', top: '50%', right: -18, transform: 'translateY(-50%)',
+            width: 36, height: 36, borderRadius: '50%',
+            background: 'var(--surface)', border: '1.5px solid var(--border)',
+            color: 'var(--text)', fontSize: 16, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: 'var(--shadow-card)', zIndex: 10,
+          }}
+        >›</button>
+      )}
+
+      {/* Dots */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 12 }}>
+        {trends.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => scrollTo(i)}
+            style={{
+              width: i === idx ? 20 : 6, height: 6, borderRadius: 99,
+              background: i === idx ? 'var(--accent-ink)' : 'var(--border)',
+              border: 'none', cursor: 'pointer', padding: 0,
+              transition: 'width 0.2s ease, background 0.2s ease',
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 
 function SkeletonFeatured() {
@@ -162,9 +250,9 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              {/* Hot Trends */}
+              {/* Hot Trends — Slider */}
               {hotTrends.length > 0 && (
-                <section className="mb-8">
+                <section className="mb-10">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="live-dot" />
                     <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text)' }}>
@@ -172,11 +260,7 @@ export default function Dashboard() {
                     </h2>
                     <span className="text-xs" style={{ color: 'var(--muted)' }}>({hotTrends.length})</span>
                   </div>
-                  <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-                    {hotTrends.map((tr) => (
-                      <TrendCard key={tr.id} trend={tr} />
-                    ))}
-                  </div>
+                  <HotSlider trends={hotTrends} />
                 </section>
               )}
 
