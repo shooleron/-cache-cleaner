@@ -110,7 +110,7 @@ function SkeletonFeatured() {
 }
 
 
-function HeroCover({ trendCount, topTrend }: { trendCount: number; topTrend: Trend | null }) {
+function HeroCover({ trendCount, topTrend, onSearch }: { trendCount: number; topTrend: Trend | null; onSearch: (q: string) => void }) {
   const fallbackImg = topTrend
     ? `https://picsum.photos/seed/${encodeURIComponent(topTrend.id)}/600/400`
     : '';
@@ -153,9 +153,29 @@ function HeroCover({ trendCount, topTrend }: { trendCount: number; topTrend: Tre
               The Future, Translated
             </span>
           </div>
-          <p style={{ margin: '0 0 16px', fontSize: 13, color: 'rgba(255,255,255,0.55)', maxWidth: 400, lineHeight: 1.5 }}>
-            Real-time signals from Hacker News, Reddit, YouTube, Product Hunt, and the web — ranked by AI.
-          </p>
+          {/* Search bar */}
+          <div style={{ position: 'relative', maxWidth: 400, marginBottom: 14 }}>
+            <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, opacity: 0.5, pointerEvents: 'none' }}>🔍</span>
+            <input
+              type="text"
+              placeholder="Search trends..."
+              onChange={(e) => onSearch(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px 8px 34px',
+                borderRadius: 10,
+                border: '1px solid rgba(255,255,255,0.15)',
+                background: 'rgba(255,255,255,0.08)',
+                color: '#fff',
+                fontSize: 13,
+                outline: 'none',
+                backdropFilter: 'blur(8px)',
+                boxSizing: 'border-box',
+              }}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.6)')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.15)')}
+            />
+          </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <div style={{ textAlign: 'center', padding: '7px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
               <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{trendCount}</div>
@@ -249,6 +269,7 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<UserPreferences | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const saved = loadPreferences();
@@ -305,6 +326,10 @@ export default function Dashboard() {
   const filtered = trends.filter((t) => {
     if (activeSource !== 'all' && t.source !== activeSource) return false;
     if (activeCategory !== 'all' && t.category !== activeCategory) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      if (!t.title.toLowerCase().includes(q) && !t.category.toLowerCase().includes(q)) return false;
+    }
     return true;
   });
 
@@ -346,7 +371,7 @@ export default function Dashboard() {
         categoryCounts={categoryCounts}
       />
 
-      <HeroCover trendCount={trends.length} topTrend={trends.length ? [...trends].sort((a, b) => b.score - a.score)[0] : null} />
+      <HeroCover trendCount={trends.length} topTrend={trends.length ? [...trends].sort((a, b) => b.score - a.score)[0] : null} onSearch={setSearchQuery} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px 40px', paddingTop: 20 }}>
 
