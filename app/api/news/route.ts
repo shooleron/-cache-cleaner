@@ -53,6 +53,11 @@ const FEEDS = [
     name: 'Medical News Today',
     url: 'https://www.medicalnewstoday.com/rss/featurednews.xml',
     source: 'Medical News Today'
+  },
+  {
+    name: 'Wellworthy',
+    url: 'https://wellworthy.com/feed/',
+    source: 'Wellworthy'
   }
 ];
 
@@ -101,8 +106,14 @@ async function fetchSingleFeed(feed: typeof FEEDS[0]): Promise<Article[]> {
       
       const rawTitle = extractTag(itemXml, 'title');
       const rawDescription = extractTag(itemXml, 'description');
+      const rawContentEncoded = extractTag(itemXml, 'content:encoded');
       const rawLink = extractTag(itemXml, 'link');
       const rawPubDate = extractTag(itemXml, 'pubDate');
+      const rawCreator = extractTag(itemXml, 'dc:creator');
+      
+      // Try to extract image from content:encoded or description
+      const imgMatch = (rawContentEncoded || rawDescription).match(/<img[^>]+src=["']([^"']+)["']/);
+      const extractedImageUrl = imgMatch ? imgMatch[1] : '';
       
       if (!rawTitle) continue;
 
@@ -118,8 +129,13 @@ async function fetchSingleFeed(feed: typeof FEEDS[0]): Promise<Article[]> {
       if (pubDateMs < fortyFiveDaysAgo) continue;
 
       const title = cleanHtml(rawTitle);
-      const description = cleanHtml(rawDescription);
+      // Use content:encoded if description is too short (common in WordPress feeds)
+      const rawBestContent = rawContentEncoded && cleanHtml(rawContentEncoded).length > cleanHtml(rawDescription).length
+        ? rawContentEncoded
+        : rawDescription;
+      const description = cleanHtml(rawBestContent);
       const sourceUrl = cleanHtml(rawLink);
+      const authorName = rawCreator ? cleanHtml(rawCreator) : '';
       
       // Auto classify based on keywords in title/description
       const fullText = (title + ' ' + description).toLowerCase();
@@ -290,7 +306,8 @@ async function fetchSingleFeed(feed: typeof FEEDS[0]): Promise<Article[]> {
         ],
       };
       const categoryList = categoryImages[category];
-      const imageUrl = categoryList[Math.floor(Math.random() * categoryList.length)];
+      // Prefer extracted image from the article's content, fall back to category stock images
+      const imageUrl = extractedImageUrl || categoryList[Math.floor(Math.random() * categoryList.length)];
 
       // Build a richer summary — up to 300 chars
       const summaryText = description.length > 300
@@ -308,7 +325,7 @@ async function fetchSingleFeed(feed: typeof FEEDS[0]): Promise<Article[]> {
         scientificConfidence: confidence,
         clinicalStage: clinicalStage,
         readTime: `${Math.max(3, Math.floor(description.split(' ').length / 150))} דק' קריאה`,
-        author: `מערכת ${feed.source}`,
+        author: authorName || `מערכת ${feed.source}`,
         source: feed.source,
         publishedAt: pubDateISO,
         lastUpdated: pubDateISO,
