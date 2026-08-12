@@ -27,8 +27,8 @@ export default function ArticleDetail({ article, onClose, onToggleBookmark }: Pr
   return (
     <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden bg-white rounded-none border border-slate-200 shadow-sm" dir="rtl">
       {/* Article Content Area (Right side) */}
-      <div className="flex-1 overflow-y-auto p-6 lg:p-10 border-l border-slate-200 flex flex-col justify-between">
-        <div>
+      <div className="flex-1 overflow-y-auto p-6 lg:p-12 border-l border-slate-200 flex flex-col items-center">
+        <div className="max-w-[760px] w-full mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <button

@@ -109,7 +109,7 @@ export default function ArticleCard({
       )}
 
       {/* Content Column */}
-      <div className="flex-1 p-7 md:p-8 md:pr-12 lg:pr-14 flex flex-col justify-between">
+      <div className="flex-1 p-6 md:p-8 flex flex-col justify-between">
         <div>
           {/* Meta Bar — Category + Badges + Actions */}
           <div className="flex items-center justify-between mb-5">
