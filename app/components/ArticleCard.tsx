@@ -87,7 +87,7 @@ export default function ArticleCard({
   return (
     <article
       onClick={onSelect}
-      className={`group bg-white rounded-none transition-all duration-300 cursor-pointer flex flex-col md:flex-row items-stretch overflow-hidden card-hover-lift feed-card-enter ${
+      className={`group bg-white rounded-none transition-all duration-300 cursor-pointer flex flex-col items-center text-center overflow-hidden card-hover-lift feed-card-enter ${
         catStyle.accent
       } ${
         isHighlighted 
@@ -96,24 +96,24 @@ export default function ArticleCard({
       }`}
       dir="rtl"
     >
-      {/* Image Column — 300x250 locked */}
+      {/* Image Section — Centered full width */}
       {article.imageUrl && (
-        <div className="w-full md:w-[300px] md:min-w-[300px] h-[250px] shrink-0 relative overflow-hidden bg-slate-50 border-b md:border-b-0 md:border-l border-slate-100">
+        <div className="w-full h-[240px] md:h-[280px] shrink-0 relative overflow-hidden bg-slate-50 border-b border-slate-100">
           <img
             src={article.imageUrl}
             alt={article.title}
             className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-600 ease-out"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 via-transparent to-transparent md:hidden" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 via-transparent to-transparent" />
         </div>
       )}
 
-      {/* Content Column */}
-      <div className="flex-1 p-6 md:p-8 flex flex-col justify-between">
-        <div>
+      {/* Content Section — Centered elements */}
+      <div className="w-full p-6 md:p-8 flex flex-col items-center justify-between text-center space-y-4">
+        <div className="w-full flex flex-col items-center">
           {/* Meta Bar — Category + Badges + Actions */}
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center justify-between w-full mb-4">
+            <div className="flex flex-wrap items-center justify-center gap-2 mx-auto">
               <span className={`px-3 py-1 text-[10px] font-bold uppercase tracking-[0.05em] rounded-none ${catStyle.tag}`}>
                 {CATEGORY_NAMES[article.category]}
               </span>
@@ -133,7 +133,7 @@ export default function ArticleCard({
               )}
             </div>
 
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 shrink-0">
               <button
                 onClick={onToggleBookmark}
                 title={article.isBookmarked ? 'הסר מסימניות' : 'שמור'}
@@ -158,24 +158,24 @@ export default function ArticleCard({
             </div>
           </div>
 
-          {/* Title */}
-          <h3 className="text-[18px] md:text-[20px] font-bold text-slate-900 leading-[1.35] group-hover:text-blue-700 transition-colors duration-300 mb-3">
+          {/* Title — Centered */}
+          <h3 className="text-[18px] md:text-[22px] font-bold text-slate-900 leading-[1.35] group-hover:text-blue-700 transition-colors duration-300 mb-3 text-center max-w-2xl">
             {article.title}
           </h3>
 
-          {/* Summary */}
-          <p className="text-slate-500 text-[13px] leading-[1.8] mb-5 line-clamp-3">
+          {/* Summary — Centered */}
+          <p className="text-slate-500 text-[13px] leading-[1.8] mb-5 line-clamp-3 text-center max-w-xl">
             {article.summary}
           </p>
 
-          {/* Live Update Indicator */}
+          {/* Live Update Indicator — Centered */}
           {hasUpdates && (
-            <div className="bg-slate-50 border-r-[3px] border-r-blue-500 border border-slate-100 rounded-none p-3.5 mb-5 flex items-start gap-3">
-              <div className="w-7 h-7 bg-blue-100 text-blue-600 rounded-none flex items-center justify-center shrink-0 mt-0.5">
+            <div className="w-full bg-slate-50 border-r-[3px] border-r-blue-500 border border-slate-100 rounded-none p-3.5 mb-5 flex items-center justify-center gap-3 text-center">
+              <div className="w-7 h-7 bg-blue-100 text-blue-600 rounded-none flex items-center justify-center shrink-0">
                 <Activity size={14} />
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
+              <div className="min-w-0">
+                <div className="flex items-center justify-center gap-2 mb-0.5">
                   <span className="text-[11px] font-bold text-blue-700">עדכון אחרון</span>
                   <span className="text-[10px] text-slate-400">({relativeTime})</span>
                 </div>
@@ -187,9 +187,9 @@ export default function ArticleCard({
           )}
         </div>
 
-        {/* Footer */}
-        <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-400">
-          <div className="flex flex-wrap items-center gap-4">
+        {/* Footer — Centered */}
+        <div className="w-full pt-4 border-t border-slate-100 flex flex-wrap items-center justify-center gap-4 text-[11px] text-slate-400">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             <span className="flex items-center gap-1.5 font-medium">
               <User size={12} className="text-slate-300" />
               <span>{article.source}</span>
@@ -205,6 +205,8 @@ export default function ArticleCard({
               <span>{relativeTime}</span>
             </span>
           </div>
+
+          <span className="w-px h-3 bg-slate-200" />
 
           {/* Impact Score */}
           <div className="flex items-center gap-2">

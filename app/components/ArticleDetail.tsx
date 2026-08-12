@@ -111,11 +111,33 @@ export default function ArticleDetail({ article, onClose, onToggleBookmark }: Pr
             </p>
           </div>
 
-          {/* Full content */}
-          <div className="text-slate-800 text-sm md:text-base leading-relaxed mb-8 space-y-4 font-normal">
-            {article.content.split('\n').map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
+          {/* Full content — Rich multi-paragraph layout */}
+          <div className="text-slate-800 text-sm md:text-base leading-[1.8] mb-8 space-y-4 font-normal">
+            {article.content.split(/\n\n+/).map((block, index) => {
+              const trimmed = block.trim();
+              if (!trimmed) return null;
+              if (trimmed.startsWith('### ')) {
+                return (
+                  <h3 key={index} className="text-base md:text-lg font-bold text-slate-900 mt-6 mb-2 border-b border-slate-100 pb-2">
+                    {trimmed.replace('### ', '')}
+                  </h3>
+                );
+              }
+              if (trimmed.startsWith('- ')) {
+                return (
+                  <ul key={index} className="list-disc pr-6 space-y-1.5 text-slate-700 text-sm md:text-base my-3">
+                    {trimmed.split('\n').map((item, i) => (
+                      <li key={i}>{item.replace(/^- /, '')}</li>
+                    ))}
+                  </ul>
+                );
+              }
+              return (
+                <p key={index} className="leading-[1.8] text-slate-700 text-sm md:text-base">
+                  {trimmed}
+                </p>
+              );
+            })}
           </div>
 
           {/* Scientific and Impact Metrics Grid */}

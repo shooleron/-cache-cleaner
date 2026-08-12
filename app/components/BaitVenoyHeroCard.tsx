@@ -32,10 +32,10 @@ export default function BaitVenoyHeroCard({ article, onSelect }: Props) {
     >
       {/* Main Hero Container */}
       <div className="relative bg-white overflow-hidden card-hover-lift border border-slate-100 shadow-sm">
-        <div className="flex flex-col lg:flex-row items-stretch">
+        <div className="flex flex-col items-center text-center">
           
-          {/* Image Section — Large editorial format */}
-          <div className="w-full lg:w-[58%] shrink-0 relative overflow-hidden bg-slate-100 min-h-[280px] lg:min-h-[440px]">
+          {/* Image Section — Centered full width */}
+          <div className="w-full shrink-0 relative overflow-hidden bg-slate-100 h-[300px] lg:h-[420px]">
             <img
               src={article.imageUrl || 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=1200&q=80'}
               alt={article.title}
@@ -43,22 +43,22 @@ export default function BaitVenoyHeroCard({ article, onSelect }: Props) {
             />
             <div className="absolute inset-0 hero-image-overlay" />
             
-            {/* Featured badge — top right */}
+            {/* Featured badge */}
             <div className="absolute top-5 right-5 flex items-center gap-2">
               <span className="bg-white/95 backdrop-blur-sm text-slate-900 text-[10px] font-bold px-3.5 py-1.5 uppercase tracking-[0.08em] shadow-md">
                 כתבת השער
               </span>
             </div>
 
-            {/* Mobile overlay gradient for text readability */}
+            {/* Mobile overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent lg:hidden" />
           </div>
 
-          {/* Content Section */}
-          <div className="flex-1 p-8 lg:p-12 flex flex-col justify-between">
-            <div className="space-y-5">
-              {/* Category Tag */}
-              <div className="flex flex-wrap items-center gap-3">
+          {/* Content Section — Centered text & elements */}
+          <div className="w-full p-8 lg:p-12 flex flex-col items-center justify-between space-y-6 text-center">
+            <div className="space-y-5 w-full flex flex-col items-center">
+              {/* Category Tag — Centered */}
+              <div className="flex flex-wrap items-center justify-center gap-3">
                 <span className={`px-3.5 py-1.5 text-[10px] font-bold text-white uppercase tracking-[0.06em] ${catBg}`}>
                   {CATEGORY_NAMES[article.category]}
                 </span>
@@ -71,20 +71,20 @@ export default function BaitVenoyHeroCard({ article, onSelect }: Props) {
                 )}
               </div>
 
-              {/* Title — Large editorial serif-feel */}
-              <h2 className="text-[26px] lg:text-[32px] font-extrabold text-slate-900 leading-[1.25] group-hover:text-blue-700 transition-colors duration-300">
+              {/* Title — Centered */}
+              <h2 className="text-[26px] lg:text-[32px] font-extrabold text-slate-900 leading-[1.25] group-hover:text-blue-700 transition-colors duration-300 text-center max-w-3xl">
                 {article.title}
               </h2>
 
-              {/* Excerpt */}
-              <p className="text-slate-500 text-[14px] lg:text-[15px] leading-[1.8] line-clamp-4">
+              {/* Excerpt — Centered */}
+              <p className="text-slate-500 text-[14px] lg:text-[15px] leading-[1.8] line-clamp-4 text-center max-w-2xl mx-auto">
                 {article.summary}
               </p>
             </div>
 
-            {/* Footer: Author, Date, CTA */}
-            <div className="pt-8 mt-auto border-t border-slate-100 flex flex-wrap items-center justify-between gap-5">
-              <div className="flex flex-wrap items-center gap-5 text-[12px] text-slate-400">
+            {/* Footer: Author, Date, CTA — Centered */}
+            <div className="pt-6 border-t border-slate-100 w-full flex flex-wrap items-center justify-center gap-5">
+              <div className="flex flex-wrap items-center justify-center gap-5 text-[12px] text-slate-400">
                 <span className="flex items-center gap-1.5 font-semibold text-slate-700">
                   <User size={13} className="text-slate-400" />
                   {article.author}
