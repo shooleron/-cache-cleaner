@@ -396,7 +396,7 @@ export default function Page() {
           </div>
         ) : (
           /* Default Tab switcher workspaces - Centered 1280px Layout */
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col items-center">
             
             {/* TAB CONTENT: NEWS FEED */}
             {activeTab === 'feed' && (
@@ -504,39 +504,47 @@ export default function Page() {
 
             {/* TAB CONTENT: ARCHIVE & MODERATION HUB */}
             {activeTab === 'archive' && (
-              <ArchiveManager
-                articles={articles}
-                onUpdateArticleStatus={handleUpdateArticleStatus}
-                onBatchApproveSource={handleBatchApproveSource}
-                onSelectArticle={(id) => {
-                  setSelectedArticleId(id);
-                  setActiveTab('feed');
-                }}
-                showToast={showToast}
-              />
+              <div className="w-full max-w-[1280px] mx-auto">
+                <ArchiveManager
+                  articles={articles}
+                  onUpdateArticleStatus={handleUpdateArticleStatus}
+                  onBatchApproveSource={handleBatchApproveSource}
+                  onSelectArticle={(id) => {
+                    setSelectedArticleId(id);
+                    setActiveTab('feed');
+                  }}
+                  showToast={showToast}
+                />
+              </div>
             )}
 
             {/* TAB CONTENT: TRENDS ANALYZER */}
             {activeTab === 'trends' && (
-              <TrendAnalyzer articles={articles} />
+              <div className="w-full max-w-[1280px] mx-auto">
+                <TrendAnalyzer articles={articles} />
+              </div>
             )}
 
             {/* TAB CONTENT: NEWS SUBMITTER */}
             {activeTab === 'submit' && (
-              <NewsSubmitter
-                articles={articles}
-                onAddArticle={handleAddArticle}
-                onAddUpdate={handleAddUpdate}
-                onNavigateToFeed={() => setActiveTab('feed')}
-              />
+              <div className="w-full max-w-[1280px] mx-auto">
+                <NewsSubmitter
+                  articles={articles}
+                  onAddArticle={handleAddArticle}
+                  onAddUpdate={handleAddUpdate}
+                  onNavigateToFeed={() => setActiveTab('feed')}
+                />
+              </div>
             )}
 
             {/* TAB CONTENT: USER HEALTH-TECH PROFILE */}
             {activeTab === 'profile' && (
-              <UserProfileView
-                profile={userProfile}
-                onUpdateProfile={setUserProfile}
-              />
+              <div className="w-full max-w-[1280px] mx-auto">
+                <UserProfileView
+                  profile={userProfile}
+                  onUpdateProfile={setUserProfile}
+                />
+              </div>
             )}
 
           </div>
