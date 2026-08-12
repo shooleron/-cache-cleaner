@@ -164,7 +164,7 @@ export default function ArticleDetail({ article, onClose, onToggleBookmark }: Pr
           </div>
 
           {/* Physiological impact section */}
-          <div className="mb-6">
+          <div className="mb-8">
             <h3 className="font-bold text-sm text-slate-900 mb-3 flex items-center gap-2">
               <Activity size={16} className="text-rose-600" />
               <span>השפעה פיזיולוגית ואיברים מושפעים בגוף</span>
@@ -181,47 +181,52 @@ export default function ArticleDetail({ article, onClose, onToggleBookmark }: Pr
               ))}
             </div>
           </div>
+
+          {/* Timeline of Developments Section — Positioned below all article content */}
+          <div className="pt-8 border-t border-slate-200 mt-8 mb-4">
+            <h3 className="font-bold text-base text-slate-900 mb-5 flex items-center gap-2">
+              <Layers size={18} className="text-blue-600" />
+              <span>ציר זמן התפתחויות (מעקב פעיל)</span>
+            </h3>
+            
+            <div className="bg-slate-50 border border-slate-200 p-6 rounded-none">
+              <div className="relative pr-5 border-r-2 border-blue-500 space-y-6 mr-1">
+                {sortedTimeline.map((event, idx) => (
+                  <div key={event.id} className="relative">
+                    {/* Timeline dot */}
+                    <div className={`absolute -right-[27px] top-1 w-3.5 h-3.5 rounded-none border-2 border-white ${
+                      idx === 0 
+                        ? 'bg-blue-600 ring-2 ring-blue-200 animate-signal' 
+                        : 'bg-slate-400'
+                    }`} />
+                    
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[11px] font-bold text-slate-500">
+                        {new Date(event.timestamp).toLocaleDateString('he-IL')}
+                      </span>
+                      {idx === 0 && (
+                        <span className="text-[10px] text-blue-700 font-bold bg-blue-100 px-2 py-0.5 border border-blue-200 rounded-none">
+                          עדכון אחרון
+                        </span>
+                      )}
+                    </div>
+                    
+                    <h4 className="font-bold text-sm text-slate-900 leading-tight">
+                      {event.title}
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed mt-1.5">
+                      {event.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Timeline & AI Assistant Area (Left side) */}
+      {/* AI Assistant Area (Left side - Full height) */}
       <div className="w-full lg:w-[420px] bg-slate-50 flex flex-col h-full overflow-hidden border-t lg:border-t-0 border-slate-200 rounded-none">
-        
-        {/* Timeline of Developments */}
-        <div className="p-6 border-b border-slate-200 overflow-y-auto max-h-[240px] lg:max-h-[320px] bg-white rounded-none">
-          <h3 className="font-bold text-sm text-slate-900 mb-4 flex items-center gap-2">
-            <Layers size={16} className="text-blue-600" />
-            <span>ציר זמן התפתחויות (מעקב פעיל)</span>
-          </h3>
-          
-          <div className="relative pr-4 border-r-2 border-slate-200 space-y-5 mr-2">
-            {sortedTimeline.map((event, idx) => (
-              <div key={event.id} className="relative">
-                {/* Timeline dot (square) */}
-                <div className={`absolute -right-[21px] top-1.5 w-3 h-3 rounded-none border-2 border-white ${
-                  idx === 0 
-                    ? 'bg-blue-600 ring-2 ring-blue-200 animate-signal' 
-                    : 'bg-slate-400'
-                }`} />
-                
-                {/* Date */}
-                <span className="block text-[10px] font-bold text-slate-500 mb-0.5">
-                  {new Date(event.timestamp).toLocaleDateString('he-IL')} 
-                  {idx === 0 && <span className="mr-1.5 text-blue-700 font-bold bg-blue-50 px-1 border border-blue-200 rounded-none">חדש!</span>}
-                </span>
-                
-                {/* Event details */}
-                <h4 className="font-bold text-xs text-slate-900 leading-tight">
-                  {event.title}
-                </h4>
-                <p className="text-[11px] text-slate-600 leading-normal mt-1">
-                  {event.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* PulseAIChat Component */}
         <div className="flex-1 flex flex-col overflow-hidden rounded-none">
           <PulseAIChat article={article} />
