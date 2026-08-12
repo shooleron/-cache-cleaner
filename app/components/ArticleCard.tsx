@@ -1,6 +1,6 @@
 'use client';
 import { Article, ArticleCategory } from '../types';
-import { Bookmark, Calendar, User, Clock, RefreshCw, Star, Activity, Trash2, ArrowLeft } from 'lucide-react';
+import { Bookmark, Trash2, Activity } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface Props {
@@ -14,36 +14,16 @@ interface Props {
 
 const CATEGORY_NAMES: Record<ArticleCategory, string> = {
   health: 'בריאות דיגיטלית',
-  sports: 'טכנולוגיית ספורט',
-  nutrition: 'תזונה ומטבוליזם',
-  body: 'גוף האדם ואריכות ימים',
+  sports: 'כושר וספורט',
+  nutrition: 'תזונה',
+  body: 'אריכות ימים',
 };
 
-const CATEGORY_COLORS: Record<ArticleCategory, { bg: string; text: string; accent: string; tag: string }> = {
-  health: {
-    bg: 'bg-teal-50',
-    text: 'text-teal-700',
-    accent: 'feed-card-accent-health',
-    tag: 'bg-teal-600 text-white',
-  },
-  sports: {
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-700',
-    accent: 'feed-card-accent-sports',
-    tag: 'bg-emerald-600 text-white',
-  },
-  nutrition: {
-    bg: 'bg-amber-50',
-    text: 'text-amber-700',
-    accent: 'feed-card-accent-nutrition',
-    tag: 'bg-amber-600 text-white',
-  },
-  body: {
-    bg: 'bg-indigo-50',
-    text: 'text-indigo-700',
-    accent: 'feed-card-accent-body',
-    tag: 'bg-indigo-600 text-white',
-  },
+const CATEGORY_TAG_STYLES: Record<ArticleCategory, string> = {
+  health: 'bg-[#1F5C52] text-[#FAFAF7]',
+  sports: 'bg-[#14171C] text-[#FAFAF7]',
+  nutrition: 'bg-[#EF4423] text-[#FAFAF7]',
+  body: 'bg-[#14171C] text-[#7FD8A4]',
 };
 
 export default function ArticleCard({
@@ -54,7 +34,6 @@ export default function ArticleCard({
   highlightedId,
   matchScore,
 }: Props) {
-  const catStyle = CATEGORY_COLORS[article.category];
   const isHighlighted = highlightedId === article.id;
   const [relativeTime, setRelativeTime] = useState<string>('');
 
@@ -82,142 +61,93 @@ export default function ArticleCard({
   }, [article.lastUpdated]);
 
   const hasUpdates = article.timeline.length > 1;
-  const latestEvent = article.timeline[article.timeline.length - 1];
 
   return (
     <article
       onClick={onSelect}
-      className={`group bg-white rounded-none transition-all duration-300 cursor-pointer flex flex-col items-center text-center overflow-hidden card-hover-lift feed-card-enter ${
-        catStyle.accent
-      } ${
-        isHighlighted 
-          ? 'animate-highlight ring-2 ring-blue-400/50 shadow-lg' 
-          : 'border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]'
+      className={`group bg-[#FAFAF7] transition-all duration-200 cursor-pointer border border-[#DEDAD1] hover:bg-[#F0EEE9] flex flex-col md:flex-row items-stretch overflow-hidden select-none ${
+        isHighlighted ? 'ring-2 ring-[#EF4423]' : ''
       }`}
       dir="rtl"
     >
-      {/* Image Section — Centered full width */}
+      {/* Article Side Image — 300x250 locked */}
       {article.imageUrl && (
-        <div className="w-full h-[240px] md:h-[280px] shrink-0 relative overflow-hidden bg-slate-50 border-b border-slate-100">
+        <div className="w-full md:w-[300px] md:min-w-[300px] h-[220px] md:h-[250px] shrink-0 relative overflow-hidden bg-[#F0EEE9] border-b md:border-b-0 md:border-l border-[#DEDAD1]">
           <img
             src={article.imageUrl}
             alt={article.title}
-            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-600 ease-out"
+            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 via-transparent to-transparent" />
         </div>
       )}
 
-      {/* Content Section — Centered elements */}
-      <div className="w-full p-6 md:p-8 flex flex-col items-center justify-between text-center space-y-4">
-        <div className="w-full flex flex-col items-center">
-          {/* Meta Bar — Category + Badges + Actions */}
-          <div className="flex items-center justify-between w-full mb-4">
-            <div className="flex flex-wrap items-center justify-center gap-2 mx-auto">
-              <span className={`px-3 py-1 text-[10px] font-bold uppercase tracking-[0.05em] rounded-none ${catStyle.tag}`}>
+      {/* Article Content Column */}
+      <div className="flex-1 p-6 md:p-8 flex flex-col justify-between text-right">
+        <div>
+          {/* Tag & Actions Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className={`inline-block font-mono text-[11px] px-2.5 py-1 uppercase tracking-wider ${CATEGORY_TAG_STYLES[article.category]}`}>
                 {CATEGORY_NAMES[article.category]}
               </span>
-              
-              {hasUpdates && (
-                <span className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold bg-blue-50 text-blue-600 border border-blue-100 rounded-none">
-                  <RefreshCw size={10} className="animate-spin" style={{ animationDuration: '6s' }} />
-                  <span>עודכן</span>
-                </span>
-              )}
 
-              {matchScore !== undefined && matchScore > 50 && (
-                <span className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-semibold bg-rose-50 text-rose-600 border border-rose-100 rounded-none">
-                  <Star size={10} className="fill-current" />
-                  <span>{matchScore}%</span>
+              {hasUpdates && (
+                <span className="font-mono text-[10px] bg-[#14171C] text-[#7FD8A4] px-2 py-0.5 border border-[#333]">
+                  עודכן
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 shrink-0">
+            {/* Quick Actions */}
+            <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={onToggleBookmark}
                 title={article.isBookmarked ? 'הסר מסימניות' : 'שמור'}
-                className={`w-8 h-8 rounded-none flex items-center justify-center transition-all ${
+                className={`w-7 h-7 flex items-center justify-center transition-colors border border-[#DEDAD1] ${
                   article.isBookmarked
-                    ? 'bg-amber-50 text-amber-600'
-                    : 'bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600'
+                    ? 'bg-[#EF4423] text-white border-[#EF4423]'
+                    : 'bg-[#FAFAF7] text-[#14171C] hover:bg-[#14171C] hover:text-[#FAFAF7]'
                 }`}
               >
-                <Bookmark size={14} className={article.isBookmarked ? 'fill-current' : ''} />
+                <Bookmark size={13} className={article.isBookmarked ? 'fill-current' : ''} />
               </button>
 
               {onDelete && (
                 <button
                   onClick={onDelete}
                   title="מחק"
-                  className="w-8 h-8 rounded-none flex items-center justify-center transition-all bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-500"
+                  className="w-7 h-7 flex items-center justify-center bg-[#FAFAF7] text-[#84807A] hover:bg-[#EF4423] hover:text-white border border-[#DEDAD1] transition-colors"
                 >
-                  <Trash2 size={14} />
+                  <Trash2 size={13} />
                 </button>
               )}
             </div>
           </div>
 
-          {/* Title — Centered */}
-          <h3 className="text-[18px] md:text-[22px] font-bold text-slate-900 leading-[1.35] group-hover:text-blue-700 transition-colors duration-300 mb-3 text-center max-w-2xl">
+          {/* Title */}
+          <h3 className="text-xl font-bold text-[#14171C] leading-[1.35] mb-3 group-hover:text-[#EF4423] transition-colors">
             {article.title}
           </h3>
 
-          {/* Summary — Centered */}
-          <p className="text-slate-500 text-[13px] leading-[1.8] mb-5 line-clamp-3 text-center max-w-xl">
+          {/* Excerpt */}
+          <p className="text-[#555] text-sm leading-[1.6] mb-4 line-clamp-3">
             {article.summary}
           </p>
-
-          {/* Live Update Indicator — Centered */}
-          {hasUpdates && (
-            <div className="w-full bg-slate-50 border-r-[3px] border-r-blue-500 border border-slate-100 rounded-none p-3.5 mb-5 flex items-center justify-center gap-3 text-center">
-              <div className="w-7 h-7 bg-blue-100 text-blue-600 rounded-none flex items-center justify-center shrink-0">
-                <Activity size={14} />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center justify-center gap-2 mb-0.5">
-                  <span className="text-[11px] font-bold text-blue-700">עדכון אחרון</span>
-                  <span className="text-[10px] text-slate-400">({relativeTime})</span>
-                </div>
-                <h4 className="text-slate-700 text-[12px] font-semibold truncate">
-                  {latestEvent.title}
-                </h4>
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Footer — Centered */}
-        <div className="w-full pt-4 border-t border-slate-100 flex flex-wrap items-center justify-center gap-4 text-[11px] text-slate-400">
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <span className="flex items-center gap-1.5 font-medium">
-              <User size={12} className="text-slate-300" />
-              <span>{article.source}</span>
-            </span>
-            <span className="w-px h-3 bg-slate-200" />
-            <span className="flex items-center gap-1.5">
-              <Clock size={12} className="text-slate-300" />
-              <span>{article.readTime}</span>
-            </span>
-            <span className="w-px h-3 bg-slate-200" />
-            <span className="flex items-center gap-1.5">
-              <Calendar size={12} className="text-slate-300" />
-              <span>{relativeTime}</span>
-            </span>
+        {/* Card Footer (IBM Plex Mono style from vital-index.html) */}
+        <div className="pt-4 border-t border-[#DEDAD1] flex items-center justify-between text-xs text-[#84807A] font-mono">
+          <div className="flex items-center gap-3">
+            <span>{article.author}</span>
+            <span>·</span>
+            <span>{article.readTime}</span>
+            <span>·</span>
+            <span>{relativeTime}</span>
           </div>
 
-          <span className="w-px h-3 bg-slate-200" />
-
-          {/* Impact Score */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-slate-400 font-medium">השפעה</span>
-            <span className={`w-6 h-6 rounded-none flex items-center justify-center text-[11px] font-bold text-white ${
-              article.impactScore >= 9
-                ? 'bg-rose-500'
-                : article.impactScore >= 8
-                ? 'bg-amber-500'
-                : 'bg-blue-500'
-            }`}>
+            <span className="text-[10px]">השפעה</span>
+            <span className="font-bold text-[#14171C] bg-[#F0EEE9] px-2 py-0.5 border border-[#DEDAD1]">
               {article.impactScore}
             </span>
           </div>

@@ -11,6 +11,9 @@ import UserProfileView from './components/UserProfileView';
 import AILinkConverterBox from './components/AILinkConverterBox';
 import ArchiveManager from './components/ArchiveManager';
 import BaitVenoyHeroCard from './components/BaitVenoyHeroCard';
+import VitalsTicker from './components/VitalsTicker';
+import MetricStrip from './components/MetricStrip';
+import MarketTrackerBanner from './components/MarketTrackerBanner';
 import { Search, Sparkles, AlertCircle, RefreshCw, X } from 'lucide-react';
 
 export default function Page() {
@@ -38,7 +41,7 @@ export default function Page() {
 
   // ── Persistence Layer ──────────────────────────────────────────────
   // Dual persistence: localStorage (instant) + server JSON file (permanent)
-  const CONTENT_VERSION = 'v6_timeline_at_bottom';
+  const CONTENT_VERSION = 'v7_vital_index_design';
 
   const saveArticles = (newArticles: Article[]) => {
     setArticles(newArticles);
@@ -365,190 +368,219 @@ export default function Page() {
         onSelectCategory={(cat) => setSelectedCategory(cat)}
       />
 
-      {/* Main Workspace content - Centered */}
-      <main className="flex-1 w-full flex flex-col relative">
+      {/* Signature Vitals Ticker Bar (Vital Index feature) */}
+      <VitalsTicker />
+
+      {/* Main Workspace content — vital-index.html paper styling */}
+      <main className="flex-1 w-full flex flex-col relative bg-[#FAFAF7]">
         
         {/* Toast Notification Alert */}
         {toast && (
           <div className="fixed top-24 left-6 z-50 animate-fade-up max-w-sm">
-            <div className={`p-4 rounded-none shadow-lg border flex items-center gap-3 backdrop-blur-sm ${
+            <div className={`p-4 rounded-none shadow-lg border flex items-center gap-3 font-mono text-xs ${
               toast.type === 'success'
-                ? 'bg-emerald-50/95 border-emerald-200 text-emerald-800'
-                : 'bg-blue-50/95 border-blue-200 text-blue-800'
+                ? 'bg-[#1F5C52] text-[#FAFAF7] border-[#1F5C52]'
+                : 'bg-[#14171C] text-[#FAFAF7] border-[#14171C]'
             }`}>
-              <AlertCircle size={16} className={toast.type === 'success' ? 'text-emerald-500' : 'text-blue-500'} />
-              <span className="text-[12px] font-medium leading-normal">{toast.message}</span>
-              <button onClick={() => setToast(null)} className="text-slate-400 hover:text-slate-600 mr-auto">
+              <AlertCircle size={16} className="text-[#EF4423]" />
+              <span className="leading-normal">{toast.message}</span>
+              <button onClick={() => setToast(null)} className="text-[#84807A] hover:text-white mr-auto">
                 <X size={14} />
               </button>
             </div>
           </div>
         )}
 
-        {/* Selected Article Detail View (Overlay / Centered Reader Workspace) */}
-        {selectedArticleId && activeArticle ? (
-          <div className="max-w-[1280px] mx-auto w-full p-4 md:p-8 flex-1 flex flex-col">
-            <ArticleDetail
-              article={activeArticle}
-              onClose={() => setSelectedArticleId(null)}
-              onToggleBookmark={() => handleToggleBookmark(activeArticle.id)}
-            />
-          </div>
-        ) : (
-          /* Default Tab switcher workspaces - Centered 1280px Layout */
-          <div className="flex-1 flex flex-col items-center">
-            
-            {/* TAB CONTENT: NEWS FEED */}
-            {activeTab === 'feed' && (
-              <div className="w-full px-4 md:px-8 lg:px-0 py-10 flex flex-col items-center">
-                <div className="max-w-[860px] mx-auto w-full space-y-10">
-                  
-                  {/* Search & Controls Bar */}
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-8 border-b border-slate-100">
-                    <div className="relative flex-1 w-full">
-                      <Search className="absolute right-4 top-3.5 text-slate-300" size={16} />
-                      <input
-                        type="text"
-                        placeholder="חפש לפי מחקר, איבר, מילת מפתח..."
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                        className="w-full bg-slate-50/80 border border-slate-200/60 rounded-none pr-11 pl-4 py-3 text-[13px] outline-none focus:border-blue-400 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400"
-                      />
-                    </div>
+        {/* Selected Article Popup Reader Modal */}
+        {selectedArticleId && activeArticle && (
+          <ArticleDetail
+            article={activeArticle}
+            onClose={() => setSelectedArticleId(null)}
+            onToggleBookmark={() => handleToggleBookmark(activeArticle.id)}
+          />
+        )}
 
-                    <div className="flex items-center gap-2 self-start md:self-auto">
-                      <button
-                        onClick={() => fetchLiveNews(true)}
-                        disabled={isLoadingNews}
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-50 text-slate-600 rounded-none text-[11px] font-semibold border border-slate-200/60 transition-all disabled:opacity-50 shrink-0"
-                      >
-                        <RefreshCw size={13} className={isLoadingNews ? 'animate-spin' : ''} />
-                        <span>{isLoadingNews ? 'מרענן...' : 'רענן פיד'}</span>
-                      </button>
-
-                      <button
-                        onClick={handleSimulateUpdate}
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-none text-[11px] font-semibold shadow-sm transition-all shrink-0"
-                      >
-                        <Sparkles size={13} />
-                        <span>סמלץ עדכון</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Loading indicator */}
-                  {isLoadingNews && (
-                    <div className="w-full bg-blue-50/80 border border-blue-100 rounded-none p-4 flex items-center justify-center gap-3 text-blue-700 text-[12px] font-medium">
-                      <RefreshCw size={14} className="animate-spin" />
-                      <span>מעדכן מחקרים וידיעות בזמן אמת...</span>
-                    </div>
-                  )}
-
-                  {/* AI Link Converter */}
-                  <AILinkConverterBox
-                    onArticleConverted={(newArt) => {
-                      const updated = [newArt, ...articles];
-                      saveArticles(updated);
-                      setHighlightedId(newArt.id);
-                    }}
-                    showToast={(msg, type) => showToast(msg, type === 'error' ? 'info' : type)}
-                  />
-
-                  {/* Hero Story Card (Bait Venoy editorial) */}
-                  {heroArticle && (
+        {/* Tab switcher workspaces */}
+        <div className="flex-1 flex flex-col items-center w-full">
+          
+          {/* TAB CONTENT: NEWS FEED */}
+          {activeTab === 'feed' && (
+            <div className="w-full flex flex-col items-center">
+              
+              {/* Hero Section — vital-index.html 2-column hero */}
+              {heroArticle && !showBookmarksOnly && searchQuery === '' && selectedCategory === 'all' && (
+                <div className="w-full border-b border-[#DEDAD1]">
+                  <div className="max-w-[1280px] mx-auto">
                     <BaitVenoyHeroCard
                       article={heroArticle}
+                      secondaryArticles={articles.slice(1, 4)}
                       onSelect={() => setSelectedArticleId(heroArticle.id)}
                     />
-                  )}
-
-                  {/* Feed Articles */}
-                  {feedArticlesList.length > 0 || heroArticle ? (
-                    <div className="space-y-0 w-full">
-                      {feedArticlesList.map((art, index) => (
-                        <div key={art.id}>
-                          <ArticleCard
-                            article={art}
-                            onSelect={() => setSelectedArticleId(art.id)}
-                            onToggleBookmark={(e) => {
-                              e.stopPropagation();
-                              handleToggleBookmark(art.id);
-                            }}
-                            onDelete={(e) => {
-                              e.stopPropagation();
-                              handleDeleteArticle(art.id);
-                            }}
-                            highlightedId={highlightedId}
-                            matchScore={calculateMatchScore(art)}
-                          />
-                          {index < feedArticlesList.length - 1 && (
-                            <div className="magazine-divider my-10">
-                              <div className="dot" />
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center p-20 bg-white text-center w-full">
-                      <div className="text-5xl mb-5 opacity-30">📰</div>
-                      <h3 className="font-bold text-slate-700 text-[15px] mb-2">אין כתבות להצגה</h3>
-                      <p className="text-[13px] text-slate-400 max-w-sm leading-relaxed">
-                        לא נמצאו ידיעות המתאימות לסינון הנוכחי. נסה לבטל את הסינונים או לשנות את מילת המפתח.
-                      </p>
-                    </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* TAB CONTENT: ARCHIVE & MODERATION HUB */}
-            {activeTab === 'archive' && (
-              <div className="w-full max-w-[1280px] mx-auto">
-                <ArchiveManager
-                  articles={articles}
-                  onUpdateArticleStatus={handleUpdateArticleStatus}
-                  onBatchApproveSource={handleBatchApproveSource}
-                  onSelectArticle={(id) => {
-                    setSelectedArticleId(id);
-                    setActiveTab('feed');
+              {/* Metric Strip Bar */}
+              {!showBookmarksOnly && searchQuery === '' && selectedCategory === 'all' && (
+                <div className="w-full">
+                  <div className="max-w-[1280px] mx-auto">
+                    <MetricStrip totalArticles={articles.length} />
+                  </div>
+                </div>
+              )}
+
+              {/* Feed Content Container */}
+              <div className="w-full max-w-[1280px] mx-auto px-4 md:px-10 py-10 space-y-8">
+                
+                {/* Search & Controls Bar */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-[#DEDAD1]">
+                  <div className="relative flex-1 w-full">
+                    <Search className="absolute right-4 top-3.5 text-[#84807A]" size={16} />
+                    <input
+                      type="text"
+                      placeholder="חפש לפי מחקר, איבר, מילת מפתח..."
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      className="w-full bg-[#F0EEE9] border border-[#DEDAD1] pr-11 pl-4 py-3 text-sm font-mono outline-none focus:border-[#14171C] transition-all text-[#14171C] placeholder:text-[#84807A]"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 self-start md:self-auto font-mono text-xs">
+                    <button
+                      onClick={() => fetchLiveNews(true)}
+                      disabled={isLoadingNews}
+                      className="flex items-center justify-center gap-2 px-4 py-3 bg-[#FAFAF7] hover:bg-[#F0EEE9] text-[#14171C] border border-[#DEDAD1] transition-all disabled:opacity-50 shrink-0 font-semibold"
+                    >
+                      <RefreshCw size={13} className={isLoadingNews ? 'animate-spin' : ''} />
+                      <span>{isLoadingNews ? 'מרענן...' : 'רענן פיד'}</span>
+                    </button>
+
+                    <button
+                      onClick={handleSimulateUpdate}
+                      className="flex items-center justify-center gap-2 px-4 py-3 bg-[#14171C] hover:bg-[#EF4423] text-[#FAFAF7] font-semibold transition-all shrink-0"
+                    >
+                      <Sparkles size={13} />
+                      <span>סמלץ עדכון</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Loading indicator */}
+                {isLoadingNews && (
+                  <div className="w-full bg-[#14171C] text-[#7FD8A4] p-4 flex items-center justify-center gap-3 text-xs font-mono">
+                    <RefreshCw size={14} className="animate-spin" />
+                    <span>מעדכן מחקרים וידיעות בזמן אמת ממקורות גלובליים...</span>
+                  </div>
+                )}
+
+                {/* AI Link Converter */}
+                <AILinkConverterBox
+                  onArticleConverted={(newArt) => {
+                    const updated = [newArt, ...articles];
+                    saveArticles(updated);
+                    setHighlightedId(newArt.id);
                   }}
-                  showToast={showToast}
+                  showToast={(msg, type) => showToast(msg, type === 'error' ? 'info' : type)}
                 />
-              </div>
-            )}
 
-            {/* TAB CONTENT: TRENDS ANALYZER */}
-            {activeTab === 'trends' && (
-              <div className="w-full max-w-[1280px] mx-auto">
-                <TrendAnalyzer articles={articles} />
-              </div>
-            )}
+                {/* Feed Articles Cards Grid */}
+                {feedArticlesList.length > 0 ? (
+                  <div className="space-y-6 w-full">
+                    {feedArticlesList.map((art) => (
+                      <ArticleCard
+                        key={art.id}
+                        article={art}
+                        onSelect={() => setSelectedArticleId(art.id)}
+                        onToggleBookmark={(e) => {
+                          e.stopPropagation();
+                          handleToggleBookmark(art.id);
+                        }}
+                        onDelete={(e) => {
+                          e.stopPropagation();
+                          handleDeleteArticle(art.id);
+                        }}
+                        highlightedId={highlightedId}
+                        matchScore={calculateMatchScore(art)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-20 bg-[#FAFAF7] border border-[#DEDAD1] text-center w-full">
+                    <div className="text-5xl mb-5 opacity-30">📰</div>
+                    <h3 className="font-bold text-[#14171C] text-base mb-2">אין כתבות להצגה</h3>
+                    <p className="text-xs font-mono text-[#84807A] max-w-sm leading-relaxed">
+                      לא נמצאו ידיעות המתאימות לסינון הנוכחי. נסה לבטל את הסינונים או לשנות את מילת המפתח.
+                    </p>
+                  </div>
+                )}
 
-            {/* TAB CONTENT: NEWS SUBMITTER */}
-            {activeTab === 'submit' && (
-              <div className="w-full max-w-[1280px] mx-auto">
-                <NewsSubmitter
-                  articles={articles}
-                  onAddArticle={handleAddArticle}
-                  onAddUpdate={handleAddUpdate}
-                  onNavigateToFeed={() => setActiveTab('feed')}
-                />
               </div>
-            )}
 
-            {/* TAB CONTENT: USER HEALTH-TECH PROFILE */}
-            {activeTab === 'profile' && (
-              <div className="w-full max-w-[1280px] mx-auto">
-                <UserProfileView
-                  profile={userProfile}
-                  onUpdateProfile={setUserProfile}
-                />
-              </div>
-            )}
+              {/* Dark Market Tracker Banner */}
+              {!showBookmarksOnly && searchQuery === '' && (
+                <div className="w-full">
+                  <div className="max-w-[1280px] mx-auto">
+                    <MarketTrackerBanner />
+                  </div>
+                </div>
+              )}
 
-          </div>
-        )}
+            </div>
+          )}
+
+          {/* TAB CONTENT: ARCHIVE & MODERATION HUB */}
+          {activeTab === 'archive' && (
+            <div className="w-full max-w-[1280px] mx-auto py-8 px-4 md:px-8">
+              <ArchiveManager
+                articles={articles}
+                onUpdateArticleStatus={handleUpdateArticleStatus}
+                onBatchApproveSource={handleBatchApproveSource}
+                onSelectArticle={(id) => {
+                  setSelectedArticleId(id);
+                  setActiveTab('feed');
+                }}
+                showToast={showToast}
+              />
+            </div>
+          )}
+
+          {/* TAB CONTENT: TRENDS ANALYZER */}
+          {activeTab === 'trends' && (
+            <div className="w-full max-w-[1280px] mx-auto py-8 px-4 md:px-8">
+              <TrendAnalyzer articles={articles} />
+            </div>
+          )}
+
+          {/* TAB CONTENT: NEWS SUBMITTER */}
+          {activeTab === 'submit' && (
+            <div className="w-full max-w-[1280px] mx-auto py-8 px-4 md:px-8">
+              <NewsSubmitter
+                articles={articles}
+                onAddArticle={handleAddArticle}
+                onAddUpdate={handleAddUpdate}
+                onNavigateToFeed={() => setActiveTab('feed')}
+              />
+            </div>
+          )}
+
+          {/* TAB CONTENT: USER HEALTH-TECH PROFILE */}
+          {activeTab === 'profile' && (
+            <div className="w-full max-w-[1280px] mx-auto py-8 px-4 md:px-8">
+              <UserProfileView
+                profile={userProfile}
+                onUpdateProfile={setUserProfile}
+              />
+            </div>
+          )}
+
+        </div>
+
+        {/* Footer (Vital Index style) */}
+        <footer className="w-full bg-[#FAFAF7] border-t border-[#DEDAD1] py-8 px-6 md:px-10 text-[#84807A] font-mono text-xs flex flex-col md:flex-row justify-between items-center gap-4 max-w-[1280px] mx-auto">
+          <span>© 2026 פולס-טק — תוכן, כושר וטכנולוגיה</span>
+          <span>מערכת עיתונאית עצמאית בזמן אמת</span>
+        </footer>
+
       </main>
     </div>
   );

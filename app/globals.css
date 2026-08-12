@@ -1,208 +1,116 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rubik:wght@300;400;500;600;700;800;900&family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
-/* ═══════════════════════════════════════════════════════════════
-   PULSETECH MAGAZINE — EDITORIAL DESIGN SYSTEM
-   Inspired by baitvenoy.co.il editorial magazine aesthetics
-   ═══════════════════════════════════════════════════════════════ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #14171C;
+  --paper: #FAFAF7;
+  --paper-dim: #F0EEE9;
+  --accent: #EF4423;
+  --teal: #1F5C52;
+  --line: #DEDAD1;
+  --muted: #84807A;
+}
 
 * {
   box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+  border-radius: 0 !important;
 }
 
-html, body {
-  height: 100%;
-  font-family: 'Heebo', 'Rubik', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: #ffffff;
-  color: #1a1a2e;
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-  font-size: 15px;
 }
 
-/* ── RTL Helpers ────────────────────────────────────────────── */
-[dir="rtl"] {
-  text-align: right;
+/* IBM Plex Mono Utility */
+.font-mono, .mono {
+  font-family: 'IBM Plex Mono', monospace !important;
 }
 
-/* ── Typography Scale ───────────────────────────────────────── */
-h1, h2, h3, h4 {
-  letter-spacing: -0.025em;
-  font-weight: 700;
+/* Vitals Ticker */
+.ticker-wrap {
+  background: var(--ink);
+  color: var(--paper);
+  overflow: hidden;
+  border-bottom: 2px solid var(--accent);
+  white-space: nowrap;
 }
 
-h1 { font-size: 2rem; line-height: 1.2; }
-h2 { font-size: 1.75rem; line-height: 1.25; }
-h3 { font-size: 1.25rem; line-height: 1.35; }
-
-p {
-  line-height: 1.85;
-  color: #4a4a68;
+.ticker {
+  display: inline-flex;
+  gap: 48px;
+  padding: 9px 0;
+  animation: ticker-scroll 38s linear infinite;
 }
 
-/* ── Animations ─────────────────────────────────────────────── */
-@keyframes highlight-pulse {
-  0% {
-    background-color: rgba(59, 130, 246, 0.08);
-    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.1);
-  }
-  50% {
-    background-color: rgba(59, 130, 246, 0.03);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.05);
-  }
-  100% {
-    background-color: transparent;
-    box-shadow: none;
-  }
+.ticker-wrap:hover .ticker {
+  animation-play-state: paused;
 }
 
-.animate-highlight {
-  animation: highlight-pulse 2.5s ease-out 1;
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
-@keyframes signal-pulse {
-  0%   { transform: scale(0.92); opacity: 0.6; }
-  50%  { transform: scale(1.08); opacity: 1; }
-  100% { transform: scale(0.92); opacity: 0.6; }
+.tick-item {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
-.animate-signal {
-  animation: signal-pulse 2.5s infinite ease-in-out;
+.tick-item b {
+  font-weight: 500;
+  color: var(--muted);
 }
 
-@keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.tick-up {
+  color: #7FD8A4;
 }
 
-.animate-fade-up {
-  animation: fade-up 0.5s ease-out both;
+.tick-down {
+  color: #F08A73;
 }
 
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.animate-shimmer {
-  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.15) 50%, transparent 75%);
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-/* ── Scrollbar ──────────────────────────────────────────────── */
+/* Custom Scrollbar for Editorial aesthetic */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--paper);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 9999px;
+  background: var(--line);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: var(--muted);
 }
 
-/* ── Card Category Accent Borders ───────────────────────────── */
-.feed-card-accent-health {
-  border-right: 3px solid #0d9488;
-}
-.feed-card-accent-sports {
-  border-right: 3px solid #059669;
-}
-.feed-card-accent-nutrition {
-  border-right: 3px solid #d97706;
-}
-.feed-card-accent-body {
-  border-right: 3px solid #4f46e5;
-}
-
-/* ── Magazine Section Divider ───────────────────────────────── */
-.magazine-divider {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 12px 0;
-  opacity: 0.3;
-}
-.magazine-divider::before,
-.magazine-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(to left, transparent, #94a3b8, transparent);
-}
-.magazine-divider .dot {
-  width: 5px;
-  height: 5px;
-  background: #94a3b8;
-  transform: rotate(45deg);
-}
-
-/* ── Hero Card Overlay Gradient ─────────────────────────────── */
-.hero-image-overlay {
-  background: linear-gradient(
-    135deg,
-    rgba(15, 23, 42, 0.05) 0%,
-    rgba(15, 23, 42, 0) 40%,
-    rgba(15, 23, 42, 0) 60%,
-    rgba(15, 23, 42, 0.03) 100%
-  );
-}
-
-/* ── Hover elevation ────────────────────────────────────────── */
+/* Accent Hover Animations */
 .card-hover-lift {
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
+
 .card-hover-lift:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.08),
-              0 8px 16px -8px rgba(0, 0, 0, 0.04);
+  background-color: var(--paper-dim);
 }
 
-/* ── Category mega-nav underline animation ──────────────────── */
-.category-link {
-  position: relative;
-  padding-bottom: 6px;
+/* Custom Focus outline */
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
-.category-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 0;
-  height: 2px;
-  background: currentColor;
-  transition: width 0.3s ease;
-}
-.category-link:hover::after,
-.category-link.active::after {
-  width: 100%;
-}
-
-/* ── Stagger animation for feed cards ───────────────────────── */
-.feed-card-enter {
-  animation: fade-up 0.5s ease-out both;
-}
-.feed-card-enter:nth-child(1) { animation-delay: 0s; }
-.feed-card-enter:nth-child(2) { animation-delay: 0.08s; }
-.feed-card-enter:nth-child(3) { animation-delay: 0.16s; }
-.feed-card-enter:nth-child(4) { animation-delay: 0.24s; }
-.feed-card-enter:nth-child(5) { animation-delay: 0.32s; }
-.feed-card-enter:nth-child(6) { animation-delay: 0.4s; }
