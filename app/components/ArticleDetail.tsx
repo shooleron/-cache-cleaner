@@ -26,7 +26,7 @@ export default function ArticleDetail({ article, onClose, onToggleBookmark }: Pr
 
   return (
     <div className="fixed inset-0 z-50 bg-[#14171C]/75 backdrop-blur-sm flex items-center justify-center p-3 md:p-8 animate-fade-up" dir="rtl">
-      <div className="max-w-[1280px] w-full h-[90vh] bg-[#FAFAF7] border border-[#DEDAD1] shadow-2xl flex flex-col lg:flex-row overflow-hidden relative">
+      <div className="max-w-[1200px] w-full h-[90vh] bg-[#FAFAF7] border border-[#DEDAD1] shadow-2xl flex flex-col lg:flex-row overflow-hidden relative">
         
         {/* Article Reader Main Column */}
         <div className="flex-1 overflow-y-auto p-6 md:p-12 lg:border-l border-[#DEDAD1] flex flex-col justify-between bg-[#FAFAF7]">

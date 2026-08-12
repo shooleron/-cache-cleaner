@@ -49,7 +49,7 @@ export default function Navbar({
     <header className="w-full sticky top-0 z-40 bg-[#FAFAF7] border-b border-[#DEDAD1] select-none" dir="rtl">
       
       {/* ── Main Editorial Header ── */}
-      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-5 flex items-center justify-between gap-6">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-8 py-5 flex items-center justify-between gap-6">
         
         {/* Brand Logo (Vital Index style: מדדהגוף -> פולסטק) */}
         <div className="flex items-center gap-4 cursor-pointer" onClick={() => handleTabClick('feed')}>
@@ -118,7 +118,7 @@ export default function Navbar({
 
       {/* ── Sub Navigation: Category Selector Strips ── */}
       <div className="border-t border-[#DEDAD1] bg-[#F0EEE9]/60">
-        <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-2.5 flex items-center justify-between gap-4 overflow-x-auto">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-8 py-2.5 flex items-center justify-between gap-4 overflow-x-auto">
           <div className="flex items-center gap-2 text-[12px] font-mono">
             <span className="text-[#84807A] font-bold uppercase tracking-wider ml-2">קטגוריות:</span>
             {[

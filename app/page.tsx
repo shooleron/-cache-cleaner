@@ -410,7 +410,7 @@ export default function Page() {
               {/* Hero Section — vital-index.html 2-column hero */}
               {heroArticle && !showBookmarksOnly && searchQuery === '' && selectedCategory === 'all' && (
                 <div className="w-full border-b border-[#DEDAD1]">
-                  <div className="max-w-[1280px] mx-auto">
+                  <div className="max-w-[1200px] mx-auto">
                     <BaitVenoyHeroCard
                       article={heroArticle}
                       secondaryArticles={articles.slice(1, 4)}
@@ -423,14 +423,14 @@ export default function Page() {
               {/* Metric Strip Bar */}
               {!showBookmarksOnly && searchQuery === '' && selectedCategory === 'all' && (
                 <div className="w-full">
-                  <div className="max-w-[1280px] mx-auto">
+                  <div className="max-w-[1200px] mx-auto">
                     <MetricStrip totalArticles={articles.length} />
                   </div>
                 </div>
               )}
 
               {/* Feed Content Container */}
-              <div className="w-full max-w-[1280px] mx-auto px-4 md:px-10 py-10 space-y-8">
+              <div className="w-full max-w-[1200px] mx-auto px-4 md:px-8 py-10 space-y-8">
                 
                 {/* Search & Controls Bar */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-[#DEDAD1]">
@@ -519,7 +519,7 @@ export default function Page() {
               {/* Dark Market Tracker Banner */}
               {!showBookmarksOnly && searchQuery === '' && (
                 <div className="w-full">
-                  <div className="max-w-[1280px] mx-auto">
+                  <div className="max-w-[1200px] mx-auto">
                     <MarketTrackerBanner />
                   </div>
                 </div>
@@ -530,7 +530,7 @@ export default function Page() {
 
           {/* TAB CONTENT: ARCHIVE & MODERATION HUB */}
           {activeTab === 'archive' && (
-            <div className="w-full max-w-[1280px] mx-auto py-8 px-4 md:px-8">
+            <div className="w-full max-w-[1200px] mx-auto py-8 px-4 md:px-8">
               <ArchiveManager
                 articles={articles}
                 onUpdateArticleStatus={handleUpdateArticleStatus}
@@ -546,14 +546,14 @@ export default function Page() {
 
           {/* TAB CONTENT: TRENDS ANALYZER */}
           {activeTab === 'trends' && (
-            <div className="w-full max-w-[1280px] mx-auto py-8 px-4 md:px-8">
+            <div className="w-full max-w-[1200px] mx-auto py-8 px-4 md:px-8">
               <TrendAnalyzer articles={articles} />
             </div>
           )}
 
           {/* TAB CONTENT: NEWS SUBMITTER */}
           {activeTab === 'submit' && (
-            <div className="w-full max-w-[1280px] mx-auto py-8 px-4 md:px-8">
+            <div className="w-full max-w-[1200px] mx-auto py-8 px-4 md:px-8">
               <NewsSubmitter
                 articles={articles}
                 onAddArticle={handleAddArticle}
@@ -565,7 +565,7 @@ export default function Page() {
 
           {/* TAB CONTENT: USER HEALTH-TECH PROFILE */}
           {activeTab === 'profile' && (
-            <div className="w-full max-w-[1280px] mx-auto py-8 px-4 md:px-8">
+            <div className="w-full max-w-[1200px] mx-auto py-8 px-4 md:px-8">
               <UserProfileView
                 profile={userProfile}
                 onUpdateProfile={setUserProfile}
@@ -576,7 +576,7 @@ export default function Page() {
         </div>
 
         {/* Footer (Vital Index style) */}
-        <footer className="w-full bg-[#FAFAF7] border-t border-[#DEDAD1] py-8 px-6 md:px-10 text-[#84807A] font-mono text-xs flex flex-col md:flex-row justify-between items-center gap-4 max-w-[1280px] mx-auto">
+        <footer className="w-full bg-[#FAFAF7] border-t border-[#DEDAD1] py-8 px-6 md:px-10 text-[#84807A] font-mono text-xs flex flex-col md:flex-row justify-between items-center gap-4 max-w-[1200px] mx-auto">
           <span>© 2026 פולס-טק — תוכן, כושר וטכנולוגיה</span>
           <span>מערכת עיתונאית עצמאית בזמן אמת</span>
         </footer>

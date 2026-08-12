@@ -47,7 +47,7 @@ export default function ArchiveManager({
   const rejectedCount = articles.filter(a => (a.status || 'published') === 'rejected').length;
 
   return (
-    <div className="w-full max-w-[1280px] mx-auto px-4 md:px-8 py-8 dir-rtl space-y-8">
+    <div className="w-full max-w-[1200px] mx-auto px-4 md:px-8 py-8 dir-rtl space-y-8">
       {/* Header Banner */}
       <div className="bg-slate-900 text-white rounded-none p-6 md:p-8 border border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
