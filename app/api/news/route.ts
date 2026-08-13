@@ -314,48 +314,29 @@ async function fetchSingleFeed(feed: typeof FEEDS[0]): Promise<Article[]> {
         ? description.slice(0, 300).replace(/\s+\S*$/, '') + '...'
         : description || title;
 
-function buildRichArticleContent(title: string, description: string, category: ArticleCategory, source: string, sourceUrl: string): string {
+function buildConciseArticleContent(title: string, description: string, category: ArticleCategory, source: string, sourceUrl: string): string {
   const cleanDesc = description.trim();
   
-  const categoryFocusMap: Record<ArticleCategory, string> = {
-    health: 'ניטור בריאות רציף, רפואה מונעת ואבחון מוקדם באמצעות חיישנים לבישים ואינטגרציית AI',
-    sports: 'טכנולוגיות כושר מתקדמות, אופטימיזציה של ביצועים ספורטיביים והאצת תהליכי שיקום שרירי',
-    nutrition: 'מטבוליזם תאי, איזון המיקרוביום במעי והתאמת תזונה אישית מבוססת נתונים פיזיולוגיים',
-    body: 'האטת הזדקנות תאית (Longevity), שגשוג מיטוכונדריאלי ושיפור אריכות ימים בריאה'
-  };
+  if (cleanDesc.length > 250) {
+    return `${cleanDesc}\n\nלצפייה בכתבה המקורית והרחבה: ${sourceUrl}`;
+  }
 
-  const focusArea = categoryFocusMap[category];
-
-  return `${cleanDesc}
-
-### רקע ומצאים מרכזיים
-פריצת הדרך הנדונה במאמר זה מהווה אבן דרך משמעותית בתחום ${focusArea}. תוצאות הניסויים והנתונים שנאספו מראים השפעה ישירה ומדידה על תפקוד המערכות הביולוגיות בגוף, תוך מתן כלים מעשיים לאופטימיזציה של הבריאות והביצועים.
-
-### מנגנון פעולה פיזיולוגי
-המערכת והפרוטוקול פועלים ברמה התאית והמערכתית על ידי שיפור אספקת החמצן והחומרים המזינים לרקמות, הפחתת מדדי דלקת כרונית (CRP), ואיזון פעילות מערכת העצבים האוטונומית. תהליכים אלו מעודדים שיקום מהיר יותר, שמירה על הומיאוסטזיס מיטבי, והגברת ייצור ה-ATP במיטוכונדריות.
-
-### תובנות קליניות ויישום מעשי
-עבור חוקרים, ספורטאים ועוסקים ברפואה מונעת וביו-האקינג, שילוב ממצאים אלו בשגרה היומית מציע יתרונות ברורים:
-- שיפור של עד 30% במדדי ההתאוששות ובאיכות השינה העמוקה.
-- איזון רמות הסוכר והאנרגיה הרציפה לאורך יום העבודה והאימונים.
-- הפחתת סיכונים ארוכי טווח לתחלואה כרונית ושמירה על חיוניות תאית.
-
-לצפייה בכתבה המקורית והרחבה: ${sourceUrl}`;
+  return `${cleanDesc}\n\nממצאים אלו מספקים תובנה יישומית חשובה לאופטימיזציה של הבריאות והביצועים הביולוגיים.\n\nלצפייה בכתבה המקורית והרחבה: ${sourceUrl}`;
 }
 
-      const fullRichContent = buildRichArticleContent(title, description, category, feed.source, sourceUrl);
+      const conciseContent = buildConciseArticleContent(title, description, category, feed.source, sourceUrl);
 
       articles.push({
         id: articleId,
         title: title,
         summary: summaryText,
-        content: fullRichContent,
+        content: conciseContent,
         category: category,
         imageUrl: imageUrl,
         impactScore: impactScore,
         scientificConfidence: confidence,
         clinicalStage: clinicalStage,
-        readTime: `${Math.max(4, Math.floor(fullRichContent.split(' ').length / 150))} דק' קריאה`,
+        readTime: `${Math.max(2, Math.floor(conciseContent.split(' ').length / 100))} דק' קריאה`,
         author: authorName || `מערכת ${feed.source}`,
         source: feed.source,
         publishedAt: pubDateISO,

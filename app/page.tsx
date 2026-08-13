@@ -41,7 +41,7 @@ export default function Page() {
 
   // ── Persistence Layer ──────────────────────────────────────────────
   // Dual persistence: localStorage (instant) + server JSON file (permanent)
-  const CONTENT_VERSION = 'v8_vital_1200px_layout';
+  const CONTENT_VERSION = 'v9_shortened_concise_articles';
 
   const saveArticles = (newArticles: Article[]) => {
     setArticles(newArticles);
