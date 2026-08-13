@@ -41,7 +41,7 @@ export default function Page() {
 
   // ── Persistence Layer ──────────────────────────────────────────────
   // Dual persistence: localStorage (instant) + server JSON file (permanent)
-  const CONTENT_VERSION = 'v10_min_500_words';
+  const CONTENT_VERSION = 'v11_bounded_100_to_500_words';
 
   const saveArticles = (newArticles: Article[]) => {
     setArticles(newArticles);
