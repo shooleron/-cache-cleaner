@@ -1,4 +1,4 @@
-export type ArticleCategory = 'health' | 'sports' | 'nutrition' | 'body';
+export type ArticleCategory = 'health' | 'sports' | 'nutrition' | 'body' | string;
 
 export interface TimelineEvent {
   id: string;
@@ -29,9 +29,23 @@ export interface Article {
   status?: 'published' | 'pending' | 'rejected';
 }
 
+export interface SectionCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  articleCount?: number;
+}
+
+export interface AdminUser {
+  username: string;
+  role: 'admin' | 'editor';
+  isAuthenticated: boolean;
+}
+
 export interface UserProfile {
   name: string;
-  interests: string[]; // e.g. ["אריכות ימים", "מדדי שינה", "סנסורים לבישים", "ביו-האקינג", "תזונה מטבולית"]
+  interests: string[];
   frequency: 'daily' | 'weekly';
 }
 

@@ -8,7 +8,7 @@ interface Props {
   onSelect: () => void;
   onToggleBookmark: (e: React.MouseEvent) => void;
   onDelete?: (e: React.MouseEvent) => void;
-  highlightedId: string | null;
+  highlightedId?: string | null;
   matchScore?: number;
 }
 
