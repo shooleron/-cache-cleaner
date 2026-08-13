@@ -6,6 +6,7 @@ interface Props {
   article: Article;
   onSelect: () => void;
   secondaryArticles?: Article[];
+  onSelectArticle?: (id: string) => void;
 }
 
 const CATEGORY_NAMES: Record<ArticleCategory, string> = {
@@ -15,7 +16,7 @@ const CATEGORY_NAMES: Record<ArticleCategory, string> = {
   body: 'אריכות ימים',
 };
 
-export default function BaitVenoyHeroCard({ article, onSelect, secondaryArticles = [] }: Props) {
+export default function BaitVenoyHeroCard({ article, onSelect, secondaryArticles = [], onSelectArticle }: Props) {
   return (
     <section className="bg-[#FAFAF7] border-b border-[#DEDAD1] overflow-hidden dir-rtl select-none" dir="rtl">
       <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_0.9fr]">
@@ -68,7 +69,7 @@ export default function BaitVenoyHeroCard({ article, onSelect, secondaryArticles
               {secondaryArticles.slice(0, 3).map((item) => (
                 <div 
                   key={item.id}
-                  onClick={onSelect}
+                  onClick={() => onSelectArticle ? onSelectArticle(item.id) : onSelect()}
                   className="py-5 border-b border-[#DEDAD1] last:border-b-0 cursor-pointer group hover:opacity-80 transition-opacity"
                 >
                   <h4 className="text-base font-bold text-[#14171C] leading-snug mb-2 group-hover:text-[#EF4423] transition-colors">

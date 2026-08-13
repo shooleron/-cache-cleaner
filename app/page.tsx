@@ -275,6 +275,7 @@ export default function Page() {
                   article={heroArticle}
                   secondaryArticles={publishedArticles.slice(1, 4)}
                   onSelect={() => setSelectedArticleId(heroArticle.id)}
+                  onSelectArticle={(id) => setSelectedArticleId(id)}
                 />
               </div>
             </div>

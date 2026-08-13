@@ -101,7 +101,10 @@ export default function ArticleCard({
             {/* Quick Actions */}
             <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
               <button
-                onClick={onToggleBookmark}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleBookmark(e);
+                }}
                 title={article.isBookmarked ? 'הסר מסימניות' : 'שמור'}
                 className={`w-7 h-7 flex items-center justify-center transition-colors border border-[#DEDAD1] ${
                   article.isBookmarked
