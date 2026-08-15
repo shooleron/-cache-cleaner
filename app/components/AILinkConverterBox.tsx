@@ -1,17 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { Sparkles, Link as LinkIcon, Loader2, ArrowLeft, CheckCircle2 } from 'lucide-react';
-import { Article } from '../types';
-
-interface Props {
-  onArticleConverted: (article: Article) => void;
-  showToast: (message: string, type: 'success' | 'info' | 'error') => void;
-}
-
-export default function AILinkConverterBox({ onArticleConverted, showToast }: Props) {
+export default function AILinkConverterBox() {
   const [urlInput, setUrlInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [lastSuccess, setLastSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleConvert = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,6 +13,7 @@ export default function AILinkConverterBox({ onArticleConverted, showToast }: Pr
 
     setLoading(true);
     setLastSuccess(false);
+    setErrorMessage('');
 
     try {
       const res = await fetch('/api/convert-link', {
@@ -33,17 +28,15 @@ export default function AILinkConverterBox({ onArticleConverted, showToast }: Pr
 
       const data = await res.json();
       if (data && data.article) {
-        onArticleConverted(data.article);
         setUrlInput('');
         setLastSuccess(true);
-        showToast('סוכן ה-AI סרק את הקישור והוסיף כתבה חדשה לראש הפיד!', 'success');
         setTimeout(() => setLastSuccess(false), 4000);
       } else {
         throw new Error('לא התקבל אובייקט כתבה תקין');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      showToast('שגיאה בסריקת הקישור. בדוק שהקישור תקין ונסה שוב.', 'error');
+      setErrorMessage('לא ניתן ליצור טיוטה מהקישור. בדקו שהקישור תקין ונסו שוב.');
     } finally {
       setLoading(false);
     }
@@ -58,13 +51,13 @@ export default function AILinkConverterBox({ onArticleConverted, showToast }: Pr
           </div>
           <div>
             <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-              <span>סוכן AI להמרת קישורים לכתבות בפיד</span>
+              <span>סוכן AI להמרת קישורים לטיוטות</span>
               <span className="text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-none font-medium">
                 GPT Agent
               </span>
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              הדבק כל קישור (אינסטגרם, מגזין, מחקר או פוסט) וסוכן ה-AI ינתח וימיר אותו מידית לכרטיסייה בפיד
+              הדביקו קישור מאינסטגרם, מגזין, מחקר או פוסט. הסוכן ייצור ממנו טיוטה לבדיקה במערכת הניהול.
             </p>
           </div>
         </div>
@@ -72,7 +65,7 @@ export default function AILinkConverterBox({ onArticleConverted, showToast }: Pr
         {lastSuccess && (
           <span className="flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-3 py-1 rounded-none">
             <CheckCircle2 size={14} />
-            <span>הכתבה נוצרה בהצלחה!</span>
+            <span>הטיוטה נשמרה בהצלחה!</span>
           </span>
         )}
       </div>
@@ -108,12 +101,13 @@ export default function AILinkConverterBox({ onArticleConverted, showToast }: Pr
             </>
           ) : (
             <>
-              <span>המר לכתבה בפיד</span>
+              <span>יצירת טיוטה ב־CMS</span>
               <ArrowLeft size={16} />
             </>
           )}
         </button>
       </form>
+      {errorMessage ? <p className="mt-3 rounded-lg border border-rose-800 bg-rose-950/60 px-4 py-3 text-xs text-rose-200">{errorMessage}</p> : null}
     </div>
   );
 }

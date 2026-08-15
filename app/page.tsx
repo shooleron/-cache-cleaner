@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Article, ArticleCategory, TimelineEvent, UserProfile } from './types';
 import { INITIAL_ARTICLES, MOCK_DEVELOPMENTS } from './mockData';
 import Navbar from './components/Navbar';
@@ -8,12 +9,17 @@ import ArticleDetail from './components/ArticleDetail';
 import TrendAnalyzer from './components/TrendAnalyzer';
 import NewsSubmitter from './components/NewsSubmitter';
 import UserProfileView from './components/UserProfileView';
-import AILinkConverterBox from './components/AILinkConverterBox';
 import ArchiveManager from './components/ArchiveManager';
 import BaitVenoyHeroCard from './components/BaitVenoyHeroCard';
+import TopBanner from './components/TopBanner';
+import HomeCategorySections from './components/HomeCategorySections';
+import MostViewedSidebar from './components/MostViewedSidebar';
+import SiteFooter from './components/SiteFooter';
+import EditorialHomepage from './components/EditorialHomepage';
 import { Search, Sparkles, AlertCircle, RefreshCw, X } from 'lucide-react';
 
 export default function Page() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('feed');
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
   const [articles, setArticles] = useState<Article[]>(INITIAL_ARTICLES);
@@ -38,7 +44,7 @@ export default function Page() {
 
   // ── Persistence Layer ──────────────────────────────────────────────
   // Dual persistence: localStorage (instant) + server JSON file (permanent)
-  const CONTENT_VERSION = 'v3_persistent';
+  const CONTENT_VERSION = 'v4_generated_covers';
 
   const saveArticles = (newArticles: Article[]) => {
     setArticles(newArticles);
@@ -81,6 +87,11 @@ export default function Page() {
 
           return {
             ...fetchedArt,
+            // Curated/generated covers are authoritative and must not be replaced
+            // by generic feed images during a background refresh.
+            imageUrl: localMatch.imageUrl?.startsWith('/images/articles/')
+              ? localMatch.imageUrl
+              : fetchedArt.imageUrl,
             isBookmarked: localMatch.isBookmarked,
             status: localMatch.status, // Preserve moderation status
             timeline: mergedTimeline,
@@ -342,12 +353,14 @@ export default function Page() {
 
   // Bait Venoy Feature: Top Hero Story
   const heroArticle = selectedCategory === 'all' && !searchQuery.trim() && !showBookmarksOnly && filteredArticles.length > 0
-    ? filteredArticles[0]
+    ? (filteredArticles.find((article) => article.id === 'zone-2-cardio-longevity') ?? filteredArticles[0])
     : null;
 
   const feedArticlesList = heroArticle 
     ? filteredArticles.slice(1) 
     : filteredArticles;
+
+  const showCategorySections = selectedCategory === 'all' && !searchQuery.trim() && !showBookmarksOnly;
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans" dir="rtl">
@@ -364,6 +377,8 @@ export default function Page() {
         selectedCategory={selectedCategory}
         onSelectCategory={(cat) => setSelectedCategory(cat)}
       />
+
+      {activeTab === 'feed' && !selectedArticleId && !showCategorySections ? <TopBanner /> : null}
 
       {/* Main Workspace content - Centered */}
       <main className="flex-1 w-full flex flex-col relative">
@@ -400,8 +415,15 @@ export default function Page() {
             
             {/* TAB CONTENT: NEWS FEED */}
             {activeTab === 'feed' && (
+              showCategorySections && heroArticle ? (
+                <EditorialHomepage
+                  hero={heroArticle}
+                  articles={filteredArticles}
+                  onSelectArticle={(id) => router.push(`/articles/${encodeURIComponent(id)}`)}
+                />
+              ) : (
               <div className="w-full px-4 md:px-8 lg:px-0 py-10 flex flex-col items-center">
-                <div className="max-w-[860px] mx-auto w-full space-y-10">
+                <div className={`${showCategorySections ? 'max-w-[1180px]' : 'max-w-[860px]'} mx-auto w-full space-y-10`}>
                   
                   {/* Search & Controls Bar */}
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-8 border-b border-slate-100">
@@ -444,32 +466,42 @@ export default function Page() {
                     </div>
                   )}
 
-                  {/* AI Link Converter */}
-                  <AILinkConverterBox
-                    onArticleConverted={(newArt) => {
-                      const updated = [newArt, ...articles];
-                      saveArticles(updated);
-                      setHighlightedId(newArt.id);
-                    }}
-                    showToast={(msg, type) => showToast(msg, type === 'error' ? 'info' : type)}
-                  />
-
                   {/* Hero Story Card (Bait Venoy editorial) */}
-                  {heroArticle && (
+                  {heroArticle && !showCategorySections && (
                     <BaitVenoyHeroCard
                       article={heroArticle}
-                      onSelect={() => setSelectedArticleId(heroArticle.id)}
+                      onSelect={() => router.push(`/articles/${encodeURIComponent(heroArticle.id)}`)}
                     />
                   )}
 
-                  {/* Feed Articles */}
-                  {feedArticlesList.length > 0 || heroArticle ? (
+                  {/* Category-led magazine homepage */}
+                  {showCategorySections && feedArticlesList.length > 0 ? (
+                    <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+                      <div className="space-y-14">
+                        {heroArticle && (
+                          <BaitVenoyHeroCard
+                            article={heroArticle}
+                            onSelect={() => router.push(`/articles/${encodeURIComponent(heroArticle.id)}`)}
+                          />
+                        )}
+                        <HomeCategorySections
+                          articles={feedArticlesList}
+                          onSelectArticle={(id) => router.push(`/articles/${encodeURIComponent(id)}`)}
+                          onSelectCategory={setSelectedCategory}
+                        />
+                      </div>
+                      <MostViewedSidebar
+                        articles={filteredArticles}
+                        onSelectArticle={(id) => router.push(`/articles/${encodeURIComponent(id)}`)}
+                      />
+                    </div>
+                  ) : feedArticlesList.length > 0 || heroArticle ? (
                     <div className="space-y-0 w-full">
                       {feedArticlesList.map((art, index) => (
                         <div key={art.id}>
                           <ArticleCard
                             article={art}
-                            onSelect={() => setSelectedArticleId(art.id)}
+                            onSelect={() => router.push(`/articles/${encodeURIComponent(art.id)}`)}
                             onToggleBookmark={(e) => {
                               e.stopPropagation();
                               handleToggleBookmark(art.id);
@@ -500,6 +532,7 @@ export default function Page() {
                   )}
                 </div>
               </div>
+              )
             )}
 
             {/* TAB CONTENT: ARCHIVE & MODERATION HUB */}
@@ -509,8 +542,7 @@ export default function Page() {
                 onUpdateArticleStatus={handleUpdateArticleStatus}
                 onBatchApproveSource={handleBatchApproveSource}
                 onSelectArticle={(id) => {
-                  setSelectedArticleId(id);
-                  setActiveTab('feed');
+                  router.push(`/articles/${encodeURIComponent(id)}`);
                 }}
                 showToast={showToast}
               />
@@ -542,6 +574,7 @@ export default function Page() {
           </div>
         )}
       </main>
+      <SiteFooter onSelectCategory={setSelectedCategory} onNavigate={setActiveTab} />
     </div>
   );
 }

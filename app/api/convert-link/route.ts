@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { Article, ArticleCategory } from '../../types';
+import { createClient } from '@/lib/supabase/server';
+
+function slugify(value: string) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9\u0590-\u05ff]+/g, '-').replace(/^-+|-+$/g, '');
+}
 
 function cleanHtml(text: string): string {
   if (!text) return '';
@@ -41,10 +46,21 @@ function extractImage(html: string): string {
 
 export async function POST(req: Request) {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || user.app_metadata?.role !== 'admin') {
+      return NextResponse.json({ error: 'אין הרשאת מנהל' }, { status: 401 });
+    }
+
     const { url } = await req.json();
 
     if (!url || typeof url !== 'string') {
       return NextResponse.json({ error: 'קישור לא תקין' }, { status: 400 });
+    }
+
+    const requestedUrl = new URL(url);
+    if (!['http:', 'https:'].includes(requestedUrl.protocol)) {
+      return NextResponse.json({ error: 'ניתן לסרוק רק קישורי HTTP או HTTPS' }, { status: 400 });
     }
 
     let pageTitle = '';
@@ -177,6 +193,24 @@ export async function POST(req: Request) {
         }
       ]
     };
+
+    const { error: insertError } = await supabase.from('articles').insert({
+      slug: `${slugify(finalTitle) || 'article'}-${Date.now().toString(36)}`,
+      title: finalTitle,
+      summary: finalSummary.slice(0, 500),
+      body: newArticle.content,
+      category,
+      status: 'reviewing',
+      scientific_confidence: newArticle.scientificConfidence,
+      cover_image_url: finalImage,
+      original_language: 'unknown',
+      original_published_at: newArticle.publishedAt,
+    });
+
+    if (insertError) {
+      console.error('Failed to save converted article', { code: insertError.code });
+      return NextResponse.json({ error: 'הטיוטה נוצרה אך לא נשמרה' }, { status: 500 });
+    }
 
     return NextResponse.json({ article: newArticle, success: true });
   } catch (error: any) {

@@ -6,41 +6,41 @@
    Inspired by baitvenoy.co.il editorial magazine aesthetics
    ═══════════════════════════════════════════════════════════════ */
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
 
-html, body {
-  height: 100%;
-  font-family: 'Heebo', 'Rubik', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: #ffffff;
-  color: #1a1a2e;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-  font-size: 15px;
-}
+  html, body {
+    height: 100%;
+    font-family: 'Heebo', 'Rubik', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #ffffff;
+    color: #1a1a2e;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    font-size: 15px;
+  }
 
-/* ── RTL Helpers ────────────────────────────────────────────── */
-[dir="rtl"] {
-  text-align: right;
-}
+  /* ── RTL Helpers ──────────────────────────────────────────── */
+  [dir="rtl"] {
+    text-align: right;
+  }
 
-/* ── Typography Scale ───────────────────────────────────────── */
-h1, h2, h3, h4 {
-  letter-spacing: -0.025em;
-  font-weight: 700;
-}
+  /* ── Typography Scale ─────────────────────────────────────── */
+  h1, h2, h3, h4 {
+    letter-spacing: -0.025em;
+    font-weight: 700;
+  }
 
-h1 { font-size: 2rem; line-height: 1.2; }
-h2 { font-size: 1.75rem; line-height: 1.25; }
-h3 { font-size: 1.25rem; line-height: 1.35; }
+  h1 { font-size: 2rem; line-height: 1.2; }
+  h2 { font-size: 1.75rem; line-height: 1.25; }
+  h3 { font-size: 1.25rem; line-height: 1.35; }
 
-p {
-  line-height: 1.85;
-  color: #4a4a68;
+  p {
+    line-height: 1.85;
+    color: #4a4a68;
+  }
 }
 
 /* ── Animations ─────────────────────────────────────────────── */

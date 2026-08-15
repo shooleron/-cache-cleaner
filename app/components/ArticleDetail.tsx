@@ -10,24 +10,42 @@ import {
   Beaker,
   Bookmark,
   User,
+  Share2,
 } from 'lucide-react';
 import PulseAIChat from './PulseAIChat';
+import GlossaryLinkedText from './GlossaryLinkedText';
+import RelatedArticles from './RelatedArticles';
+import ArticleReaction from './ArticleReaction';
+import ArticleComments from './ArticleComments';
+import { getCategoryMeta } from '@/lib/categories';
+import InlineCampaignBanner from './InlineCampaignBanner';
 
 interface Props {
   article: Article;
   onClose: () => void;
   onToggleBookmark: () => void;
+  relatedArticles?: Article[];
 }
 
-export default function ArticleDetail({ article, onClose, onToggleBookmark }: Props) {
+export default function ArticleDetail({ article, onClose, onToggleBookmark, relatedArticles = [] }: Props) {
+  const categoryMeta = getCategoryMeta(article.category);
+  const shareArticle = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      await navigator.share({ title: article.title, text: article.summary, url }).catch(() => undefined);
+      return;
+    }
+    await navigator.clipboard.writeText(url);
+  };
+
   const sortedTimeline = [...article.timeline].sort(
     (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 
   return (
-    <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden bg-white rounded-none border border-slate-200 shadow-sm" dir="rtl">
-      {/* Article Content Area (Right side) */}
-      <div className="flex-1 overflow-y-auto p-6 lg:p-10 border-l border-slate-200 flex flex-col justify-between">
+    <div className="flex-1 h-full overflow-y-auto bg-white rounded-none border border-slate-200 shadow-sm" dir="rtl">
+      {/* Centered article content */}
+      <div className="mx-auto w-full max-w-4xl px-5 py-6 md:px-8 lg:py-10">
         <div>
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -40,6 +58,14 @@ export default function ArticleDetail({ article, onClose, onToggleBookmark }: Pr
             </button>
             
             <div className="flex items-center gap-2">
+              <button
+                onClick={shareArticle}
+                className="flex items-center gap-2 border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-50"
+                title="שיתוף הכתבה"
+              >
+                <Share2 size={13} />
+                <span>שיתוף</span>
+              </button>
               <button
                 onClick={onToggleBookmark}
                 className={`flex items-center gap-2 px-4 py-2 rounded-none text-xs font-bold transition-all border ${
@@ -55,6 +81,7 @@ export default function ArticleDetail({ article, onClose, onToggleBookmark }: Pr
           </div>
 
           {/* Banner Image */}
+          <InlineCampaignBanner placement="article_top" />
           {article.imageUrl && (
             <div className="relative w-full h-64 md:h-80 overflow-hidden mb-6 rounded-none border border-slate-200 bg-slate-100">
               <img
@@ -68,14 +95,9 @@ export default function ArticleDetail({ article, onClose, onToggleBookmark }: Pr
 
           {/* Category & Stage */}
           <div className="flex flex-wrap items-center gap-2 mb-4">
-            <span className="px-3 py-1 text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-none">
-              {article.category === 'health'
-                ? 'בריאות דיגיטלית'
-                : article.category === 'sports'
-                ? 'טכנולוגיית ספורט'
-                : article.category === 'nutrition'
-                ? 'תזונה ומטבוליזם'
-                : 'גוף האדם ואריכות ימים'}
+            <span className={`inline-flex items-center gap-2 px-3 py-1 text-xs font-bold ring-1 ring-inset ${categoryMeta.surface}`}>
+              <span className={`h-2 w-2 rounded-full ${categoryMeta.dot}`} />
+              {categoryMeta.label}
             </span>
             <span className="px-3 py-1 text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 rounded-none">
               שלב קליני: {article.clinicalStage}
@@ -83,7 +105,7 @@ export default function ArticleDetail({ article, onClose, onToggleBookmark }: Pr
           </div>
 
           {/* Title */}
-          <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 leading-tight mb-4">
+          <h2 className="mx-auto mb-4 max-w-3xl text-center text-2xl font-bold leading-tight text-slate-900 lg:text-3xl">
             {article.title}
           </h2>
 
@@ -113,9 +135,7 @@ export default function ArticleDetail({ article, onClose, onToggleBookmark }: Pr
 
           {/* Full content */}
           <div className="text-slate-800 text-sm md:text-base leading-relaxed mb-8 space-y-4 font-normal">
-            {article.content.split('\n').map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
+            <GlossaryLinkedText text={article.content} />
           </div>
 
           {/* Scientific and Impact Metrics Grid */}
@@ -162,11 +182,15 @@ export default function ArticleDetail({ article, onClose, onToggleBookmark }: Pr
         </div>
       </div>
 
-      {/* Timeline & AI Assistant Area (Left side) */}
-      <div className="w-full lg:w-[420px] bg-slate-50 flex flex-col h-full overflow-hidden border-t lg:border-t-0 border-slate-200 rounded-none">
-        
-        {/* Timeline of Developments */}
-        <div className="p-6 border-b border-slate-200 overflow-y-auto max-h-[240px] lg:max-h-[320px] bg-white rounded-none">
+      <div className="mx-auto w-full max-w-4xl px-5 md:px-8">
+        <InlineCampaignBanner placement="article_bottom" />
+      </div>
+
+      <ArticleReaction articleId={article.id} />
+
+      {/* Timeline at the bottom of the article */}
+      <section className="border-t border-slate-200 bg-slate-50">
+        <div className="mx-auto w-full max-w-4xl px-5 py-8 md:px-8 lg:py-10">
           <h3 className="font-bold text-sm text-slate-900 mb-4 flex items-center gap-2">
             <Layers size={16} className="text-blue-600" />
             <span>ציר זמן התפתחויות (מעקב פעיל)</span>
@@ -199,12 +223,18 @@ export default function ArticleDetail({ article, onClose, onToggleBookmark }: Pr
             ))}
           </div>
         </div>
+      </section>
 
-        {/* PulseAIChat Component */}
-        <div className="flex-1 flex flex-col overflow-hidden rounded-none">
+      <RelatedArticles articles={relatedArticles} />
+
+      <ArticleComments articleId={article.id} />
+
+      {/* PulseAIChat Component */}
+      <section className="border-t border-slate-200 bg-white">
+        <div className="mx-auto flex h-[520px] w-full max-w-4xl flex-col px-5 py-8 md:px-8">
           <PulseAIChat article={article} />
         </div>
-      </div>
+      </section>
     </div>
   );
 }
