@@ -1,12 +1,14 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Activity, ArrowLeft, BookOpen, Building2, Sparkles, Users } from 'lucide-react';
-import { GLOSSARY, GlossaryKind } from './data';
+import { type GlossaryKind } from './data';
+import { getPublishedGlossaryEntries } from '@/lib/glossary';
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'מילון הוולנס והכושר | פולס־טק',
   description: 'מדריכים ברורים ומבוססי מקורות למונחי וולנס, כושר, בריאות דיגיטלית, מותגים ואנשי מפתח.',
 };
+
+export const revalidate = 300;
 
 const sections: { kind: GlossaryKind; title: string; description: string; icon: typeof Activity }[] = [
   { kind: 'term', title: 'מונחים ומדדים', description: 'המדדים שמופיעים בשעונים, במחקרים ובאימונים — בשפה ברורה.', icon: Activity },
@@ -15,7 +17,9 @@ const sections: { kind: GlossaryKind; title: string; description: string; icon: 
   { kind: 'institution', title: 'מוסדות ומקורות', description: 'כתבי עת, אוניברסיטאות וגופים שמסייעים להעריך אמינות.', icon: BookOpen },
 ];
 
-export default function GlossaryPage() {
+export default async function GlossaryPage() {
+  const glossary = await getPublishedGlossaryEntries();
+
   return (
     <main className="min-h-screen bg-[#f7f5ef] text-slate-950" dir="rtl">
       <section className="border-b border-slate-900 bg-[#e8ff62]">
@@ -37,7 +41,7 @@ export default function GlossaryPage() {
 
       <div className="mx-auto max-w-6xl space-y-16 px-6 py-14 md:px-10 md:py-20">
         {sections.map((section) => {
-          const entries = GLOSSARY.filter((entry) => entry.kind === section.kind);
+          const entries = glossary.filter((entry) => entry.kind === section.kind);
           if (!entries.length) return null;
           const Icon = section.icon;
           return (

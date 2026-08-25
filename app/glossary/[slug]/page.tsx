@@ -1,16 +1,13 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, ExternalLink, Info, Link2 } from 'lucide-react';
-import { GLOSSARY, getGlossaryEntry } from '../data';
+import { getPublishedGlossaryEntries, getPublishedGlossaryEntry } from '@/lib/glossary';
 
-export function generateStaticParams() {
-  return GLOSSARY.map((entry) => ({ slug: entry.slug }));
-}
+export const revalidate = 300;
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const entry = getGlossaryEntry(slug);
+  const entry = await getPublishedGlossaryEntry(slug);
   if (!entry) return {};
   return {
     title: `${entry.name}: מה זה ולמה זה חשוב? | פולס־טק`,
@@ -21,10 +18,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function GlossaryEntryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const entry = getGlossaryEntry(slug);
+  const [entry, glossary] = await Promise.all([
+    getPublishedGlossaryEntry(slug),
+    getPublishedGlossaryEntries(),
+  ]);
   if (!entry) notFound();
 
-  const related = entry.related.map(getGlossaryEntry).filter(Boolean);
+  const glossaryBySlug = new Map(glossary.map((item) => [item.slug, item]));
+  const related = entry.related.map((relatedSlug) => glossaryBySlug.get(relatedSlug)).filter(Boolean);
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'DefinedTerm',
